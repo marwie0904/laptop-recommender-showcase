@@ -1,6 +1,6 @@
 # FITLAP — copy drafts
 
-Drafts to drop into the Claude Design canvas. These are not final.
+Copy to drop into the Claude Design canvas. The "Why I built this" text is final; the `/legal` outline is still a draft.
 
 Sources:
 - Your brief: people keep asking on your lives which laptop fits their budget and use case, and this is a showcase project for the free course at course.marwieang.com.
