@@ -1,4 +1,4 @@
-# FITLAP — backend & app plan (v0.3)
+# FITLAP — backend & app plan (v0.4)
 
 Status: **planning**. Nothing is built yet. This document turns the Claude Design canvas
 ("Laptop Recommender — Directions": Landing, Brief builder, Results, Details, Compare) into a
@@ -25,7 +25,7 @@ backend design, records the decisions made so far, and lists what is still open.
 | SEO | **Landing + FAQ only.** All other routes are client-rendered and `noindex`. |
 | Save button | **Dropped for v1.** |
 | Seller links | **None.** Prices and source names appear as plain text. |
-| Admin auth | **Email + password + an emailed code on every sign-in** (Resend). The code email shows the attempt's **IP, approximate location, device and time**. Allowlisted emails only (§6a). Public users never sign in. |
+| Admin auth | **Port the course site's admin sign-in** (`course-site/convex/adminAuth.ts` + `http.ts`). One admin email, a password hash in an env var, and a 6-digit code emailed via Resend on every sign-in, showing **IP and time (PHT)**. It adds per-IP escalating lockouts and an alert when a new network signs in. **No Convex Auth and no geo-IP service** (§6a). Public users never sign in. |
 | Abuse protection | Public reads go through **one argument-free cached query**. **Per-IP + global rate limits** wrap every mutation, action and HTTP endpoint. **No spending caps for now.** Recommended instead: warning-only usage alerts, which don't shut anything off. A Cloudflare front is deferred until it's needed. |
 | Convex plan | **Starter (pay-as-you-go)**: S16 limits, overage billed (§9). |
 | "Including used" | **Yes.** When it's on, a config qualifies if its used price fits the budget, and "value" scores against that price. |
@@ -101,7 +101,7 @@ Browser (static Next.js on Vercel CDN)
  │    ├─ public queries (read-only, cached, no IP needed)
  │    │    catalog.get()            → published catalog snapshot (all laptops, summary fields)
  │    │    laptops.bySlug({slug})   → full details for Details / Compare
- │    └─ admin functions (signed-in allowlisted admins only)
+ │    └─ admin functions (each call passes the admin session token)
  ├─ lib/scoring (pure TS) → filters + fit % + axes + labels, all client-side
  ├─ mockup archetypes (code-drawn, zero network) → every card, rail, marquee
  ├─ real photo → lazy, Details "Photo" view only (Convex file storage URL)
@@ -109,12 +109,13 @@ Browser (static Next.js on Vercel CDN)
 
 Convex deployment
  ├─ public/      queries only (no public writes in v1)
- ├─ admin/       adminQuery / adminMutation / adminAction wrappers (auth + allowlist + rate limits)
+ ├─ admin/       adminQuery / adminMutation / adminAction wrappers (session token + rate limits)
  ├─ ai/          draftLaptop (Node action: Sonnet 5.5 research → Haiku 5.5 formatting)
  ├─ prices/      price-source adapters (v1: AI draft; v2: Shopee affiliate)
  ├─ crons.ts     cleanup only (expired sign-in codes, old auth events); no scheduled AI runs
  ├─ components   @convex-dev/rate-limiter, @convex-dev/workpool (+ action-cache, optional)
- └─ auth         Convex Auth: password + emailed code (Resend) for admins
+ ├─ http.ts      POST /admin-login (needs the caller's IP, so it's HTTP)
+ └─ adminAuth.ts ported from course-site: challenges, sessions, lockouts, new-network alert
 ```
 
 Why this shape:
@@ -178,10 +179,12 @@ aiDrafts: {
 }
 catalogSnapshots: { version, publishedAt, laptops: SummaryRow[], stats }   // what catalog.get returns
 appConfig: { aiDraftsEnabled, ... }                                         // kill switches
-admins: { email }                                                           // allowlist
-authEvents: { email, outcome /* ok | bad_password | bad_code | rate_limited */,
-              ip, location, userAgent, at }                                 // sign-in audit trail
-// + Convex Auth tables, + component tables (rate limiter, workpool)
+// Admin auth, same tables as course-site (convex/adminAuth.ts):
+adminChallenges: { codeHash, ip, expiresAt }                               // pending 6-digit codes
+adminSessions:   { tokenHash, ip, expiresAt }                              // signed-in browsers
+adminLockouts:   { ip, fails, locks, lockedUntil?, banned? }               // escalating per-IP lockouts
+adminIps:        { ip }                                                    // networks that signed in before
+// + component tables (rate limiter, workpool, resend)
 ```
 
 - **Money** is stored as integer pesos.
@@ -220,7 +223,7 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 **What Convex gives us** (verified against the docs source):
 
 - Deployments sit behind Cloudflare **L3/L4** DDoS mitigation. Per-IP limiting, a WAF and bot management are left to the app ([abuse-protection](https://docs.convex.dev/production/abuse-protection)).
-- `ctx.meta.getRequestMetadata()` returns `{ ip, userAgent, … }` in **mutations, actions and HTTP actions**, but **not queries** (convex ≥ 1.38).
+- **The caller's IP.** In **HTTP actions**, read the `cf-connecting-ip` header. Cloudflare sets it in front of Convex and replaces any client-supplied value; this is what the course site uses. Mutations and actions called over the WebSocket only have `ctx.meta.getRequestMetadata()` (leftmost `X-Forwarded-For`, which may be spoofable). Queries have no IP at all. **So anything that needs a trustworthy per-IP limit goes through an HTTP action.**
 - `@convex-dev/rate-limiter` supports global and keyed limits (token bucket or fixed window), plus sharding for hot keys. `limit()` needs a mutation or action. `check()` also works in queries.
 - **Usage Limits** per deployment (daily or monthly). Past the disable threshold the deployment shuts off for the rest of the window. Paid plans also have team spending limits ([usage-limits](https://docs.convex.dev/production/usage-limits)).
 
@@ -230,12 +233,12 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
    - No `Date.now()` inside them, because that breaks the cache.
    - Payload budget about 150 KB.
    - These can't be rate-limited per IP (queries can't see the IP or write). That's accepted, because they are cache hits.
-2. **Public writes.** None in v1. Any future one (e.g. "report wrong price") must use a `publicMutation` wrapper built with `convex-helpers` `customMutation`. It applies a per-IP limit and a sharded global limit before the handler runs. All public functions live under `convex/public/`, so they're easy to audit.
+2. **Public writes.** None in v1. Any future one (e.g. "report wrong price") goes through an **HTTP action** that reads `cf-connecting-ip` and applies a per-IP limit plus a sharded global limit before doing anything, the same pattern as the course site's `/notify-email`. All public endpoints live in `convex/http.ts` and `convex/public/`, so they're easy to audit.
 3. **Admin functions.** `adminMutation` / `adminAction` wrappers:
-   - require a signed-in, allowlisted admin
+   - require a valid admin session token (`requireAdmin`, as in course-site)
    - apply a per-admin limit and a global limit
    - for AI drafts, add a per-admin and a daily global count limit (abuse guard only, no USD ceiling). Cost is tracked per run in `aiDrafts.usage`.
-4. **Auth.** Email + password + an emailed code on every sign-in (§6a). Failed attempts are rate-limited per IP, per email and globally. A code email goes out only after a correct password, so an attacker can't use the sign-in form to spam your inbox. Non-allowlisted emails are rejected before any email is sent.
+4. **Auth.** The course site's flow (§6a): a per-IP escalating lockout, plus a global cap on code emails. A code email goes out only after a correct password, so an attacker can't use the sign-in form to spam your inbox.
 5. **No spending caps (your decision).** A flood of public reads is therefore unbounded in cost. What limits it: reads are cache hits, every write and action is rate-limited, and drafting can be turned off with the `appConfig` kill switch. Recommended: **warning-only** usage alerts, which email you without disabling anything. A future Cloudflare front would need a custom domain, which is Convex Pro only.
 
 **Proposed starting limits** (to tune after the first week of traffic):
@@ -244,59 +247,46 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 |---|---|---|
 | `ipPublicWrite` (future) | token bucket | 10 / min, capacity 20 |
 | `globalPublicWrite` (future) | token bucket, 10 shards | 2,000 / min |
-| `signInPerIp` | token bucket | 5 / 15 min |
-| `signInPerEmail` | token bucket | 5 / 15 min |
-| `signInGlobal` | fixed window | 50 / hour |
-| `codeEmailPerEmail` | fixed window | 5 / hour |
-| *(built in)* Convex Auth lockout | per account | 10 failed password/code attempts per hour (`maxFailedAttempsPerHour`) |
+| Admin sign-in, per IP | escalating lockout (course-site) | 3 wrong tries → locked 1 min → 1 h → 1 day → 2 days → then banned. A successful sign-in resets the count. |
+| `adminLoginGlobal` | fixed window | 20 code emails / hour (course-site value) |
 | `adminAction` per admin | token bucket | 120 / min |
 | `aiDraftPerAdmin` | token bucket | 20 / hour |
 | `aiDraftGlobal` | fixed window | 100 / day |
 | AI spend | tracked | tracked per run and summed in admin; no ceiling |
 
-### 6a. Admin sign-in (email + password + emailed code)
+### 6a. Admin sign-in: reuse the course site's flow
 
-Source-verified against `@convex-dev/auth` 0.0.96, the latest stable. A 2.0 alpha rewrite exists; re-check this section if it ships.
+`marwie0904/course-site` already runs this in production (`convex/adminAuth.ts`, `convex/http.ts`), so FITLAP ports it rather than building on Convex Auth. FITLAP has no public users, so it needs no auth library at all.
 
-**Don't use the built-in `Password({ verify })`. It isn't 2FA.**
-- Its code is only asked for while the email is unverified; after that the password alone signs in.
-- Worse, its `email-verification` flow sends a fresh code **without checking the password**, so whoever controls the inbox can sign in. `reset-verification` signs the user in too.
-- So the plan uses neither `verify` nor `reset`.
+**The flow (as in course-site):**
+1. **`POST /admin-login`** (HTTP action, so it sees the IP via `cf-connecting-ip`).
+   - Check the IP's lockout and the global email cap.
+   - Compare the email with `ADMIN_EMAIL` and the password with `ADMIN_PASSWORD_HASH` (PBKDF2, made by a `hash-password` script; constant-time compare).
+   - A wrong email or password counts as a failure for that IP.
+2. **Code email.** On a correct password, create a challenge holding the hashed 6-digit code (10-minute expiry) and the IP, and email the code via the Resend component. The email includes:
+   - the code
+   - "From IP **x.x.x.x** at 2026-10-08 21:14 PHT"
+   - "If this wasn't you, someone has your admin password. Change it now."
+3. **`verify` action.** Check the code. A wrong code counts against the IP that entered the password.
+   - On success it creates an `adminSessions` row (only a token hash is stored) and clears that IP's lockout.
+   - **New network alert:** if this IP has never signed in before, it sends a second email: "New admin sign-in from a new network".
+4. **Escalating lockout per IP:** 3 wrong tries, then locked for 1 min → 1 hour → 1 day → 2 days, then banned.
+5. **CLI escape hatches:**
+   - `npx convex run --prod adminAuth:unblock '{"ip":"…"}'`
+   - `npx convex run --prod adminAuth:signOutEverywhere`
 
-**Design: a custom `ConvexCredentials` provider (id `password`) with two flows.**
+**Differences for FITLAP:**
+- **Sender and recipient.** Emails come from `marwie@otomatesystems.com` and go to `ADMIN_EMAIL=marwie0904@gmail.com`.
+- **Where the session token lives.** The course site keeps it in an httpOnly cookie set by its Next.js server (`proxy.ts`). FITLAP is a static site with no server, so the token goes in browser storage and `/admin` pages check `adminAuth.isSignedIn` client-side.
+  - That token is readable by any script on the page.
+  - So: a short session (e.g. 7 days), a strict Content-Security-Policy, and no third-party scripts on `/admin`.
+- **Location.** Same as the course site: **IP and time, no geo-IP service**. Two zero-setup additions:
+  - If Cloudflare passes a `cf-ipcountry` header through to Convex HTTP actions, the email also shows the country. Spike S1 checks this.
+  - A "Look up this IP →" link (ipinfo.io), which runs in your own browser when tapped.
 
-1. **`signIn` (email + password).**
-   - Apply the rate limits (per IP, per email, global).
-   - Check the password with `retrieveAccount(...)`. Convex Auth's own per-account lockout also applies: `maxFailedAttempsPerHour`, default 10.
-   - On success, read `ctx.meta.getRequestMetadata()` for the IP and user agent, look up the location, and send a code through an internal **`AdminOTP`** provider.
-   - Return `null`, so the client shows the code screen.
-2. **`verify` (email + code).**
-   - A code is required; a call without one is rejected, which closes the bypass described above.
-   - Verify through `AdminOTP`, then create the session.
-3. **`AdminOTP`** is `Email({ id: "admin-otp", maxAge: 600, ... })` from `@convex-dev/auth/providers/Email`.
-   - The code is tied to the email address, lasts 10 minutes, and is stored hashed. Only one code is active per account.
-   - It's registered **only** in `extraProviders`, so browsers can't call it directly.
-   - Failed code attempts count toward the same lockout.
-4. **No public sign-up and no email password reset.**
-   - The admin account is created from the CLI with an internal action (`npx convex run admin/setup:createAdmin`) using `createAccount(...)`.
-   - Password changes go through the same CLI route or an authenticated admin page.
-   - Nobody can take over the account through the inbox alone.
-5. **The code email** is sent from `marwie@otomatesystems.com` with the `resend` SDK, called directly inside the send callback so send errors surface at sign-in. (The `@convex-dev/resend` component only queues mail and defaults to `testMode: true`.) It contains:
-   - the code and its expiry
-   - IP address and approximate location (city, region, country)
-   - browser / OS (from the user agent)
-   - time in Asia/Manila
-   - "If this wasn't you, someone has your password — change it now."
-6. **Location lookup:** the **MaxMind GeoLite web service** (city level, HTTPS, free tier about 1,000 lookups a day, attribution line in the email footer).
-   - It has a 2-second timeout. If the lookup fails, the email says "location unavailable"; the sign-in is never blocked by it.
-   - Fallback: IPinfo Lite (country and network only). **Not** ip-api.com, whose free tier sends the IP over plain HTTP.
-7. **Audit.** Every attempt (ok, bad password, bad code, rate-limited) goes into `authEvents` with IP, location and user agent. Admin shows a "Recent sign-ins" list.
+> The code email itself is the real alarm. Getting a code you didn't ask for means someone has your password, whatever IP it shows.
 
-**Why the IP is the real visitor's.** The static site calls Convex's `signIn` action straight from the browser, so the metadata carries the visitor's IP. Convex Auth's Next.js server proxy would show the server's IP instead, which is another reason to stay static.
-
-> ⚠ The IP in that email comes from the same header discussed below, so a skilled attacker could make it show a fake IP. The email still proves that someone **had your password**, which is the real signal: getting a code you didn't ask for means change the password.
-
-> ⚠ **The IP can be spoofed.** Convex derives `ip` from the **leftmost** `X-Forwarded-For` entry. Unless the hosted edge strips client-sent values, a script can probably fake it. **Test this on the first deploy** (`curl -H 'X-Forwarded-For: 1.2.3.4' …/api/mutation` and log the result). Treat per-IP keys as best-effort; the global limits are the real backstop.
+> ⚠ **IP trust.** Use `cf-connecting-ip` in HTTP actions; Cloudflare sets it, and the course site relies on it. Avoid `getRequestMetadata().ip` for limits that matter: it's the **leftmost** `X-Forwarded-For` entry, which a script can probably fake. **Spike S1** confirms both on the FITLAP deployment, and whether `cf-ipcountry` is passed through.
 
 ---
 
@@ -369,7 +359,7 @@ Nothing here runs on a schedule. Every run starts from a button in admin, and yo
 
 - **Convex:** `dev` and `prod` deployments.
 - **Vercel:** the build command is `npx convex deploy --cmd 'npm run build'`, which deploys Convex functions and then builds the static site. `CONVEX_DEPLOY_KEY` goes in the Vercel environment variables.
-- **Convex env vars:** `ANTHROPIC_API_KEY`, Convex Auth secrets (`JWT_PRIVATE_KEY`, `JWKS`), `RESEND_API_KEY`, `AUTH_EMAIL_FROM=marwie@otomatesystems.com`, `MAXMIND_ACCOUNT_ID` + `MAXMIND_LICENSE_KEY`, `ADMIN_EMAILS=marwie0904@gmail.com`, `SITE_URL` (the Vercel domain for now).
+- **Convex env vars:** `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `ADMIN_EMAIL=marwie0904@gmail.com`, `ADMIN_PASSWORD_HASH` (from the `hash-password` script), `SITE_URL` (the Vercel domain for now; also used for CORS on `/admin-login`).
 - **Resend:** verify `otomatesystems.com` in Resend by adding its DKIM/SPF DNS records. Resend sends from a `send.` subdomain by default, so it shouldn't clash with existing mail on the domain. Check that before going live.
 - **Vercel env vars:** `NEXT_PUBLIC_CONVEX_URL` and `CONVEX_DEPLOY_KEY`.
 - **Plan: Starter (pay-as-you-go).** S16 class: 16 concurrent queries, 16 concurrent mutations and 64 concurrent actions. It includes 1M function calls per month, with overage billed (about $2.20 per extra million, per the 2026-10 research). When the concurrency limits are reached, functions queue instead of failing. Pro (S256: 256 / 256 / 512, 25M calls) is only needed for a custom-domain Cloudflare front or much higher traffic ([limits](https://docs.convex.dev/production/state/limits)).
@@ -422,8 +412,8 @@ The frontend mock UI is still being iterated (desktop, then mobile). The phases 
 
 | Phase | Goal | Main deliverables | Exit criteria | Depends on |
 |---|---|---|---|---|
-| **0. Setup & spikes** | Accounts in place; the risky unknowns answered | Setup checklist (§12). **S1** IP-spoof test. **S2** Sonnet research + Haiku formatting on 3 laptops (cost, accuracy, schema reliability). **S3** custom two-step sign-in with Resend + MaxMind. **S4** static export + Convex on Vercel. | A short written result per spike, added to this doc, with a go / adjust decision for each | Your accounts and keys |
-| **1. Backend foundation** | A secure, empty backend you can sign into | Schema v1. `public/` / `admin/` wrappers. Rate limits. Two-step admin sign-in with IP/location email. `authEvents` + "Recent sign-ins". Cleanup crons. `/legal` + static shell deployed on the Vercel domain. | Password + code sign-in works from the deployed site. The email shows IP, location and device. Tests show rate limits rejecting excess calls. | Phase 0 (S1, S3, S4) |
+| **0. Setup & spikes** | Accounts in place; the risky unknowns answered | Setup checklist (§12). **S1** IP check: log the headers an HTTP action receives (`cf-connecting-ip`, `cf-ipcountry`, `x-forwarded-for`) and try faking them. **S2** Sonnet research + Haiku formatting on 3 laptops (cost, accuracy, schema reliability). **S3** port the course-site admin sign-in and run it end to end from the static site, with Resend from `otomatesystems.com`. **S4** static export + Convex on Vercel. | A short written result per spike, added to this doc, with a go / adjust decision for each | Your accounts and keys |
+| **1. Backend foundation** | A secure, empty backend you can sign into | Schema v1. `public/` / `admin/` wrappers. Rate limits. Admin sign-in ported from course-site (code email with IP + time, new-network alert, lockouts). Cleanup crons (expired challenges and sessions). `/legal` + static shell deployed on the Vercel domain. | Password + code sign-in works from the deployed site. The email shows IP and time; a new network triggers the alert. Tests show rate limits rejecting excess calls. | Phase 0 (S1, S3, S4) |
 | **2. Data pipeline & admin** | Laptops go from "model name" to published | Draft request → Sonnet research → Haiku JSON → review diff → approve. Configs + SRP + used estimates. "Re-check prices" (single and batch) and staleness flags. Archetype pick. Press-photo upload (in-browser resize to WebP). Snapshot builder. | ~20 laptops published through the pipeline. Snapshot under 150 KB. A run's cost is visible in admin. | Phase 1. S2 results. |
 | **3. Scoring engine** | Rankings that feel right | `shared/scoring`: filters, use-case weights, fit %, axes, verdicts, compare labels, config switching. Unit tests against hand-made expected rankings. Admin "preview ranking for brief X" page. | Your sample briefs (Coding ≤ ₱60k, Gaming ≤ ₱90k, Student ≤ ₱40k, …) rank the way you'd recommend on a live | Phase 2 data (can start in parallel with seed data) |
 | **4. Public app** | Every screen wired to live data | Port Landing, Brief, Results, Details, Compare (desktop + mobile) and the 10–20 mockup archetypes. Config switcher. Brief in the URL. Photo view. Empty / loading / busy states. | All screens work on phone and desktop against the live snapshot. Nothing loads a photo until the Photo view is opened. | **Design freeze** for desktop + mobile. Phases 2–3. |
@@ -443,7 +433,7 @@ Resolved on 2026-10-08:
 - Save dropped
 - Shopee pipeline parked
 - no spending caps
-- two-step admin sign-in with IP/location email
+- admin sign-in = course-site flow (IP + time; no geo-IP service, no Convex Auth)
 - photos from press kits
 - "Including used" counts for budget and value
 - Convex Starter
@@ -475,4 +465,4 @@ Still open:
 - [ ] Vercel project linked to this repo (build command in §9)
 - [ ] Anthropic API key
 - [ ] Resend account, and its DNS records on `otomatesystems.com`
-- [ ] MaxMind GeoLite account and license key
+- [ ] Admin password hash generated with the `hash-password` script (ported from course-site)
