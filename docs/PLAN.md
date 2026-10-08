@@ -15,13 +15,17 @@ backend design, records the decisions made so far, and lists what is still open.
 | Market | **Philippines, PHP** at launch. |
 | Catalog size | **~50–200 curated laptops**. |
 | Where scoring runs | **In the browser.** The client loads the published catalog once from one shared, cached Convex query and computes fit locally. The live "N laptops fit" preview therefore costs zero backend calls per click. |
+| Result unit | **One card per model.** Each card has a config switcher (CPU / RAM / storage); price and fit update instantly, client-side. The default is the cheapest config that passes the filters. |
+| Filters | Budget, RAM min, storage min and **form chips are all hard filters**. Form chips use **AND**: every selected chip must match. |
+| Budget | **₱30k → ₱175k in ₱5k steps.** The top step means **₱175k+ (no cap)**. |
 | Spec & editorial data | **AI-drafted, admin-approved.** Claude (with web search plus URLs you paste) drafts specs, battery estimates per use case, build scores, notes, and PH prices, citing sources. You approve each draft before it's published. |
-| Prices | **Hybrid.** v1 uses AI-drafted prices that you approve. Apply for the Shopee Affiliate Open API now. Once approved, an automated daily used-price pipeline plugs into the same price-source adapter. |
+| Prices | **AI-assisted, admin-approved** (a weekly re-check). The **Shopee pipeline is parked**: no Shopee or affiliate links for now, so the affiliate API probably isn't available (§8). |
+| Laptop visuals | **10–20 code-drawn mockup archetypes** (MacBook Air/Pro, gaming 16", ultrabook 14", 2-in-1, …) used everywhere. A **real photo** (official press kit) loads **only when needed** (§7a). |
 | SEO | **Landing + FAQ only.** All other routes are client-rendered and `noindex`. |
-| Save button | **Browser-only** (`localStorage`). No backend state. |
+| Save button | **Dropped for v1.** |
 | Seller links | **None.** Prices and source names appear as plain text. |
-| Admin auth | **Convex Auth** with an email allowlist. Public users never sign in. |
-| Abuse protection | Public reads go through **one argument-free cached query**. **Per-IP + global rate limits** wrap every mutation, action and HTTP endpoint. **Convex Usage Limits** act as the hard spending ceiling. A Cloudflare front is deferred until it's needed. |
+| Admin auth | **Email + password + an emailed code on every sign-in** (Resend). The code email shows the attempt's **IP, approximate location, device and time**. Allowlisted emails only (§6a). Public users never sign in. |
+| Abuse protection | Public reads go through **one argument-free cached query**. **Per-IP + global rate limits** wrap every mutation, action and HTTP endpoint. **No spending caps for now.** Recommended instead: warning-only usage alerts, which don't shut anything off. A Cloudflare front is deferred until it's needed. |
 
 ---
 
@@ -67,9 +71,12 @@ backend design, records the decisions made so far, and lists what is still open.
 - Auto labels: Best all-rounder, Lightest, Best value, Cheapest new, Most GPU power, Longest battery.
 
 **Implied but not drawn.**
-- An admin area (draft → review → publish).
-- A place to see saved laptops (see open questions).
+- An admin area (sign-in with emailed code → draft → review → publish).
+- A config switcher on result cards, Details and Compare (CPU / RAM / storage), with prices updating live.
+- 10–20 laptop mockup archetypes, which replace the single generic laptop drawing.
+- A "Photo" view on Details for the real image.
 - Error / empty / rate-limited states.
+- **Removed:** the Save button on Details (dropped for v1).
 
 ---
 
@@ -83,7 +90,9 @@ Browser (static Next.js on Vercel CDN)
  │    │    laptops.bySlug({slug})   → full details for Details / Compare
  │    └─ admin functions (signed-in allowlisted admins only)
  ├─ lib/scoring (pure TS) → filters + fit % + axes + labels, all client-side
- └─ localStorage → saved laptops, last brief
+ ├─ mockup archetypes (code-drawn, zero network) → every card, rail, marquee
+ ├─ real photo → lazy, Details "Photo" view only (Convex file storage URL)
+ └─ localStorage → last brief
 
 Convex deployment
  ├─ public/      queries only (no public writes in v1)
@@ -92,7 +101,7 @@ Convex deployment
  ├─ prices/      price-source adapters (v1: AI draft; v2: Shopee affiliate)
  ├─ crons.ts     weekly price re-check, 30-day aggregates (v2), cleanup
  ├─ components   @convex-dev/rate-limiter, @convex-dev/workpool (+ action-cache, optional)
- └─ auth         Convex Auth (OAuth provider for admins)
+ └─ auth         Convex Auth: password + emailed code (Resend) for admins
 ```
 
 Why this shape:
@@ -133,6 +142,8 @@ laptops: {
   build: { overall, materials, rigidity, hinge, keyboard, trackpad, thermals,
            notes: {...}, chassis, repairability, warrantyYears },
   specNotes: {...}, summary, weakness,
+  visual: { archetype /* "macbook-air" | "gaming-16" | ... */, accent?, tweaks? },  // drives the mockup
+  photo?: { storageId, storageIdSmall, width, height, credit, sourceUrl, license, uploadedAt },
   sources: [{ field, url, title, seenAt }],        // from the AI draft, kept for audit
   approvedBy, approvedAt,
 }
@@ -151,8 +162,10 @@ aiDrafts: {
   output, sources, usage: { inputTokens, outputTokens, searches, costUsd }, error, createdBy,
 }
 catalogSnapshots: { version, publishedAt, laptops: SummaryRow[], stats }   // what catalog.get returns
-appConfig: { aiDraftsEnabled, monthlyAiBudgetUsd, ... }                     // kill switches
+appConfig: { aiDraftsEnabled, ... }                                         // kill switches
 admins: { email }                                                           // allowlist
+authEvents: { email, outcome /* ok | bad_password | bad_code | rate_limited */,
+              ip, location, userAgent, at }                                 // sign-in audit trail
 // + Convex Auth tables, + component tables (rate limiter, workpool)
 ```
 
@@ -163,13 +176,17 @@ admins: { email }                                                           // a
 
 ## 5. Fit scoring (client-side, shared module)
 
-1. **Hard filters**, which are what "N laptops fit" counts. Each check is per config:
+1. **Hard filters**, which are what "N laptops fit" counts. A **model** passes if **at least one of its configs** passes all of these:
    - `ramGb ≥ min`
    - `storageGb ≥ min`
-   - price ≤ budget, where price = new price, or `min(new, used)` when "Including used" is on.
-2. **Use-case weights over normalized spec dimensions.** Dimensions are CPU, GPU, RAM, display, battery, portability, value and keyboard/build. Each is a 0–1 percentile within the catalog. Each use case has a weight vector. For example, Coding weights CPU, RAM, battery, keyboard and portability; Gaming weights GPU, display and thermals. Selected use cases are averaged.
-3. **Form chips add or remove points** ("Your filters add or remove points", from the FAQ copy). They don't filter. *(Open question #2.)*
-4. **Fit %** is the weighted score plus form adjustments, clamped to 0–100.
+   - every selected form chip matches the model (AND)
+   - price ≤ budget, where price = new price, or `min(new, used)` when "Including used" is on. At ₱175k+ there's no price filter.
+2. **One card per model.** The card opens on the **cheapest passing config**.
+   - The config switcher offers CPU / RAM / storage choices that map to real SKUs. Combinations that don't exist are disabled.
+   - Switching recalculates price, fit and axes instantly in the browser.
+   - Configs that fail the brief stay selectable, but are marked "outside your brief".
+3. **Use-case weights over normalized spec dimensions.** Dimensions are CPU, GPU, RAM, display, battery, portability, value and keyboard/build. Each is a 0–1 percentile within the catalog. Each use case has a weight vector. For example, Coding weights CPU, RAM, battery, keyboard and portability; Gaming weights GPU, display and thermals. Selected use cases are averaged.
+4. **Fit %** is the weighted score for the chosen config, clamped to 0–100.
    - **Verdict:** strong fit / great value / good fit / okay fit / heavy GPU.
    - **Axes:** Results uses fixed axes (Performance / Portability / Battery / Value). Compare derives its axes from the brief.
 5. **Derived UI bits:**
@@ -202,8 +219,8 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
    - require a signed-in, allowlisted admin
    - apply a per-admin limit and a global limit
    - for AI drafts, add a daily global cap and a monthly USD budget tracked in `aiDrafts.usage`
-4. **Auth.** OAuth-only sign-in for admins (no email codes), so there's nothing to spam. Non-allowlisted users are rejected.
-5. **Hard ceiling.** Usage Limits on function calls, DB I/O, action compute and egress, plus an `appConfig` kill switch for AI drafting. Under a flood this gives downtime instead of a big bill. A future Cloudflare front would need a custom domain, which is Convex Pro only.
+4. **Auth.** Email + password + an emailed code on every sign-in (§6a). Failed attempts are rate-limited per IP, per email and globally. A code email goes out only after a correct password, so an attacker can't use the sign-in form to spam your inbox. Non-allowlisted emails are rejected before any email is sent.
+5. **No spending caps (your decision).** A flood of public reads is therefore unbounded in cost. What limits it: reads are cache hits, every write and action is rate-limited, and drafting can be turned off with the `appConfig` kill switch. Recommended: **warning-only** usage alerts, which email you without disabling anything. A future Cloudflare front would need a custom domain, which is Convex Pro only.
 
 **Proposed starting limits** (to tune after the first week of traffic):
 
@@ -211,10 +228,31 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 |---|---|---|
 | `ipPublicWrite` (future) | token bucket | 10 / min, capacity 20 |
 | `globalPublicWrite` (future) | token bucket, 10 shards | 2,000 / min |
+| `signInPerIp` | token bucket | 5 / 15 min |
+| `signInPerEmail` | token bucket | 5 / 15 min |
+| `signInGlobal` | fixed window | 50 / hour |
+| `codeEmailPerEmail` | fixed window | 5 / hour |
 | `adminAction` per admin | token bucket | 120 / min |
 | `aiDraftPerAdmin` | token bucket | 20 / hour |
 | `aiDraftGlobal` | fixed window | 100 / day |
-| AI spend | tracked | hard stop at `monthlyAiBudgetUsd` |
+| AI spend | tracked | tracked per draft; a ceiling is still open (§12) |
+
+### 6a. Admin sign-in (email + password + emailed code)
+
+*Draft. Implementation details get confirmed in spike S3.*
+
+1. **Password step.** The admin enters email + password. Non-allowlisted emails are rejected, and failures are rate-limited per IP, per email and globally.
+2. **Code step.** After a correct password, the server generates a short-lived one-time code (6 digits, about 10 minutes) and sends it via **Resend**. **This happens on every sign-in, not just at sign-up.**
+3. **The email includes:**
+   - IP address
+   - approximate location (city, region, country, from a geo-IP lookup)
+   - device / browser (user agent)
+   - time (Asia/Manila)
+   - a line: "If this wasn't you, change your password."
+4. **Session.** Only a correct code completes sign-in. Code attempts are limited (e.g. 5 per code), then the code is invalidated.
+5. **Audit.** Every attempt (ok, bad password, bad code, rate-limited) is written to an `authEvents` table with IP, location and user agent, viewable in admin.
+
+> ⚠ The IP in that email comes from the same header discussed below, so a skilled attacker could make it show a fake IP. The email still proves that someone **had your password**, which is the real signal: getting a code you didn't ask for means change the password.
 
 > ⚠ **The IP can be spoofed.** Convex derives `ip` from the **leftmost** `X-Forwarded-For` entry. Unless the hosted edge strips client-sent values, a script can probably fake it. **Test this on the first deploy** (`curl -H 'X-Forwarded-For: 1.2.3.4' …/api/mutation` and log the result). Treat per-IP keys as best-effort; the global limits are the real backstop.
 
@@ -244,9 +282,19 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 
 ---
 
-## 8. Price pipeline v2 (Shopee Affiliate Open API, after approval)
+### 7a. Laptop visuals: mockup archetypes + real photos
 
-- **Apply now.** Requirements: PH-based, a recent social post, and roughly 30 business days of review ([Shopee PH help](https://help.shopee.ph/portal/10/article/127438)).
+- **Mockups everywhere by default.** 10–20 archetypes drawn in code (like the current design's laptop), picked per laptop via `visual.archetype` (the AI drafter suggests one; you confirm). They cost **zero network requests**, so rails, the marquee, cards, Compare and the Results hero all use them.
+- **Real photo only when needed.** It loads in exactly two cases: the Details **"Photo"** view, or when the user explicitly opens it. Never in lists. Loading is lazy (`loading="lazy"` plus fetching only after the tab is opened), and the URL comes from `laptops.bySlug`, so the catalog snapshot carries no image data.
+- **Small files.** In admin, the browser resizes the press-kit image before upload into a ~480 px and a ~1200 px WebP, so the server does no resizing. Both go into **Convex file storage**. The Details view uses `srcset`, so phones get the small one.
+- **Rights.** Official press/media-kit images only. Each photo stores `credit`, `sourceUrl` and `license`, and the UI shows "Image: {Brand} press kit".
+- *To confirm in research:* the cache headers on Convex storage URLs and how file serving is billed (§7a gets updated after that).
+
+## 8. Price pipeline v2 (Shopee Affiliate Open API) — **PARKED**
+
+> Parked because there are no Shopee or affiliate links for now. The only legal programmatic used-price source found is Shopee's **affiliate** API, which needs affiliate membership. Revisit if affiliate links become acceptable. Prices stay AI-assisted and admin-approved (§7) until then. Keep the `PriceSource` adapter in the code so v2 can plug in later. The notes below are kept for when it's picked up.
+
+- **To apply:** PH-based, a recent social post, and roughly 30 business days of review ([Shopee PH help](https://help.shopee.ph/portal/10/article/127438)).
 - **Adapter interface.** `PriceSource.fetchOffers(config) → Offer[]`, with `{ source, title, pricePhp, condition, isMall, url, seenAt }`. v1's "AI draft" source implements the same interface.
 - **Daily cron.** It enqueues each config on a workpool, which:
   1. calls GraphQL `productOfferV2` with the config's search terms
@@ -267,7 +315,7 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 
 - **Convex:** `dev` and `prod` deployments.
 - **Vercel:** the build command is `npx convex deploy --cmd 'npm run build'`, which deploys Convex functions and then builds the static site. `CONVEX_DEPLOY_KEY` goes in the Vercel environment variables.
-- **Convex env vars:** `ANTHROPIC_API_KEY`, Convex Auth / OAuth secrets, `ADMIN_EMAILS`, `SITE_URL`, and later `SHOPEE_AFFILIATE_APP_ID` and `SHOPEE_AFFILIATE_SECRET`.
+- **Convex env vars:** `ANTHROPIC_API_KEY`, Convex Auth secrets (`JWT_PRIVATE_KEY`, `JWKS`), `RESEND_API_KEY`, `AUTH_EMAIL_FROM`, the geo-IP API token, `ADMIN_EMAILS`, `SITE_URL`.
 - **Vercel env vars:** `NEXT_PUBLIC_CONVEX_URL` and `CONVEX_DEPLOY_KEY`.
 - **Plan limits to remember.** Free/Starter (S16) allows 16 concurrent queries, 16 concurrent mutations and 64 concurrent actions, plus 1M function calls per month. Free amounts are hard caps; Starter bills overage. Pro (S256) allows 256 / 256 / 512 and 25M calls per month, and is required for custom domains ([limits](https://docs.convex.dev/production/state/limits)).
 
@@ -295,14 +343,18 @@ docs/PLAN.md
 
 These need to go back into the Claude Design canvas:
 
-- **Currency.** `$` → `₱` everywhere, and the budget steps need PHP values (open question #3).
-- **Landing badge.** "Used prices updated daily" → "Prices reviewed weekly" until v2 ships.
-- **Landing stats.** "[N] used listings checked daily / marketplaces covered" → "[N] laptops tracked · [N] sources cited", for v1.
-- **Results used card.** "38 listings · 30 days / Market: Marketplace" → "Used estimate · {sources} · {date}" for v1.
-- **FAQ "Where do used prices come from?"** Rewrite it for the v1 method.
+- **Currency and budget.** `$` → `₱` everywhere. The budget stepper becomes ₱30k → ₱175k+ in ₱5k steps (30 stops), so a slider plus the −/+ buttons probably works better than −/+ alone.
+- **Landing badge.** "Used prices updated daily" → "Prices reviewed weekly".
+- **Landing stats.** "[N] used listings checked daily / marketplaces covered" → "[N] laptops tracked · [N] sources cited".
+- **Results used card.** "38 listings · 30 days / Market: Marketplace" → "Used estimate · {sources} · {date}".
+- **FAQ "Where do used prices come from?"** Rewrite it for the AI-assisted, reviewed method.
+- **FAQ "How is fit scored?"** → "Your use cases weight the specs. Your filters decide what makes the list." The old "add or remove points" wording no longer matches.
 - **FAQ "Do you earn from links?"** → "No — we don't link to sellers."
-- **Save.** It works, but there's no screen listing saved laptops yet (open question #4).
-- **Missing states.** Empty results ("No laptops fit — loosen RAM or budget"), loading skeletons, and "service busy" (when usage limits disable the deployment).
+- **Save button.** Remove it from Details.
+- **Config switcher.** New UI on result cards, Details and Compare (CPU / RAM / storage chips), with unavailable combinations disabled and an "outside your brief" marker.
+- **Mockup archetypes.** Design the 10–20 archetypes in Claude Design: MacBook Air, MacBook Pro 14/16, gaming 15/16/17, thin ultrabook 13/14, business (ThinkPad-style), 2-in-1 convertible, detachable, creator OLED 16, budget 15.6, Chromebook, plus outliers. Each needs a front view (and side and keyboard where the Details views use them).
+- **Photo view.** A "Photo" tab on Details next to Front / Side / Ports / Keyboard, with a credit line ("Image: {Brand} press kit").
+- **Missing states.** Empty results ("No laptops fit — loosen RAM, budget or form"), loading skeletons, and "service busy".
 
 ---
 
@@ -310,25 +362,32 @@ These need to go back into the Claude Design canvas:
 
 | # | Milestone | Contents |
 |---|---|---|
-| S | Spikes (de-risk first) | **S1:** IP spoof test on Convex. **S2:** AI draft quality and cost on 3 PH laptops. **S3:** Shopee affiliate application plus terms check. **S4:** static export + Convex client running on Vercel. |
-| 1 | Foundation | Next static export, Convex schema, Convex Auth admin allowlist, function wrappers + rate limits, Usage Limits configured. |
-| 2 | Catalog & admin | AI draft → review → publish, catalog snapshot, seed the first ~20 laptops. |
-| 3 | Public app | Port the 5 artboards, wire them to the snapshot and `shared/scoring`, brief in the URL, `localStorage` saves. |
+| S | Spikes (de-risk first) | **S1:** IP spoof test on Convex, which also decides how far to trust the IP in sign-in emails. **S2:** AI draft quality and cost on 3 PH laptops. **S3:** password + emailed code on every sign-in, end to end with Resend and the IP/location lookup. **S4:** static export + Convex client running on Vercel. |
+| 1 | Foundation | Next static export, Convex schema, admin auth (§6a), function wrappers + rate limits, warning-only usage alerts. |
+| 2 | Catalog & admin | AI draft → review → publish, photo upload (§7a), catalog snapshot, seed the first ~20 laptops. |
+| 3 | Public app | Port the 5 artboards plus the mockup archetypes, wire them to the snapshot and `shared/scoring`, config switcher, brief in the URL. |
 | 4 | Launch hardening | SEO (meta, OG, FAQ JSON-LD, sitemap/robots), PHP formatting, a11y pass, error/empty/busy states, copy updates. |
-| 5 | Prices v2 | Shopee pipeline, 30-day aggregates, "updated daily" copy restored. |
+| — | Prices v2 (parked) | Shopee pipeline. Only if affiliate links become acceptable. |
 
 ---
 
 ## 12. Open questions
 
-1. **Ranking unit.** One result per model (the cheapest config that meets the brief) or every config as its own result? *Proposed default: one per model, with the config shown on the card.*
-2. **Form chips.** Hard filters or bonus points? *Proposed default: points, matching the FAQ copy.*
-3. **PHP budget steps.** *Proposed:* ₱30k · ₱45k · ₱60k · ₱80k · ₱100k · ₱130k · ₱170k+, with the minimum fixed at ₱20k.
-4. **Saved laptops.** Where do they appear? A "Saved" icon in the results nav, or a section on the brief page?
-5. **"Including used".** Does a laptop qualify when its used price ≤ budget, and does the ranking then use the used price for "value"?
-6. **Shopee affiliate vs "no links".** If membership requires promoting affiliate links, do we (a) add affiliate links later, or (b) skip Shopee and stay on AI-assisted prices?
-7. **Admin OAuth provider.** GitHub or Google?
-8. **Convex plan and caps.** Start on Free/Starter (S16 limits, hard caps on Free) or Pro? What daily and monthly Usage Limits, and what monthly AI budget?
-9. **Drafting model.** The default is `claude-opus-5-5`. Switch to `claude-sonnet-5-5` if spike S2 shows cost matters more than draft quality? (Your call.)
-10. **Analytics.** Any? (No backend events are planned; if wanted, a privacy-friendly client-side tool.)
-11. **Domain** name.
+Resolved on 2026-10-08:
+- one card per model with a config switcher
+- form chips are AND filters
+- budget ₱30k → ₱175k+ in ₱5k steps
+- Save dropped
+- no Shopee links, so the Shopee pipeline is parked
+- no spending caps
+- admin uses email + password + an emailed code with IP/location
+- photos come from official press kits
+
+Still open:
+
+1. **"Including used".** Does a laptop qualify when its used price ≤ budget, and does the ranking then use the used price for "value"?
+2. **Convex plan.** Free (whose quotas are themselves hard caps, so they conflict with "no spending caps"), Starter (pay-as-you-go), or Pro? Also: should warning-only usage alerts be set, and at what levels?
+3. **Monthly AI drafting budget.** Is there any ceiling on Claude spend, or only the per-day draft count limit?
+4. **Drafting model.** The default is `claude-opus-5-5`. Switch to `claude-sonnet-5-5` if spike S2 shows cost matters more than draft quality? (Your call.)
+5. **Analytics.** Any? (No backend events are planned; if wanted, a privacy-friendly client-side tool.)
+6. **Domain** name, which is also needed to verify the Resend sending domain.
