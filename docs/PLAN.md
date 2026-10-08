@@ -1,4 +1,4 @@
-# FITLAP — backend & app plan (v0.2)
+# FITLAP — backend & app plan (v0.3)
 
 Status: **planning**. Nothing is built yet. This document turns the Claude Design canvas
 ("Laptop Recommender — Directions": Landing, Brief builder, Results, Details, Compare) into a
@@ -30,7 +30,15 @@ backend design, records the decisions made so far, and lists what is still open.
 | Convex plan | **Starter (pay-as-you-go)**: S16 limits, overage billed (§9). |
 | "Including used" | **Yes.** When it's on, a config qualifies if its used price fits the budget, and "value" scores against that price. |
 | Email sender | `marwie@otomatesystems.com` via Resend. `otomatesystems.com` must be verified in Resend. |
-| Analytics | **None.** |
+| Analytics / error monitoring | **None** for now. |
+| New price | **Official SRP** from the brand (PH). The UI shows "SRP · {Brand} PH". If the AI finds no official PH SRP, the field is left empty for you to fill in at review. **Grey-market / imported units are excluded.** |
+| Catalog scope | Current models **plus discontinued models that are popular used** (M1/M2 MacBook Air, older ThinkPads, …). Those are flagged `usedOnly` and appear only when "Including used" is on. |
+| Admin | **One admin: `marwie0904@gmail.com`.** It receives the sign-in codes, which are sent from `marwie@otomatesystems.com`. |
+| Language | **English** for now. |
+| Convex region | **US East (`aws-us-east-1`)**, standard pricing. The only Asia-Pacific option is Sydney (`aws-ap-southeast-2`, +30%). **A deployment's region can't be changed after it's created**, so confirm before creating prod. |
+| Domain | The **Vercel-provided domain** for now. A custom domain comes later. |
+| Mobile | Mobile layouts will be designed in the Claude Design canvas (work in progress). |
+| Legal | A simple **/legal** page (outline in `docs/COPY.md`). |
 
 ---
 
@@ -125,6 +133,7 @@ Why this shape:
 | `/laptop?slug=…&cfg=…` | Client | Query params instead of `/laptop/[slug]`, because static export can't serve unknown dynamic routes without a rebuild. |
 | `/compare?ids=a,b,c` | Client | |
 | `/admin/*` | Client | `noindex`, auth-gated. |
+| `/legal` | Pre-rendered at build | Privacy note, price disclaimer, image credits, trademarks. |
 | `robots.txt`, `sitemap.xml` | Static | Sitemap lists `/` (and `/faq` if split out). |
 
 Build-time data, if the landing ever needs it, comes from `ConvexHttpClient` directly. Don't use `fetchQuery`/`preloadQuery`: they force `no-store`, which prevents static rendering ([docs](https://docs.convex.dev/client/nextjs/app-router/server-rendering)). No rebuild is needed when prices change, because the landing data hydrates client-side.
@@ -153,12 +162,13 @@ laptops: {
   approvedBy, approvedAt,
 }
 configs: {                                         // one laptop → many configs
-  laptopId, code /* "MBP14-M" */, cpuVariant, ramGb, storageGb, color, label /* "16 · 512" */,
-  price: { newPhp, newSource, newSeenAt,
+  laptopId, code /* "MBP14-M" */, cpuVariant, gpuVariant?, ramGb, storageGb, color, label /* "16 · 512" */,
+  usedOnly: boolean,                               // discontinued; no SRP, only shown with "Including used"
+  price: { srpPhp?, srpSource /* "Apple PH" */, srpSeenAt,
            usedPhp, usedKind /* "estimate" | "avg30d" */, usedCount, usedSource, usedSeenAt },
 }
 priceObservations: {                               // append-only history, feeds the aggregates
-  configId, kind: "new" | "used", source /* "ai_draft" | "admin" | "shopee" */,
+  configId, kind: "srp" | "used", source /* "ai_draft" | "admin" | "shopee" */,
   sourceName, amountPhp, condition, url /* stored, never shown */, observedAt, approvedBy?,
 }
 aiDrafts: {
@@ -185,8 +195,8 @@ authEvents: { email, outcome /* ok | bad_password | bad_code | rate_limited */,
    - `ramGb ≥ min`
    - `storageGb ≥ min`
    - every selected form chip matches the model (AND)
-   - price ≤ budget, where price = new price, or `min(new, used)` when "Including used" is on. At ₱175k+ there's no price filter.
-   - The same price (new, or `min(new, used)` with used on) is the one the **value** dimension scores. The card says which one it used ("Used est. ₱62k").
+   - price ≤ budget, where price = SRP, or `min(SRP, used)` when "Including used" is on. Used-only configs have no SRP and only qualify on their used price. At ₱175k+ there's no price filter.
+   - The same price (SRP, or `min(SRP, used)` with used on) is the one the **value** dimension scores. The card says which one it used ("Used est. ₱62k").
 2. **One card per model.** The card opens on the **cheapest passing config**, using the same price rule.
    - The config switcher offers CPU / RAM / storage choices that map to real SKUs. Combinations that don't exist are disabled.
    - Switching recalculates price, fit and axes instantly in the browser.
@@ -301,7 +311,7 @@ Nothing here runs on a schedule. Every run starts from a button in admin, and yo
      - Adaptive thinking, effort `high`.
      - Server-side refusal fallback `fallbacks: "default"` (Claude API only).
      - Tools: `web_search_20260209` (with `user_location` set to the Philippines) and `web_fetch_20260209` for the pasted URLs.
-     - Output: research notes in prose, with a source URL next to every fact. These include specs, editorial observations, PH SRP from brand stores and retailers, and used-price evidence.
+     - Output: research notes in prose, with a source URL next to every fact. These include specs, editorial observations, the **official PH SRP** (brand store, price list or launch press release; grey-market prices excluded), and used-price evidence.
    - **Formatting: `claude-haiku-5-5`.**
      - No tools; low effort.
      - Turns the research notes into the draft JSON through structured outputs (`output_config.format`), where every field carries `sources[]` copied from the notes.
@@ -359,7 +369,7 @@ Nothing here runs on a schedule. Every run starts from a button in admin, and yo
 
 - **Convex:** `dev` and `prod` deployments.
 - **Vercel:** the build command is `npx convex deploy --cmd 'npm run build'`, which deploys Convex functions and then builds the static site. `CONVEX_DEPLOY_KEY` goes in the Vercel environment variables.
-- **Convex env vars:** `ANTHROPIC_API_KEY`, Convex Auth secrets (`JWT_PRIVATE_KEY`, `JWKS`), `RESEND_API_KEY`, `AUTH_EMAIL_FROM=marwie@otomatesystems.com`, `MAXMIND_ACCOUNT_ID` + `MAXMIND_LICENSE_KEY`, `ADMIN_EMAILS`, `SITE_URL`.
+- **Convex env vars:** `ANTHROPIC_API_KEY`, Convex Auth secrets (`JWT_PRIVATE_KEY`, `JWKS`), `RESEND_API_KEY`, `AUTH_EMAIL_FROM=marwie@otomatesystems.com`, `MAXMIND_ACCOUNT_ID` + `MAXMIND_LICENSE_KEY`, `ADMIN_EMAILS=marwie0904@gmail.com`, `SITE_URL` (the Vercel domain for now).
 - **Resend:** verify `otomatesystems.com` in Resend by adding its DKIM/SPF DNS records. Resend sends from a `send.` subdomain by default, so it shouldn't clash with existing mail on the domain. Check that before going live.
 - **Vercel env vars:** `NEXT_PUBLIC_CONVEX_URL` and `CONVEX_DEPLOY_KEY`.
 - **Plan: Starter (pay-as-you-go).** S16 class: 16 concurrent queries, 16 concurrent mutations and 64 concurrent actions. It includes 1M function calls per month, with overage billed (about $2.20 per extra million, per the 2026-10 research). When the concurrency limits are reached, functions queue instead of failing. Pro (S256: 256 / 256 / 512, 25M calls) is only needed for a custom-domain Cloudflare front or much higher traffic ([limits](https://docs.convex.dev/production/state/limits)).
@@ -390,6 +400,9 @@ These need to go back into the Claude Design canvas:
 
 - **Currency and budget.** `$` → `₱` everywhere. The budget stepper becomes ₱30k → ₱175k+ in ₱5k steps (30 stops), so a slider plus the −/+ buttons probably works better than −/+ alone.
 - **Landing badge.** "Used prices updated daily" → "Prices hand-checked · updated {latest date}". Each laptop also shows "Price checked {date}".
+- **Price labels.** "New" / "Brand new" → "SRP", and the retailer field becomes "SRP · {Brand} PH". Used-only models show "Used only" instead of an SRP. The Compare label "Cheapest new" → "Lowest SRP".
+- **"Why I built it."** New copy, plus a CTA to the free course. Options are in `docs/COPY.md`. The TikTok placeholder becomes [@marwie_ang](https://www.tiktok.com/@marwie_ang).
+- **Legal.** Footer link to `/legal`.
 - **Landing stats.** "[N] used listings checked daily / marketplaces covered" → "[N] laptops tracked · [N] sources cited".
 - **Results used card.** "38 listings · 30 days / Market: Marketplace" → "Used estimate · {sources} · {date}".
 - **FAQ "Where do used prices come from?"** Rewrite it for the AI-assisted, reviewed method.
@@ -403,16 +416,21 @@ These need to go back into the Claude Design canvas:
 
 ---
 
-## 11. Milestones
+## 11. Roadmap & phases
 
-| # | Milestone | Contents |
-|---|---|---|
-| S | Spikes (de-risk first) | **S1:** IP spoof test on Convex, which also decides how far to trust the IP in sign-in emails. **S2:** AI draft quality and cost on 3 PH laptops. **S3:** the custom two-step sign-in (§6a) end to end, with Resend from `otomatesystems.com` and the MaxMind lookup. Also confirm `ctx.meta` is reachable in the provider. **S4:** static export + Convex client running on Vercel. |
-| 1 | Foundation | Next static export, Convex schema, admin auth (§6a), function wrappers + rate limits, warning-only usage alerts. |
-| 2 | Catalog & admin | AI draft → review → publish, photo upload (§7a), catalog snapshot, seed the first ~20 laptops. |
-| 3 | Public app | Port the 5 artboards plus the mockup archetypes, wire them to the snapshot and `shared/scoring`, config switcher, brief in the URL. |
-| 4 | Launch hardening | SEO (meta, OG, FAQ JSON-LD, sitemap/robots), PHP formatting, a11y pass, error/empty/busy states, copy updates. |
-| — | Prices v2 (parked) | Shopee pipeline. Only if affiliate links become acceptable. |
+The frontend mock UI is still being iterated (desktop, then mobile). The phases are ordered so that **everything independent of the final visuals ships first**, and the public UI waits for the design to settle. When the design adds or removes a field, only the draft schema and the snapshot shape change: both are versioned.
+
+| Phase | Goal | Main deliverables | Exit criteria | Depends on |
+|---|---|---|---|---|
+| **0. Setup & spikes** | Accounts in place; the risky unknowns answered | Setup checklist (§12). **S1** IP-spoof test. **S2** Sonnet research + Haiku formatting on 3 laptops (cost, accuracy, schema reliability). **S3** custom two-step sign-in with Resend + MaxMind. **S4** static export + Convex on Vercel. | A short written result per spike, added to this doc, with a go / adjust decision for each | Your accounts and keys |
+| **1. Backend foundation** | A secure, empty backend you can sign into | Schema v1. `public/` / `admin/` wrappers. Rate limits. Two-step admin sign-in with IP/location email. `authEvents` + "Recent sign-ins". Cleanup crons. `/legal` + static shell deployed on the Vercel domain. | Password + code sign-in works from the deployed site. The email shows IP, location and device. Tests show rate limits rejecting excess calls. | Phase 0 (S1, S3, S4) |
+| **2. Data pipeline & admin** | Laptops go from "model name" to published | Draft request → Sonnet research → Haiku JSON → review diff → approve. Configs + SRP + used estimates. "Re-check prices" (single and batch) and staleness flags. Archetype pick. Press-photo upload (in-browser resize to WebP). Snapshot builder. | ~20 laptops published through the pipeline. Snapshot under 150 KB. A run's cost is visible in admin. | Phase 1. S2 results. |
+| **3. Scoring engine** | Rankings that feel right | `shared/scoring`: filters, use-case weights, fit %, axes, verdicts, compare labels, config switching. Unit tests against hand-made expected rankings. Admin "preview ranking for brief X" page. | Your sample briefs (Coding ≤ ₱60k, Gaming ≤ ₱90k, Student ≤ ₱40k, …) rank the way you'd recommend on a live | Phase 2 data (can start in parallel with seed data) |
+| **4. Public app** | Every screen wired to live data | Port Landing, Brief, Results, Details, Compare (desktop + mobile) and the 10–20 mockup archetypes. Config switcher. Brief in the URL. Photo view. Empty / loading / busy states. | All screens work on phone and desktop against the live snapshot. Nothing loads a photo until the Photo view is opened. | **Design freeze** for desktop + mobile. Phases 2–3. |
+| **5. Launch hardening** | Ready to share on TikTok | SEO (meta, OG image, FAQ JSON-LD, sitemap, robots). Accessibility pass. Performance budget (fast first load on mid-range Android over 4G). Warning-only usage alerts. Final copy (FAQ, Why I built it, legal). | A test run of the TikTok-traffic scenario (many visitors at once hit the cached query) shows no queueing problems; launch checklist done | Phase 4 |
+| **Later** | Grow when needed | Custom domain. Cloudflare front (needs Convex Pro). Shopee price pipeline (parked). Filipino copy. More admins. Analytics. | — | Your call |
+
+**Parallel tracks.** Phases 0–3 don't need the final visuals, so they can run while the canvas is iterated. The admin UI is functional, not designed, so it never waits for the design. Phase 4 is the only phase gated on design freeze.
 
 ---
 
@@ -423,37 +441,38 @@ Resolved on 2026-10-08:
 - form chips are AND filters
 - budget ₱30k → ₱175k+ in ₱5k steps
 - Save dropped
-- no Shopee links, so the Shopee pipeline is parked
+- Shopee pipeline parked
 - no spending caps
-- admin uses email + password + an emailed code with IP/location
-- photos come from official press kits
-- "Including used" counts for both budget and value
-- Convex Starter (pay-as-you-go)
-- no AI ceiling, with runs triggered by hand
+- two-step admin sign-in with IP/location email
+- photos from press kits
+- "Including used" counts for budget and value
+- Convex Starter
+- AI runs triggered by hand
 - Sonnet 5.5 researches, Haiku 5.5 formats
-- no analytics
-- email is sent from `marwie@otomatesystems.com`
+- no analytics or error monitoring
+- mobile designs come from the canvas
+- new price = official SRP
+- grey market excluded
+- used-only older models included
+- launch list deferred
+- single admin `marwie0904@gmail.com`
+- English only
+- Convex in the US region
+- simple legal page
+- Vercel domain for now
+- copy sourced from marwieang.com and the course
 
-Still open (each has a suggested default):
+Still open:
 
-1. **Mobile layouts.** TikTok traffic is mostly phones, but the canvas only has 1440 px desktop artboards. *Default: design phone versions of Brief, Results and Details in Claude Design; adapt the rest responsively.*
-2. **"New price" definition.** Official brand SRP, or the lowest price from an authorized PH retailer? *Default: lowest authorized-retailer price, with the retailer name shown and SRP as a fallback.*
-3. **Grey-market / imported units** (e.g. US-spec MacBooks sold locally). *Default: excluded from "new" prices.*
-4. **Catalog scope.** Only models sold new today, or also discontinued models popular used (M1/M2 MacBook Air, older ThinkPads)? *Default: include them, flagged "used only", shown only when "Including used" is on.*
-5. **Launch list.** Which ~20 laptops first? *Default: I draft a PH-bestseller list for you to edit.*
-6. **Admin email(s).** Which address(es) sign in and receive the codes? *Default: just one, yours.*
-7. **Language.** *Default: English only for v1.*
-8. **Convex region.** PH users are far from US regions (~150–200 ms per round trip), and non-US regions cost ~1.3×. *Default: US, because a visit needs one query and the rest runs in the browser. I'll check whether an Asia-Pacific region exists.*
-9. **Legal / trust pages.** *Default: a short privacy note (no cookies, no tracking, no accounts) plus the existing price disclaimer.*
-10. **Error monitoring.** *Default: none for v1; Convex logs cover the backend.*
-11. **Site domain** for the app. Needed for SEO metadata, the sitemap and `SITE_URL`.
-12. **Content placeholders:** the TikTok handle, the final FAQ answers, and the "Why I built it" copy.
+1. **"Why I built it" copy.** Pick or edit one of the options in `docs/COPY.md`.
+2. **Contact email on `/legal`.** *Default: `marwie@otomatesystems.com`.*
+3. **Launch list** (deferred until the frontend settles).
+4. **Spike results** to fold back in (Phase 0).
 
-### Setup checklist (only you can do these; needed for the spikes)
+### Setup checklist (only you can do these; needed for Phase 0)
 
-- [ ] Convex project on Starter, and a production deploy key
+- [ ] Convex project on Starter, with the prod deployment in the chosen region (permanent), and a deploy key
 - [ ] Vercel project linked to this repo (build command in §9)
 - [ ] Anthropic API key
 - [ ] Resend account, and its DNS records on `otomatesystems.com`
 - [ ] MaxMind GeoLite account and license key
-- [ ] Site domain (or use the Vercel subdomain for now)
