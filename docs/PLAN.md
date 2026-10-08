@@ -434,11 +434,26 @@ Resolved on 2026-10-08:
 - no analytics
 - email is sent from `marwie@otomatesystems.com`
 
-Still open (none block starting):
+Still open (each has a suggested default):
 
-1. **Site domain** for the app. Needed for SEO metadata, the sitemap and `SITE_URL`.
-2. **Spike results** to fold back in:
-   - S1: how far the IP can be trusted
-   - S2: real cost per run and Haiku formatting reliability
-   - S3: the sign-in flow end to end
-   - S4: static export on Vercel
+1. **Mobile layouts.** TikTok traffic is mostly phones, but the canvas only has 1440 px desktop artboards. *Default: design phone versions of Brief, Results and Details in Claude Design; adapt the rest responsively.*
+2. **"New price" definition.** Official brand SRP, or the lowest price from an authorized PH retailer? *Default: lowest authorized-retailer price, with the retailer name shown and SRP as a fallback.*
+3. **Grey-market / imported units** (e.g. US-spec MacBooks sold locally). *Default: excluded from "new" prices.*
+4. **Catalog scope.** Only models sold new today, or also discontinued models popular used (M1/M2 MacBook Air, older ThinkPads)? *Default: include them, flagged "used only", shown only when "Including used" is on.*
+5. **Launch list.** Which ~20 laptops first? *Default: I draft a PH-bestseller list for you to edit.*
+6. **Admin email(s).** Which address(es) sign in and receive the codes? *Default: just one, yours.*
+7. **Language.** *Default: English only for v1.*
+8. **Convex region.** PH users are far from US regions (~150–200 ms per round trip), and non-US regions cost ~1.3×. *Default: US, because a visit needs one query and the rest runs in the browser. I'll check whether an Asia-Pacific region exists.*
+9. **Legal / trust pages.** *Default: a short privacy note (no cookies, no tracking, no accounts) plus the existing price disclaimer.*
+10. **Error monitoring.** *Default: none for v1; Convex logs cover the backend.*
+11. **Site domain** for the app. Needed for SEO metadata, the sitemap and `SITE_URL`.
+12. **Content placeholders:** the TikTok handle, the final FAQ answers, and the "Why I built it" copy.
+
+### Setup checklist (only you can do these; needed for the spikes)
+
+- [ ] Convex project on Starter, and a production deploy key
+- [ ] Vercel project linked to this repo (build command in §9)
+- [ ] Anthropic API key
+- [ ] Resend account, and its DNS records on `otomatesystems.com`
+- [ ] MaxMind GeoLite account and license key
+- [ ] Site domain (or use the Vercel subdomain for now)
