@@ -238,6 +238,7 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 | `signInPerEmail` | token bucket | 5 / 15 min |
 | `signInGlobal` | fixed window | 50 / hour |
 | `codeEmailPerEmail` | fixed window | 5 / hour |
+| *(built in)* Convex Auth lockout | per account | 10 failed password/code attempts per hour (`maxFailedAttempsPerHour`) |
 | `adminAction` per admin | token bucket | 120 / min |
 | `aiDraftPerAdmin` | token bucket | 20 / hour |
 | `aiDraftGlobal` | fixed window | 100 / day |
@@ -245,18 +246,43 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 
 ### 6a. Admin sign-in (email + password + emailed code)
 
-*Draft. Implementation details get confirmed in spike S3.*
+Source-verified against `@convex-dev/auth` 0.0.96, the latest stable. A 2.0 alpha rewrite exists; re-check this section if it ships.
 
-1. **Password step.** The admin enters email + password. Non-allowlisted emails are rejected, and failures are rate-limited per IP, per email and globally.
-2. **Code step.** After a correct password, the server generates a short-lived one-time code (6 digits, about 10 minutes) and sends it via **Resend**. **This happens on every sign-in, not just at sign-up.**
-3. **The email includes:**
-   - IP address
-   - approximate location (city, region, country, from a geo-IP lookup)
-   - device / browser (user agent)
-   - time (Asia/Manila)
-   - a line: "If this wasn't you, change your password."
-4. **Session.** Only a correct code completes sign-in. Code attempts are limited (e.g. 5 per code), then the code is invalidated.
-5. **Audit.** Every attempt (ok, bad password, bad code, rate-limited) is written to an `authEvents` table with IP, location and user agent, viewable in admin.
+**Don't use the built-in `Password({ verify })`. It isn't 2FA.**
+- Its code is only asked for while the email is unverified; after that the password alone signs in.
+- Worse, its `email-verification` flow sends a fresh code **without checking the password**, so whoever controls the inbox can sign in. `reset-verification` signs the user in too.
+- So the plan uses neither `verify` nor `reset`.
+
+**Design: a custom `ConvexCredentials` provider (id `password`) with two flows.**
+
+1. **`signIn` (email + password).**
+   - Apply the rate limits (per IP, per email, global).
+   - Check the password with `retrieveAccount(...)`. Convex Auth's own per-account lockout also applies: `maxFailedAttempsPerHour`, default 10.
+   - On success, read `ctx.meta.getRequestMetadata()` for the IP and user agent, look up the location, and send a code through an internal **`AdminOTP`** provider.
+   - Return `null`, so the client shows the code screen.
+2. **`verify` (email + code).**
+   - A code is required; a call without one is rejected, which closes the bypass described above.
+   - Verify through `AdminOTP`, then create the session.
+3. **`AdminOTP`** is `Email({ id: "admin-otp", maxAge: 600, ... })` from `@convex-dev/auth/providers/Email`.
+   - The code is tied to the email address, lasts 10 minutes, and is stored hashed. Only one code is active per account.
+   - It's registered **only** in `extraProviders`, so browsers can't call it directly.
+   - Failed code attempts count toward the same lockout.
+4. **No public sign-up and no email password reset.**
+   - The admin account is created from the CLI with an internal action (`npx convex run admin/setup:createAdmin`) using `createAccount(...)`.
+   - Password changes go through the same CLI route or an authenticated admin page.
+   - Nobody can take over the account through the inbox alone.
+5. **The code email** is sent from `marwie@otomatesystems.com` with the `resend` SDK, called directly inside the send callback so send errors surface at sign-in. (The `@convex-dev/resend` component only queues mail and defaults to `testMode: true`.) It contains:
+   - the code and its expiry
+   - IP address and approximate location (city, region, country)
+   - browser / OS (from the user agent)
+   - time in Asia/Manila
+   - "If this wasn't you, someone has your password — change it now."
+6. **Location lookup:** the **MaxMind GeoLite web service** (city level, HTTPS, free tier about 1,000 lookups a day, attribution line in the email footer).
+   - It has a 2-second timeout. If the lookup fails, the email says "location unavailable"; the sign-in is never blocked by it.
+   - Fallback: IPinfo Lite (country and network only). **Not** ip-api.com, whose free tier sends the IP over plain HTTP.
+7. **Audit.** Every attempt (ok, bad password, bad code, rate-limited) goes into `authEvents` with IP, location and user agent. Admin shows a "Recent sign-ins" list.
+
+**Why the IP is the real visitor's.** The static site calls Convex's `signIn` action straight from the browser, so the metadata carries the visitor's IP. Convex Auth's Next.js server proxy would show the server's IP instead, which is another reason to stay static.
 
 > ⚠ The IP in that email comes from the same header discussed below, so a skilled attacker could make it show a fake IP. The email still proves that someone **had your password**, which is the real signal: getting a code you didn't ask for means change the password.
 
@@ -297,10 +323,16 @@ Nothing here runs on a schedule. Every run starts from a button in admin, and yo
 ### 7a. Laptop visuals: mockup archetypes + real photos
 
 - **Mockups everywhere by default.** 10–20 archetypes drawn in code (like the current design's laptop), picked per laptop via `visual.archetype` (the AI drafter suggests one; you confirm). They cost **zero network requests**, so rails, the marquee, cards, Compare and the Results hero all use them.
-- **Real photo only when needed.** It loads in exactly two cases: the Details **"Photo"** view, or when the user explicitly opens it. Never in lists. Loading is lazy (`loading="lazy"` plus fetching only after the tab is opened), and the URL comes from `laptops.bySlug`, so the catalog snapshot carries no image data.
-- **Small files.** In admin, the browser resizes the press-kit image before upload into a ~480 px and a ~1200 px WebP, so the server does no resizing. Both go into **Convex file storage**. The Details view uses `srcset`, so phones get the small one.
+- **Real photo only when needed.** It loads only when the user opens the Details **"Photo"** view. Never in lists. The image URL comes from `laptops.bySlug`, so the catalog snapshot carries no image data.
+- **Small files.** In admin, the browser resizes the press-kit image before upload into a ~480 px and a ~1200 px WebP (roughly 40–150 KB each), so the server does no resizing. Both go into **Convex file storage**. The Details view uses `srcset`, so phones get the small one.
+- **How Convex serves them** (checked against the backend source):
+  - URLs look like `https://<deployment>.convex.cloud/api/storage/<uuid>`. They're public but unguessable.
+  - Responses carry `Cache-Control: private, max-age=2592000`, so **browsers cache them for 30 days**; CDNs don't.
+  - Each fetch counts as one function call plus its bytes as egress (1 GB a month included on Starter, then about $0.13/GB).
+  - So roughly 10,000 photo views of the small size come to about 1 GB a month.
+- **Never overwrite an image.** A new photo gets a new `storageId`, so the 30-day browser cache can never show a stale image.
+- **If photo traffic ever gets big:** serve images through an HTTP action that sets `public, max-age=31536000, immutable`, behind a CDN, so repeat views skip Convex entirely. Not needed now.
 - **Rights.** Official press/media-kit images only. Each photo stores `credit`, `sourceUrl` and `license`, and the UI shows "Image: {Brand} press kit".
-- *To confirm in research:* the cache headers on Convex storage URLs and how file serving is billed (§7a gets updated after that).
 
 ## 8. Price pipeline v2 (Shopee Affiliate Open API) — **PARKED**
 
@@ -327,7 +359,7 @@ Nothing here runs on a schedule. Every run starts from a button in admin, and yo
 
 - **Convex:** `dev` and `prod` deployments.
 - **Vercel:** the build command is `npx convex deploy --cmd 'npm run build'`, which deploys Convex functions and then builds the static site. `CONVEX_DEPLOY_KEY` goes in the Vercel environment variables.
-- **Convex env vars:** `ANTHROPIC_API_KEY`, Convex Auth secrets (`JWT_PRIVATE_KEY`, `JWKS`), `RESEND_API_KEY`, `AUTH_EMAIL_FROM=marwie@otomatesystems.com`, the geo-IP API token, `ADMIN_EMAILS`, `SITE_URL`.
+- **Convex env vars:** `ANTHROPIC_API_KEY`, Convex Auth secrets (`JWT_PRIVATE_KEY`, `JWKS`), `RESEND_API_KEY`, `AUTH_EMAIL_FROM=marwie@otomatesystems.com`, `MAXMIND_ACCOUNT_ID` + `MAXMIND_LICENSE_KEY`, `ADMIN_EMAILS`, `SITE_URL`.
 - **Resend:** verify `otomatesystems.com` in Resend by adding its DKIM/SPF DNS records. Resend sends from a `send.` subdomain by default, so it shouldn't clash with existing mail on the domain. Check that before going live.
 - **Vercel env vars:** `NEXT_PUBLIC_CONVEX_URL` and `CONVEX_DEPLOY_KEY`.
 - **Plan: Starter (pay-as-you-go).** S16 class: 16 concurrent queries, 16 concurrent mutations and 64 concurrent actions. It includes 1M function calls per month, with overage billed (about $2.20 per extra million, per the 2026-10 research). When the concurrency limits are reached, functions queue instead of failing. Pro (S256: 256 / 256 / 512, 25M calls) is only needed for a custom-domain Cloudflare front or much higher traffic ([limits](https://docs.convex.dev/production/state/limits)).
@@ -375,7 +407,7 @@ These need to go back into the Claude Design canvas:
 
 | # | Milestone | Contents |
 |---|---|---|
-| S | Spikes (de-risk first) | **S1:** IP spoof test on Convex, which also decides how far to trust the IP in sign-in emails. **S2:** AI draft quality and cost on 3 PH laptops. **S3:** password + emailed code on every sign-in, end to end with Resend and the IP/location lookup. **S4:** static export + Convex client running on Vercel. |
+| S | Spikes (de-risk first) | **S1:** IP spoof test on Convex, which also decides how far to trust the IP in sign-in emails. **S2:** AI draft quality and cost on 3 PH laptops. **S3:** the custom two-step sign-in (§6a) end to end, with Resend from `otomatesystems.com` and the MaxMind lookup. Also confirm `ctx.meta` is reachable in the provider. **S4:** static export + Convex client running on Vercel. |
 | 1 | Foundation | Next static export, Convex schema, admin auth (§6a), function wrappers + rate limits, warning-only usage alerts. |
 | 2 | Catalog & admin | AI draft → review → publish, photo upload (§7a), catalog snapshot, seed the first ~20 laptops. |
 | 3 | Public app | Port the 5 artboards plus the mockup archetypes, wire them to the snapshot and `shared/scoring`, config switcher, brief in the URL. |
