@@ -401,7 +401,7 @@ These need to go back into the Claude Design canvas:
 - **Currency and budget.** `$` → `₱` everywhere. The budget stepper becomes ₱30k → ₱175k+ in ₱5k steps (30 stops), so a slider plus the −/+ buttons probably works better than −/+ alone.
 - **Landing badge.** "Used prices updated daily" → "Prices hand-checked · updated {latest date}". Each laptop also shows "Price checked {date}".
 - **Price labels.** "New" / "Brand new" → "SRP", and the retailer field becomes "SRP · {Brand} PH". Used-only models show "Used only" instead of an SRP. The Compare label "Cheapest new" → "Lowest SRP".
-- **"Why I built it."** New copy, plus a CTA to the free course. Options are in `docs/COPY.md`. The TikTok placeholder becomes [@marwie_ang](https://www.tiktok.com/@marwie_ang).
+- **"Why I built it."** Replace with the final copy (Option B) in `docs/COPY.md`, including the "Take the free course →" CTA. The TikTok placeholder becomes [@marwie_ang](https://www.tiktok.com/@marwie_ang).
 - **Legal.** Footer link to `/legal`.
 - **Landing stats.** "[N] used listings checked daily / marketplaces covered" → "[N] laptops tracked · [N] sources cited".
 - **Results used card.** "38 listings · 30 days / Market: Marketplace" → "Used estimate · {sources} · {date}".
@@ -461,13 +461,13 @@ Resolved on 2026-10-08:
 - simple legal page
 - Vercel domain for now
 - copy sourced from marwieang.com and the course
+- "Why I built it" = Option B
+- `/legal` contact = `marwie@otomatesystems.com`
 
 Still open:
 
-1. **"Why I built it" copy.** Pick or edit one of the options in `docs/COPY.md`.
-2. **Contact email on `/legal`.** *Default: `marwie@otomatesystems.com`.*
-3. **Launch list** (deferred until the frontend settles).
-4. **Spike results** to fold back in (Phase 0).
+1. **Launch list** (deferred until the frontend settles).
+2. **Spike results** to fold back in (Phase 0).
 
 ### Setup checklist (only you can do these; needed for Phase 0)
 
