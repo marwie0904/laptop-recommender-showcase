@@ -280,13 +280,11 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 - **Where the session token lives.** The course site keeps it in an httpOnly cookie set by its Next.js server (`proxy.ts`). FITLAP is a static site with no server, so the token goes in browser storage and `/admin` pages check `adminAuth.isSignedIn` client-side.
   - That token is readable by any script on the page.
   - So: a short session (e.g. 7 days), a strict Content-Security-Policy, and no third-party scripts on `/admin`.
-- **Location.** Same as the course site: **IP and time, no geo-IP service**. Two zero-setup additions:
-  - If Cloudflare passes a `cf-ipcountry` header through to Convex HTTP actions, the email also shows the country. Spike S1 checks this.
-  - A "Look up this IP →" link (ipinfo.io), which runs in your own browser when tapped.
+- **No location.** Emails show **IP and time (PHT) only**, the same as the course site (decided 2026-10-08).
 
 > The code email itself is the real alarm. Getting a code you didn't ask for means someone has your password, whatever IP it shows.
 
-> ⚠ **IP trust.** Use `cf-connecting-ip` in HTTP actions; Cloudflare sets it, and the course site relies on it. Avoid `getRequestMetadata().ip` for limits that matter: it's the **leftmost** `X-Forwarded-For` entry, which a script can probably fake. **Spike S1** confirms both on the FITLAP deployment, and whether `cf-ipcountry` is passed through.
+> ⚠ **IP trust.** Use `cf-connecting-ip` in HTTP actions; Cloudflare sets it, and the course site relies on it. Avoid `getRequestMetadata().ip` for limits that matter: it's the **leftmost** `X-Forwarded-For` entry, which a script can probably fake. **Spike S1** confirms both on the FITLAP deployment.
 
 ---
 
@@ -412,7 +410,7 @@ The frontend mock UI is still being iterated (desktop, then mobile). The phases 
 
 | Phase | Goal | Main deliverables | Exit criteria | Depends on |
 |---|---|---|---|---|
-| **0. Setup & spikes** | Accounts in place; the risky unknowns answered | Setup checklist (§12). **S1** IP check: log the headers an HTTP action receives (`cf-connecting-ip`, `cf-ipcountry`, `x-forwarded-for`) and try faking them. **S2** Sonnet research + Haiku formatting on 3 laptops (cost, accuracy, schema reliability). **S3** port the course-site admin sign-in and run it end to end from the static site, with Resend from `otomatesystems.com`. **S4** static export + Convex on Vercel. | A short written result per spike, added to this doc, with a go / adjust decision for each | Your accounts and keys |
+| **0. Setup & spikes** | Accounts in place; the risky unknowns answered | Setup checklist (§12). **S1** IP check: log the headers an HTTP action receives (`cf-connecting-ip`, `x-forwarded-for`) and try faking them. **S2** Sonnet research + Haiku formatting on 3 laptops (cost, accuracy, schema reliability). **S3** port the course-site admin sign-in and run it end to end from the static site, with Resend from `otomatesystems.com`. **S4** static export + Convex on Vercel. | A short written result per spike, added to this doc, with a go / adjust decision for each | Your accounts and keys |
 | **1. Backend foundation** | A secure, empty backend you can sign into | Schema v1. `public/` / `admin/` wrappers. Rate limits. Admin sign-in ported from course-site (code email with IP + time, new-network alert, lockouts). Cleanup crons (expired challenges and sessions). `/legal` + static shell deployed on the Vercel domain. | Password + code sign-in works from the deployed site. The email shows IP and time; a new network triggers the alert. Tests show rate limits rejecting excess calls. | Phase 0 (S1, S3, S4) |
 | **2. Data pipeline & admin** | Laptops go from "model name" to published | Draft request → Sonnet research → Haiku JSON → review diff → approve. Configs + SRP + used estimates. "Re-check prices" (single and batch) and staleness flags. Archetype pick. Press-photo upload (in-browser resize to WebP). Snapshot builder. | ~20 laptops published through the pipeline. Snapshot under 150 KB. A run's cost is visible in admin. | Phase 1. S2 results. |
 | **3. Scoring engine** | Rankings that feel right | `shared/scoring`: filters, use-case weights, fit %, axes, verdicts, compare labels, config switching. Unit tests against hand-made expected rankings. Admin "preview ranking for brief X" page. | Your sample briefs (Coding ≤ ₱60k, Gaming ≤ ₱90k, Student ≤ ₱40k, …) rank the way you'd recommend on a live | Phase 2 data (can start in parallel with seed data) |
@@ -433,7 +431,7 @@ Resolved on 2026-10-08:
 - Save dropped
 - Shopee pipeline parked
 - no spending caps
-- admin sign-in = course-site flow (IP + time; no geo-IP service, no Convex Auth)
+- admin sign-in = course-site flow; emails show IP + time only, no location (no geo-IP service, no Convex Auth)
 - photos from press kits
 - "Including used" counts for budget and value
 - Convex Starter
