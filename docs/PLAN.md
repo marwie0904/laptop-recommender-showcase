@@ -1,4 +1,4 @@
-# FITLAP — backend & app plan (v0.1)
+# FITLAP — backend & app plan (v0.2)
 
 Status: **planning**. Nothing is built yet. This document turns the Claude Design canvas
 ("Laptop Recommender — Directions": Landing, Brief builder, Results, Details, Compare) into a
@@ -19,13 +19,18 @@ backend design, records the decisions made so far, and lists what is still open.
 | Filters | Budget, RAM min, storage min and **form chips are all hard filters**. Form chips use **AND**: every selected chip must match. |
 | Budget | **₱30k → ₱175k in ₱5k steps.** The top step means **₱175k+ (no cap)**. |
 | Spec & editorial data | **AI-drafted, admin-approved.** Claude (with web search plus URLs you paste) drafts specs, battery estimates per use case, build scores, notes, and PH prices, citing sources. You approve each draft before it's published. |
-| Prices | **AI-assisted, admin-approved** (a weekly re-check). The **Shopee pipeline is parked**: no Shopee or affiliate links for now, so the affiliate API probably isn't available (§8). |
+| Prices | **AI-assisted, admin-approved.** Every draft and price re-check is **started by hand** in admin; nothing runs automatically. The **Shopee pipeline is parked**: no Shopee or affiliate links for now, so the affiliate API probably isn't available (§8). |
+| AI models | **`claude-sonnet-5-5` for research** (web search + fetch). **`claude-haiku-5-5` for formatting** the research into the strict JSON schema. No monthly AI ceiling; you trigger each run. |
 | Laptop visuals | **10–20 code-drawn mockup archetypes** (MacBook Air/Pro, gaming 16", ultrabook 14", 2-in-1, …) used everywhere. A **real photo** (official press kit) loads **only when needed** (§7a). |
 | SEO | **Landing + FAQ only.** All other routes are client-rendered and `noindex`. |
 | Save button | **Dropped for v1.** |
 | Seller links | **None.** Prices and source names appear as plain text. |
 | Admin auth | **Email + password + an emailed code on every sign-in** (Resend). The code email shows the attempt's **IP, approximate location, device and time**. Allowlisted emails only (§6a). Public users never sign in. |
 | Abuse protection | Public reads go through **one argument-free cached query**. **Per-IP + global rate limits** wrap every mutation, action and HTTP endpoint. **No spending caps for now.** Recommended instead: warning-only usage alerts, which don't shut anything off. A Cloudflare front is deferred until it's needed. |
+| Convex plan | **Starter (pay-as-you-go)**: S16 limits, overage billed (§9). |
+| "Including used" | **Yes.** When it's on, a config qualifies if its used price fits the budget, and "value" scores against that price. |
+| Email sender | `marwie@otomatesystems.com` via Resend. `otomatesystems.com` must be verified in Resend. |
+| Analytics | **None.** |
 
 ---
 
@@ -97,9 +102,9 @@ Browser (static Next.js on Vercel CDN)
 Convex deployment
  ├─ public/      queries only (no public writes in v1)
  ├─ admin/       adminQuery / adminMutation / adminAction wrappers (auth + allowlist + rate limits)
- ├─ ai/          draftLaptop (Node action → Claude API with web search)
+ ├─ ai/          draftLaptop (Node action: Sonnet 5.5 research → Haiku 5.5 formatting)
  ├─ prices/      price-source adapters (v1: AI draft; v2: Shopee affiliate)
- ├─ crons.ts     weekly price re-check, 30-day aggregates (v2), cleanup
+ ├─ crons.ts     cleanup only (expired sign-in codes, old auth events); no scheduled AI runs
  ├─ components   @convex-dev/rate-limiter, @convex-dev/workpool (+ action-cache, optional)
  └─ auth         Convex Auth: password + emailed code (Resend) for admins
 ```
@@ -181,7 +186,8 @@ authEvents: { email, outcome /* ok | bad_password | bad_code | rate_limited */,
    - `storageGb ≥ min`
    - every selected form chip matches the model (AND)
    - price ≤ budget, where price = new price, or `min(new, used)` when "Including used" is on. At ₱175k+ there's no price filter.
-2. **One card per model.** The card opens on the **cheapest passing config**.
+   - The same price (new, or `min(new, used)` with used on) is the one the **value** dimension scores. The card says which one it used ("Used est. ₱62k").
+2. **One card per model.** The card opens on the **cheapest passing config**, using the same price rule.
    - The config switcher offers CPU / RAM / storage choices that map to real SKUs. Combinations that don't exist are disabled.
    - Switching recalculates price, fit and axes instantly in the browser.
    - Configs that fail the brief stay selectable, but are marked "outside your brief".
@@ -218,7 +224,7 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 3. **Admin functions.** `adminMutation` / `adminAction` wrappers:
    - require a signed-in, allowlisted admin
    - apply a per-admin limit and a global limit
-   - for AI drafts, add a daily global cap and a monthly USD budget tracked in `aiDrafts.usage`
+   - for AI drafts, add a per-admin and a daily global count limit (abuse guard only, no USD ceiling). Cost is tracked per run in `aiDrafts.usage`.
 4. **Auth.** Email + password + an emailed code on every sign-in (§6a). Failed attempts are rate-limited per IP, per email and globally. A code email goes out only after a correct password, so an attacker can't use the sign-in form to spam your inbox. Non-allowlisted emails are rejected before any email is sent.
 5. **No spending caps (your decision).** A flood of public reads is therefore unbounded in cost. What limits it: reads are cache hits, every write and action is rate-limited, and drafting can be turned off with the `appConfig` kill switch. Recommended: **warning-only** usage alerts, which email you without disabling anything. A future Cloudflare front would need a custom domain, which is Convex Pro only.
 
@@ -235,7 +241,7 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 | `adminAction` per admin | token bucket | 120 / min |
 | `aiDraftPerAdmin` | token bucket | 20 / hour |
 | `aiDraftGlobal` | fixed window | 100 / day |
-| AI spend | tracked | tracked per draft; a ceiling is still open (§12) |
+| AI spend | tracked | tracked per run and summed in admin; no ceiling |
 
 ### 6a. Admin sign-in (email + password + emailed code)
 
@@ -258,25 +264,31 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 
 ---
 
-## 7. AI drafting pipeline (admin only)
+## 7. AI drafting pipeline (admin only, triggered by hand)
 
-1. The admin submits a model name, optional source URLs (brand PH spec page, reviews), and the configs to track.
+Nothing here runs on a schedule. Every run starts from a button in admin, and you review the result before it goes live.
+
+1. **New laptop.** The admin submits a model name, optional source URLs (brand PH spec page, reviews), and the configs to track. **Re-check prices** is a button on one laptop or a multi-select, and starts a price-only run. Admin lists show how old each price is: amber after 30 days, red after 60, so you know what to re-check.
 2. `admin.drafts.request` checks rate limits, inserts an `aiDrafts` row (`queued`), and enqueues `ai.draftLaptop` on a workpool (`maxParallelism` 2).
-3. `ai.draftLaptop` is a Node action using `@anthropic-ai/sdk`.
-   - **Settings:**
-     - Model: `claude-opus-5-5`.
-     - Thinking: adaptive, effort `high`.
-     - Server-side refusal fallback: `fallbacks: "default"`.
+3. `ai.draftLaptop` is a Node action using `@anthropic-ai/sdk`, in two model steps:
+   - **Research: `claude-sonnet-5-5`.**
+     - Adaptive thinking, effort `high`.
+     - Server-side refusal fallback `fallbacks: "default"` (Claude API only).
      - Tools: `web_search_20260209` (with `user_location` set to the Philippines) and `web_fetch_20260209` for the pasted URLs.
-   - **Two steps:**
-     - **Research turn:** gather facts and sources, including PH SRP from brand stores and retailers, and used-price evidence.
-     - **Extraction turn:** produce JSON through structured outputs (`output_config.format`), where every field carries `sources[]`.
-   - **Validation:** Zod plus sanity ranges (weight, prices, battery hours).
-   - **Usage:** token counts and search counts are saved per draft.
+     - Output: research notes in prose, with a source URL next to every fact. These include specs, editorial observations, PH SRP from brand stores and retailers, and used-price evidence.
+   - **Formatting: `claude-haiku-5-5`.**
+     - No tools; low effort.
+     - Turns the research notes into the draft JSON through structured outputs (`output_config.format`), where every field carries `sources[]` copied from the notes.
+     - Haiku has no server-side refusal fallback, so check `stop_reason` and mark the draft `failed` on a refusal.
+   - **Validation:** Zod plus sanity ranges (weight, prices, battery hours). Fields that fail are flagged in review rather than dropped.
+   - **Usage:** token counts and search counts are saved per run, split by model.
 4. **Review UI.** A field-by-field diff against the published version, with source links and inline edits. Approving writes `laptops` / `configs` / `priceObservations` (source `ai_draft`, `approvedBy`) and rebuilds the catalog snapshot.
-5. **Weekly cron.** A price-only re-draft for each published config. The admin batch-approves the price changes.
 
-**Cost.** At $4 / $20 per MTok, a ~100K-input / ~8K-output draft costs about $0.56 in tokens, plus web-search fees. That's a rough estimate: **measure it on the first 3 laptops (spike S2)** before setting the budget.
+**Cost.**
+- Sonnet 5.5 ($2 / $10 per MTok): a ~100K-input / ~8K-output research turn costs about $0.28.
+- Haiku 5.5 ($0.10 / $0.50 per MTok): the formatting turn costs well under $0.01.
+- Web-search fees come on top.
+- This is a rough estimate. Spike S2 measures it on 3 laptops and checks whether Haiku's formatting matches the schema reliably.
 
 **v1 honesty in the UI.** In v1 the used price is an **AI-assisted estimate with citations**, not "a 30-day average of N listings". The copy needs to say so (see §10).
 
@@ -315,9 +327,10 @@ Weights live in one versioned file so they can be tuned and unit-tested against 
 
 - **Convex:** `dev` and `prod` deployments.
 - **Vercel:** the build command is `npx convex deploy --cmd 'npm run build'`, which deploys Convex functions and then builds the static site. `CONVEX_DEPLOY_KEY` goes in the Vercel environment variables.
-- **Convex env vars:** `ANTHROPIC_API_KEY`, Convex Auth secrets (`JWT_PRIVATE_KEY`, `JWKS`), `RESEND_API_KEY`, `AUTH_EMAIL_FROM`, the geo-IP API token, `ADMIN_EMAILS`, `SITE_URL`.
+- **Convex env vars:** `ANTHROPIC_API_KEY`, Convex Auth secrets (`JWT_PRIVATE_KEY`, `JWKS`), `RESEND_API_KEY`, `AUTH_EMAIL_FROM=marwie@otomatesystems.com`, the geo-IP API token, `ADMIN_EMAILS`, `SITE_URL`.
+- **Resend:** verify `otomatesystems.com` in Resend by adding its DKIM/SPF DNS records. Resend sends from a `send.` subdomain by default, so it shouldn't clash with existing mail on the domain. Check that before going live.
 - **Vercel env vars:** `NEXT_PUBLIC_CONVEX_URL` and `CONVEX_DEPLOY_KEY`.
-- **Plan limits to remember.** Free/Starter (S16) allows 16 concurrent queries, 16 concurrent mutations and 64 concurrent actions, plus 1M function calls per month. Free amounts are hard caps; Starter bills overage. Pro (S256) allows 256 / 256 / 512 and 25M calls per month, and is required for custom domains ([limits](https://docs.convex.dev/production/state/limits)).
+- **Plan: Starter (pay-as-you-go).** S16 class: 16 concurrent queries, 16 concurrent mutations and 64 concurrent actions. It includes 1M function calls per month, with overage billed (about $2.20 per extra million, per the 2026-10 research). When the concurrency limits are reached, functions queue instead of failing. Pro (S256: 256 / 256 / 512, 25M calls) is only needed for a custom-domain Cloudflare front or much higher traffic ([limits](https://docs.convex.dev/production/state/limits)).
 
 ### Proposed repo layout
 
@@ -344,7 +357,7 @@ docs/PLAN.md
 These need to go back into the Claude Design canvas:
 
 - **Currency and budget.** `$` → `₱` everywhere. The budget stepper becomes ₱30k → ₱175k+ in ₱5k steps (30 stops), so a slider plus the −/+ buttons probably works better than −/+ alone.
-- **Landing badge.** "Used prices updated daily" → "Prices reviewed weekly".
+- **Landing badge.** "Used prices updated daily" → "Prices hand-checked · updated {latest date}". Each laptop also shows "Price checked {date}".
 - **Landing stats.** "[N] used listings checked daily / marketplaces covered" → "[N] laptops tracked · [N] sources cited".
 - **Results used card.** "38 listings · 30 days / Market: Marketplace" → "Used estimate · {sources} · {date}".
 - **FAQ "Where do used prices come from?"** Rewrite it for the AI-assisted, reviewed method.
@@ -382,12 +395,18 @@ Resolved on 2026-10-08:
 - no spending caps
 - admin uses email + password + an emailed code with IP/location
 - photos come from official press kits
+- "Including used" counts for both budget and value
+- Convex Starter (pay-as-you-go)
+- no AI ceiling, with runs triggered by hand
+- Sonnet 5.5 researches, Haiku 5.5 formats
+- no analytics
+- email is sent from `marwie@otomatesystems.com`
 
-Still open:
+Still open (none block starting):
 
-1. **"Including used".** Does a laptop qualify when its used price ≤ budget, and does the ranking then use the used price for "value"?
-2. **Convex plan.** Free (whose quotas are themselves hard caps, so they conflict with "no spending caps"), Starter (pay-as-you-go), or Pro? Also: should warning-only usage alerts be set, and at what levels?
-3. **Monthly AI drafting budget.** Is there any ceiling on Claude spend, or only the per-day draft count limit?
-4. **Drafting model.** The default is `claude-opus-5-5`. Switch to `claude-sonnet-5-5` if spike S2 shows cost matters more than draft quality? (Your call.)
-5. **Analytics.** Any? (No backend events are planned; if wanted, a privacy-friendly client-side tool.)
-6. **Domain** name, which is also needed to verify the Resend sending domain.
+1. **Site domain** for the app. Needed for SEO metadata, the sitemap and `SITE_URL`.
+2. **Spike results** to fold back in:
+   - S1: how far the IP can be trusted
+   - S2: real cost per run and Haiku formatting reliability
+   - S3: the sign-in flow end to end
+   - S4: static export on Vercel
