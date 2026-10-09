@@ -5,7 +5,8 @@ import type { Config, Laptop } from './catalog.ts';
 import { CPU_FAMILIES, GPU_FAMILIES, isKnownFamily } from './hardware.ts';
 import { displayRaw, mixHours, percentiles, staticDims } from './scoring/dimensions.ts';
 import { briefPrice, isSlim, passes, sizeBucket } from './scoring/filters.ts';
-import { PERF_MIX, USE_WEIGHTS } from './scoring/weights.ts';
+import { axisWeights, defaultScore, idealAxes, rankForBrief, scoreCatalog, verdictFor } from './scoring/fit.ts';
+import { PERF_MIX, RAW_CEIL, USE_WEIGHTS } from './scoring/weights.ts';
 
 const near = (a: number, b: number, msg: string) => assert.ok(Math.abs(a - b) < 1e-3, `${msg}: ${a} is not ≈ ${b}`);
 
@@ -120,5 +121,77 @@ assert.equal(adv(base, { screens: ['ips'] }), false);
 assert.equal(adv(base, { screens: ['oled', 'ips'] }), true);
 assert.deepEqual([13.3, 14.2, 15.6, 16, 17.3].map(sizeBucket), [13, 14, 15, 16, 16]);
 assert.equal(adv(mk('fourteen', { sizeIn: 14.2 }), { sizes: [14] }), true);
+
+// ── fit ──
+const cpuBox = mk('cpubox', {}, { cpu: { name: 'Fast CPU', cores: 16, score: 16_000 }, gpu: { name: 'iGPU', score: 2_000 } });
+const gpuBox = mk('gpubox', {}, { cpu: { name: 'Mid CPU', cores: 8, score: 9_000 }, gpu: { name: 'RTX', score: 9_000 } });
+const weak = mk('weak', {}, { cpu: { name: 'Slow CPU', cores: 4, score: 5_000 }, gpu: { name: 'iGPU', score: 1_500 } });
+const mid = mk('mid', {}, { cpu: { name: 'Mid CPU', cores: 8, score: 11_000 }, gpu: { name: 'iGPU', score: 2_500 } });
+const CAT = [cpuBox, gpuBox, weak, mid];
+const order = (b: Partial<Brief>) => rankForBrief(CAT, { ...BRIEF, ...b }).map((s) => s.laptop.slug);
+const before = (list: string[], a: string, b: string) => list.indexOf(a) < list.indexOf(b);
+
+assert.ok(before(order({ uses: ['gaming'] }), 'gpubox', 'cpubox'), 'gaming ranks the strong GPU first');
+assert.ok(before(order({ uses: ['coding'] }), 'cpubox', 'gpubox'), 'coding ranks the strong CPU first');
+
+for (const b of [BRIEF, { ...BRIEF, uses: [] }, { ...BRIEF, mode: 'advanced' as const }]) {
+  for (const s of scoreCatalog(CAT, b).values()) {
+    assert.equal(s.rows.reduce((a, r) => a + r.points, 0), s.fit, `${s.laptop.slug}: rows sum to fit`);
+    assert.ok(s.fit >= 0 && s.fit <= 100, `${s.laptop.slug}: fit within 0–100`);
+    assert.equal(s.rows.length, b.mode === 'advanced' ? 8 : 4);
+  }
+}
+const advFits = (uses: Brief['uses']) => [...scoreCatalog(CAT, { ...BRIEF, mode: 'advanced', uses }).values()].map((s) => s.fit);
+assert.deepEqual(advFits(['gaming']), advFits(['coding']), 'advanced mode ignores use cases');
+
+const solo = scoreCatalog([mk('solo')], BRIEF).get('SOLO')!;
+assert.ok(Number.isFinite(solo.fit) && solo.fit >= 0 && solo.fit <= 100, 'a one-laptop catalog still scores');
+assert.equal(solo.rows.reduce((a, r) => a + r.points, 0), solo.fit);
+
+assert.equal(verdictFor(90, 0), 'strong fit');
+assert.equal(verdictFor(86, 0.8), 'great value');
+assert.equal(verdictFor(86, 0.5), 'good fit');
+assert.equal(verdictFor(79, 1), 'okay fit');
+
+const cheap = mk('cheap', {}, { price: { srpPhp: 50_000 } });
+const dear = mk('dear', {}, { price: { srpPhp: 100_000 } });
+const v = scoreCatalog([cheap, dear], BRIEF);
+assert.ok(v.get('CHEAP')!.dims.value > v.get('DEAR')!.dims.value, 'same specs, lower price = more value');
+const u = scoreCatalog([cheap, mk('dearused', {}, { price: { srpPhp: 100_000, usedPhp: 40_000 } })], { ...BRIEF, includeUsed: true });
+assert.ok(u.get('DEARUSED')!.dims.value > u.get('CHEAP')!.dims.value, 'Including used scores value on the used price');
+assert.equal(u.get('DEARUSED')!.price!.used, true);
+
+const m0 = mk('m').configs[0];
+const multi = mk('multi', { configs: [
+  { ...m0, code: 'M-8', ramGb: 8, price: { srpPhp: 50_000 } },
+  { ...m0, code: 'M-16', ramGb: 16, price: { srpPhp: 60_000 } },
+  { ...m0, code: 'M-32', ramGb: 32, price: { srpPhp: 90_000 } },
+] });
+const pick = (b: Partial<Brief>) => rankForBrief([multi, weak], { ...BRIEF, ...b }).find((s) => s.laptop.slug === 'multi')?.config.code;
+assert.equal(pick({}), 'M-8', 'the card opens on the cheapest passing config');
+assert.equal(pick({ minRamGb: 16 }), 'M-16', 'skips configs that fail the brief');
+assert.equal(pick({ minRamGb: 64 }), undefined, 'no passing config: the model drops out');
+assert.equal(defaultScore(scoreCatalog([multi, weak], { ...BRIEF, minRamGb: 64 }), multi).config.code, 'M-8', 'opened directly: cheapest priced config');
+
+const stranded = mk('stranded', {}, { usedOnly: true, price: { usedPhp: 30_000 } });
+const st = defaultScore(scoreCatalog([stranded, mk('other')], BRIEF), stranded);
+assert.equal(st.config.code, 'STRANDED', 'nothing passing or priced: falls back to the first config');
+assert.equal(st.price, null);
+assert.equal(st.passes, false);
+assert.equal(st.dims.value, 0, 'no price, no value');
+
+const ranked = rankForBrief(CAT, BRIEF);
+assert.equal(ranked.length, 4);
+assert.ok(ranked.every((s, i) => i === 0 || ranked[i - 1].fit >= s.fit), 'sorted by fit');
+
+for (const uses of [['coding', 'editing'], ['gaming'], ['work'], []] as Brief['uses'][]) {
+  const t = idealAxes({ ...BRIEF, uses });
+  const w = axisWeights(uses);
+  near(t.performance * w.performance + t.battery * w.battery + t.portability * w.portability + t.value * w.value, RAW_CEIL, `ideal for ${uses.join('+') || 'none'} earns RAW_CEIL`);
+}
+assert.equal(idealAxes({ ...BRIEF, uses: ['gaming'] }).performance, 1, 'the gaming ideal maxes performance');
+
+assert.equal(scoreCatalog(CAT, BRIEF), scoreCatalog(CAT, { ...BRIEF }), 'memoized per brief');
+assert.notEqual(scoreCatalog(CAT, BRIEF), scoreCatalog(CAT, { ...BRIEF, uses: ['gaming'] }));
 
 console.log('shared ok');
