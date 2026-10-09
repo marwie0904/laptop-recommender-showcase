@@ -2,7 +2,7 @@ import type { Brief, UseCase } from '@shared/brief';
 import type { Config, Laptop } from '@shared/catalog';
 import { goodFor as goodForIn } from '@shared/scoring/compare';
 import type { Scored } from '@shared/scoring/fit';
-import { defaultScore, rankForBrief as rankIn, scoreCatalog } from '@shared/scoring/fit';
+import { defaultScore, rankForBrief as rankIn, scoreCatalog, topPick as topPickIn } from '@shared/scoring/fit';
 import { LAPTOPS } from '@/data/catalog';
 
 // Data layer: the app reads the catalog only through these.
@@ -18,6 +18,11 @@ export function getLaptop(slug: string): Laptop | undefined {
 /** Models that fit the brief, best fit first, each on its default config. */
 export function rankForBrief(brief: Brief): Scored[] {
   return rankIn(LAPTOPS, brief);
+}
+
+/** The model to feature for a brief, even when nothing fits it. */
+export function topPick(brief: Brief): Scored {
+  return topPickIn(LAPTOPS, brief);
 }
 
 /** Score for a laptop opened directly (details, compare): its default config, even when the brief excludes it. */

@@ -153,6 +153,11 @@ export function rankForBrief(catalog: Laptop[], b: Brief): Scored[] {
     .sort((x, y) => y.fit - x.fit || x.price!.php - y.price!.php);
 }
 
+/** The model to feature for a brief: its best match, or the first laptop's default config when nothing fits. */
+export function topPick(catalog: Laptop[], b: Brief): Scored {
+  return rankForBrief(catalog, b)[0] ?? defaultScore(scoreCatalog(catalog, b), catalog[0]);
+}
+
 /** The "perfect laptop" for a simple brief: shaped like the axis weights, scaled so it earns exactly RAW_CEIL. */
 export function idealAxes(b: Brief): Record<Axis, number> {
   const w = axisWeights(b.uses);

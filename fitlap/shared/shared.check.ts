@@ -6,7 +6,7 @@ import { CPU_FAMILIES, GPU_FAMILIES, isKnownFamily } from './hardware.ts';
 import { compareLabels, goodFor, missesGpu, portCount, wifiRank } from './scoring/compare.ts';
 import { displayRaw, mixHours, percentiles, staticDims } from './scoring/dimensions.ts';
 import { briefPrice, isSlim, passes, sizeBucket } from './scoring/filters.ts';
-import { axisWeights, defaultScore, idealAxes, rankForBrief, scoreCatalog, verdictFor } from './scoring/fit.ts';
+import { axisWeights, defaultScore, idealAxes, rankForBrief, scoreCatalog, topPick, verdictFor } from './scoring/fit.ts';
 import { PERF_MIX, RAW_CEIL, USE_WEIGHTS } from './scoring/weights.ts';
 
 const near = (a: number, b: number, msg: string) => assert.ok(Math.abs(a - b) < 1e-3, `${msg}: ${a} is not ≈ ${b}`);
@@ -193,6 +193,10 @@ for (const uses of [['coding', 'editing'], ['gaming'], ['work'], []] as Brief['u
 assert.equal(idealAxes({ ...BRIEF, uses: ['gaming'] }).performance, 1, 'the gaming ideal maxes performance');
 
 assert.equal(scoreCatalog(CAT, BRIEF), scoreCatalog(CAT, { ...BRIEF }), 'memoized per brief');
+const nothing = topPick([mk('xps', { weightKg: 1.68 })], { ...BRIEF, forms: ['slim'] });
+assert.equal(nothing.laptop.slug, 'xps', 'nothing fits: the landing hero still gets a laptop');
+assert.equal(nothing.passes, false);
+assert.equal(topPick(CAT, BRIEF), rankForBrief(CAT, BRIEF)[0], 'otherwise the best match');
 assert.notEqual(scoreCatalog(CAT, BRIEF), scoreCatalog(CAT, { ...BRIEF, uses: ['gaming'] }));
 
 // ── compare ──

@@ -12,8 +12,11 @@ export function priceLine(p: Price) {
   return 'New ' + fmtPhp(p.srpPhp) + (p.usedPhp !== undefined ? ' · Used ' + fmtPhp(p.usedPhp) : '');
 }
 
-/** Used vs SRP, in percent off: round((1 - used/srp) * 100). */
-export const usedDiscountPct = (srp: number, used: number) => Math.round((1 - used / srp) * 100);
+/** Used vs SRP, in percent off: round((1 - used/srp) * 100). Null when used isn't cheaper. */
+export function usedDiscountPct(srp: number, used: number): number | null {
+  const pct = Math.round((1 - used / srp) * 100);
+  return pct > 0 ? pct : null;
+}
 
 /** Discount colour tier (section 10). `big` is the font size used for the ≥50% tier. */
 export function discountTierStyle(pct: number, big = 15): CSSProperties {

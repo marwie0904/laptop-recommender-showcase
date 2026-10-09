@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useEffect, useState, type CSSProperties } from 'react';
 import type { Brief } from '@shared/brief';
 import { DEFAULT_BRIEF, USE_CASES, budgetCap, fmtStorage } from '@/lib/brief';
-import { baseConfig, getLaptops, rankForBrief } from '@/lib/catalog';
+import { baseConfig, getLaptops, rankForBrief, topPick } from '@/lib/catalog';
 import { fmtPhp, priceLine } from '@/lib/price';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import { DotFitChart } from '@/components/charts/DotFitChart';
@@ -19,7 +19,7 @@ import s from './landing.module.css';
 // ── Static data (pure, computed once) ─────────────────────────────────────────
 const LAPTOPS = getLaptops();
 const RANKED = rankForBrief(DEFAULT_BRIEF);
-const TOP = RANKED[0]; // DEFAULT_BRIEF matches 6 of the 7 seed laptops (seed.check.ts)
+const TOP = topPick(DEFAULT_BRIEF);
 const HOT = new Set(RANKED.filter((r) => r.hot).map((r) => r.laptop.slug));
 const TOP_PRICE = TOP.config.price;
 
