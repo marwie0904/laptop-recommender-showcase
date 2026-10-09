@@ -174,7 +174,7 @@ Battery and value depend on the brief, so they're recomputed whenever the brief 
     - Each label goes to the top laptop if it has no label yet, otherwise it's skipped. A tie for the top spot also skips the label.
 - **Good for:** up to 3 use cases whose single-use fit for the shown config is ≥ 80, best first.
 - **Unchanged from PLAN §5:**
-  - "matters for your use case" marks spec rows whose `PERF_MIX` weight is ≥ 0.2
+  - "matters for your use case" keeps `fitlap/`'s per-use `MATTERS` table, because `PERF_MIX` can't mark storage, ports, OS or size
   - "Your mix" battery uses the battery dimension's hours
   - "Thinner than X % of matches"
 - **`shared/scoring/weights.ts`** holds `PERF_MIX`, `USE_WEIGHTS`, the display constants, `RAW_CEIL`, the slim thresholds and the label order, all tuned in Phase 3.
