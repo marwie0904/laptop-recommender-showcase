@@ -1,0 +1,589 @@
+{
+  "builtAt": "2026-10-09",
+  "stats": {
+    "laptops": 7,
+    "sources": 0,
+    "latestPriceCheck": "2026-10-09"
+  },
+  "laptops": [
+    {
+      "slug": "macbook-pro-14-m4",
+      "brand": "Apple",
+      "model": "MacBook Pro 14\"",
+      "year": 2025,
+      "sizeIn": 14.2,
+      "weightKg": 1.55,
+      "dims": {
+        "w": 312.6,
+        "d": 221.2,
+        "h": 15.5
+      },
+      "archetype": "pro",
+      "metal": true,
+      "twoInOne": false,
+      "os": "macOS",
+      "ports": {
+        "left": [
+          "MagSafe 3",
+          "TB4",
+          "TB4",
+          "3.5 mm"
+        ],
+        "right": [
+          "SDXC",
+          "HDMI 2.1",
+          "TB4"
+        ]
+      },
+      "wifi": "6E",
+      "buildOverall": 9.1,
+      "hoursByUse": {
+        "video": 18,
+        "web": 14,
+        "coding": 11,
+        "office": 12,
+        "editing": 5.5,
+        "gaming": 2.5
+      },
+      "configs": [
+        {
+          "code": "MBP14-M",
+          "label": "16 · 512",
+          "color": "Space Black",
+          "cpu": {
+            "name": "Apple M4",
+            "cores": 10,
+            "score": 14800
+          },
+          "gpu": {
+            "name": "10-core GPU",
+            "score": 3200
+          },
+          "hw": {
+            "cpuBrand": "Apple",
+            "cpuFamily": "M4",
+            "gpuBrand": "Apple",
+            "gpuFamily": "10-core"
+          },
+          "ramGb": 16,
+          "storageGb": 512,
+          "display": {
+            "resolution": {
+              "w": 3024,
+              "h": 1964
+            },
+            "refreshHz": 120,
+            "nits": 1000,
+            "panel": "miniled",
+            "touch": false
+          },
+          "usedOnly": false,
+          "price": {
+            "srpPhp": 92990,
+            "srpSource": "Apple PH",
+            "srpSeenAt": "2026-10-09",
+            "usedPhp": 64990,
+            "usedKind": "estimate",
+            "usedSource": "Sample data",
+            "usedSeenAt": "2026-10-09"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "thinkpad-x1-carbon",
+      "brand": "Lenovo",
+      "model": "ThinkPad X1 Carbon",
+      "year": 2025,
+      "sizeIn": 14,
+      "weightKg": 0.99,
+      "dims": {
+        "w": 315.6,
+        "d": 222.5,
+        "h": 14.9
+      },
+      "archetype": "business",
+      "metal": true,
+      "twoInOne": false,
+      "os": "Windows 11",
+      "ports": {
+        "left": [
+          "TB4",
+          "TB4",
+          "HDMI 2.1",
+          "USB-A"
+        ],
+        "right": [
+          "USB-A",
+          "3.5 mm"
+        ]
+      },
+      "wifi": "7",
+      "buildOverall": 8.8,
+      "hoursByUse": {
+        "video": 15,
+        "web": 12,
+        "coding": 9,
+        "office": 11,
+        "editing": 4.5,
+        "gaming": 2
+      },
+      "configs": [
+        {
+          "code": "X1C-13",
+          "label": "32 · 1T",
+          "color": "Black",
+          "cpu": {
+            "name": "Core Ultra 7 258V",
+            "cores": 8,
+            "score": 11000
+          },
+          "gpu": {
+            "name": "Arc 140V",
+            "score": 2600
+          },
+          "hw": {
+            "cpuBrand": "Intel",
+            "cpuFamily": "Core Ultra 7",
+            "gpuBrand": "Intel",
+            "gpuFamily": "Arc 140V"
+          },
+          "ramGb": 32,
+          "storageGb": 1024,
+          "display": {
+            "resolution": {
+              "w": 2880,
+              "h": 1800
+            },
+            "refreshHz": 120,
+            "nits": 400,
+            "panel": "oled",
+            "touch": false
+          },
+          "usedOnly": false,
+          "price": {
+            "srpPhp": 100990,
+            "srpSource": "Lenovo PH",
+            "srpSeenAt": "2026-10-09",
+            "usedPhp": 60990,
+            "usedKind": "estimate",
+            "usedSource": "Sample data",
+            "usedSeenAt": "2026-10-09"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "zenbook-14-oled",
+      "brand": "ASUS",
+      "model": "Zenbook 14 OLED",
+      "year": 2025,
+      "sizeIn": 14,
+      "weightKg": 1.2,
+      "dims": {
+        "w": 312.4,
+        "d": 220.1,
+        "h": 14.9
+      },
+      "archetype": "chin",
+      "metal": true,
+      "twoInOne": false,
+      "os": "Windows 11",
+      "ports": {
+        "left": [
+          "TB4",
+          "TB4",
+          "HDMI 2.1"
+        ],
+        "right": [
+          "USB-A",
+          "3.5 mm"
+        ]
+      },
+      "wifi": "6E",
+      "buildOverall": 8.2,
+      "hoursByUse": {
+        "video": 17,
+        "web": 13,
+        "coding": 10,
+        "office": 12,
+        "editing": 4.5,
+        "gaming": 2
+      },
+      "configs": [
+        {
+          "code": "ZB14-O",
+          "label": "16 · 1T",
+          "color": "Ponder Blue",
+          "cpu": {
+            "name": "Core Ultra 7 155H",
+            "cores": 16,
+            "score": 12500
+          },
+          "gpu": {
+            "name": "Arc integrated",
+            "score": 1900
+          },
+          "hw": {
+            "cpuBrand": "Intel",
+            "cpuFamily": "Core Ultra 7",
+            "gpuBrand": "Intel",
+            "gpuFamily": "Arc"
+          },
+          "ramGb": 16,
+          "storageGb": 1024,
+          "display": {
+            "resolution": {
+              "w": 2880,
+              "h": 1800
+            },
+            "refreshHz": 120,
+            "nits": 550,
+            "panel": "oled",
+            "touch": false
+          },
+          "usedOnly": false,
+          "price": {
+            "srpPhp": 63990,
+            "srpSource": "ASUS PH",
+            "srpSeenAt": "2026-10-09",
+            "usedPhp": 43990,
+            "usedKind": "estimate",
+            "usedSource": "Sample data",
+            "usedSeenAt": "2026-10-09"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "dell-xps-14",
+      "brand": "Dell",
+      "model": "Dell XPS 14",
+      "year": 2025,
+      "sizeIn": 14.5,
+      "weightKg": 1.68,
+      "dims": {
+        "w": 310,
+        "d": 209.5,
+        "h": 18
+      },
+      "archetype": "creator",
+      "metal": true,
+      "twoInOne": false,
+      "os": "Windows 11",
+      "ports": {
+        "left": [
+          "TB4",
+          "TB4"
+        ],
+        "right": [
+          "TB4",
+          "3.5 mm"
+        ]
+      },
+      "wifi": "7",
+      "buildOverall": 8.5,
+      "hoursByUse": {
+        "video": 13,
+        "web": 10,
+        "coding": 7,
+        "office": 9,
+        "editing": 4,
+        "gaming": 2
+      },
+      "configs": [
+        {
+          "code": "XPS14",
+          "label": "16 · 512",
+          "color": "Platinum",
+          "cpu": {
+            "name": "Core Ultra 7 155H",
+            "cores": 16,
+            "score": 12500
+          },
+          "gpu": {
+            "name": "Arc integrated",
+            "score": 1900
+          },
+          "hw": {
+            "cpuBrand": "Intel",
+            "cpuFamily": "Core Ultra 7",
+            "gpuBrand": "Intel",
+            "gpuFamily": "Arc"
+          },
+          "ramGb": 16,
+          "storageGb": 512,
+          "display": {
+            "resolution": {
+              "w": 1920,
+              "h": 1200
+            },
+            "refreshHz": 120,
+            "nits": 500,
+            "panel": "ips",
+            "touch": false
+          },
+          "usedOnly": false,
+          "price": {
+            "srpPhp": 86990,
+            "srpSource": "Dell PH",
+            "srpSeenAt": "2026-10-09",
+            "usedPhp": 49990,
+            "usedKind": "estimate",
+            "usedSource": "Sample data",
+            "usedSeenAt": "2026-10-09"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "rog-zephyrus-g14",
+      "brand": "ASUS",
+      "model": "ROG Zephyrus G14",
+      "year": 2025,
+      "sizeIn": 14,
+      "weightKg": 1.5,
+      "dims": {
+        "w": 311,
+        "d": 220,
+        "h": 16.3
+      },
+      "archetype": "gamingSlim",
+      "metal": true,
+      "twoInOne": false,
+      "os": "Windows 11",
+      "ports": {
+        "left": [
+          "Power",
+          "HDMI 2.1",
+          "USB4",
+          "3.5 mm"
+        ],
+        "right": [
+          "USB-A",
+          "USB-A",
+          "SD"
+        ]
+      },
+      "wifi": "6E",
+      "buildOverall": 8.4,
+      "hoursByUse": {
+        "video": 10,
+        "web": 8,
+        "coding": 6,
+        "office": 7,
+        "editing": 4,
+        "gaming": 1.5
+      },
+      "configs": [
+        {
+          "code": "G14-25",
+          "label": "32 · 1T",
+          "color": "Eclipse Gray",
+          "cpu": {
+            "name": "Ryzen AI 9 HX 370",
+            "cores": 12,
+            "score": 15200
+          },
+          "gpu": {
+            "name": "RTX 4070",
+            "score": 8600
+          },
+          "hw": {
+            "cpuBrand": "AMD",
+            "cpuFamily": "Ryzen AI 9",
+            "gpuBrand": "NVIDIA",
+            "gpuFamily": "RTX 4070"
+          },
+          "ramGb": 32,
+          "storageGb": 1024,
+          "display": {
+            "resolution": {
+              "w": 2880,
+              "h": 1800
+            },
+            "refreshHz": 120,
+            "nits": 500,
+            "panel": "oled",
+            "touch": false
+          },
+          "usedOnly": false,
+          "price": {
+            "srpPhp": 115990,
+            "srpSource": "ASUS PH",
+            "srpSeenAt": "2026-10-09",
+            "usedPhp": 92990,
+            "usedKind": "estimate",
+            "usedSource": "Sample data",
+            "usedSeenAt": "2026-10-09"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "surface-laptop-7",
+      "brand": "Microsoft",
+      "model": "Surface Laptop 7",
+      "year": 2025,
+      "sizeIn": 13.8,
+      "weightKg": 1.34,
+      "dims": {
+        "w": 301,
+        "d": 220,
+        "h": 17.5
+      },
+      "archetype": "wedge",
+      "metal": true,
+      "twoInOne": false,
+      "os": "Windows 11 (Arm)",
+      "ports": {
+        "left": [
+          "USB4",
+          "USB4"
+        ],
+        "right": [
+          "USB-A",
+          "3.5 mm",
+          "Surface Connect"
+        ]
+      },
+      "wifi": "7",
+      "buildOverall": 8.6,
+      "hoursByUse": {
+        "video": 20,
+        "web": 15,
+        "coding": 14,
+        "office": 15,
+        "editing": 5,
+        "gaming": 2
+      },
+      "configs": [
+        {
+          "code": "SL7-13",
+          "label": "16 · 512",
+          "color": "Platinum",
+          "cpu": {
+            "name": "Snapdragon X Elite",
+            "cores": 12,
+            "score": 14300
+          },
+          "gpu": {
+            "name": "Adreno X1",
+            "score": 1800
+          },
+          "hw": {
+            "cpuBrand": "Qualcomm",
+            "cpuFamily": "Snapdragon X Elite",
+            "gpuBrand": "Qualcomm",
+            "gpuFamily": "Adreno X1"
+          },
+          "ramGb": 16,
+          "storageGb": 512,
+          "display": {
+            "resolution": {
+              "w": 2304,
+              "h": 1536
+            },
+            "refreshHz": 120,
+            "nits": 600,
+            "panel": "ips",
+            "touch": true
+          },
+          "usedOnly": false,
+          "price": {
+            "srpPhp": 69990,
+            "srpSource": "Microsoft PH",
+            "srpSeenAt": "2026-10-09",
+            "usedPhp": 36990,
+            "usedKind": "estimate",
+            "usedSource": "Sample data",
+            "usedSeenAt": "2026-10-09"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "galaxy-book4-pro",
+      "brand": "Samsung",
+      "model": "Galaxy Book4 Pro",
+      "year": 2025,
+      "sizeIn": 14,
+      "weightKg": 1.23,
+      "dims": {
+        "w": 312.3,
+        "d": 223.8,
+        "h": 11.6
+      },
+      "archetype": "convertible",
+      "metal": true,
+      "twoInOne": true,
+      "os": "Windows 11",
+      "ports": {
+        "left": [
+          "TB4",
+          "TB4",
+          "HDMI"
+        ],
+        "right": [
+          "USB-A",
+          "microSD",
+          "3.5 mm"
+        ]
+      },
+      "wifi": "6E",
+      "buildOverall": 8,
+      "hoursByUse": {
+        "video": 16,
+        "web": 12,
+        "coding": 9,
+        "office": 11,
+        "editing": 4,
+        "gaming": 1.5
+      },
+      "configs": [
+        {
+          "code": "GB4-P",
+          "label": "16 · 512",
+          "color": "Moonstone Gray",
+          "cpu": {
+            "name": "Core Ultra 7 155H",
+            "cores": 16,
+            "score": 12500
+          },
+          "gpu": {
+            "name": "Arc integrated",
+            "score": 1900
+          },
+          "hw": {
+            "cpuBrand": "Intel",
+            "cpuFamily": "Core Ultra 7",
+            "gpuBrand": "Intel",
+            "gpuFamily": "Arc"
+          },
+          "ramGb": 16,
+          "storageGb": 512,
+          "display": {
+            "resolution": {
+              "w": 2880,
+              "h": 1800
+            },
+            "refreshHz": 120,
+            "nits": 500,
+            "panel": "oled",
+            "touch": true
+          },
+          "usedOnly": false,
+          "price": {
+            "srpPhp": 83990,
+            "srpSource": "Samsung PH",
+            "srpSeenAt": "2026-10-09",
+            "usedPhp": 39990,
+            "usedKind": "estimate",
+            "usedSource": "Sample data",
+            "usedSeenAt": "2026-10-09"
+          }
+        }
+      ]
+    }
+  ]
+}

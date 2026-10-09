@@ -1,0 +1,310 @@
+{
+  "macbook-pro-14-m4": {
+    "build": {
+      "materials": 9.5,
+      "rigidity": 9,
+      "hinge": 8.5,
+      "keyboard": 8,
+      "trackpad": 10,
+      "thermals": 9,
+      "notes": {
+        "materials": "Recycled aluminium; no creak when lifted by a corner.",
+        "rigidity": "Almost no deck flex while typing.",
+        "hinge": "Opens with one finger; slight wobble on trains.",
+        "keyboard": "1 mm travel, quiet. Backlit.",
+        "trackpad": "Large haptic glass; best in class.",
+        "thermals": "Fan rarely audible when coding."
+      },
+      "chassis": "Aluminium unibody",
+      "repairability": "Low · soldered RAM",
+      "warrantyYears": 1
+    },
+    "specNotes": {
+      "cpu": "Fast compiles, light on battery",
+      "gpu": "Fine for editing; weak for AAA games",
+      "ram": "Not upgradeable later",
+      "storage": "~3,000 MB/s read",
+      "display": "3024 × 1964 · 120 Hz · 1000 nits",
+      "ports": "MagSafe 3 · headphone jack",
+      "wireless": "Fast enough for cloud editing",
+      "webcam": "Keeps you framed on calls",
+      "os": "Windows-only apps need a VM",
+      "size": "15.5 mm thin · 1.55 kg"
+    },
+    "summary": "Strong CPU for builds, quiet under load, long battery. Gaming is its weak spot.",
+    "weakness": "",
+    "battery": {
+      "wh": 72.4,
+      "chargerW": 70,
+      "fastChargeMin": 30,
+      "unpluggedPerf": "Same as plugged"
+    },
+    "bt": "5.3",
+    "webcam": "12 MP Center Stage",
+    "sources": []
+  },
+  "thinkpad-x1-carbon": {
+    "build": {
+      "materials": 9,
+      "rigidity": 8.5,
+      "hinge": 9,
+      "keyboard": 10,
+      "trackpad": 7.5,
+      "thermals": 8,
+      "notes": {
+        "materials": "Carbon lid feels warm, not cheap. Shows fingerprints.",
+        "rigidity": "Slight flex in the lid centre, none in the deck.",
+        "hinge": "Opens 180° flat; holds any angle.",
+        "keyboard": "1.5 mm travel. The best keyboard here.",
+        "trackpad": "Smaller than rivals; physical buttons above it.",
+        "thermals": "Fan audible during builds, quiet otherwise."
+      },
+      "chassis": "Carbon fibre + magnesium",
+      "repairability": "Medium · M.2 SSD swappable",
+      "warrantyYears": 3
+    },
+    "specNotes": {
+      "cpu": "Efficient; good for builds and tests",
+      "gpu": "Light editing only",
+      "ram": "Plenty for containers and VMs",
+      "storage": "M.2, swappable",
+      "display": "2880 × 1800 · 120 Hz · 400 nits",
+      "ports": "No dongles needed",
+      "wireless": "Optional 5G modem",
+      "webcam": "Face unlock and privacy shutter",
+      "os": "Linux certified",
+      "size": "14.9 mm thin · 0.99 kg"
+    },
+    "summary": "Best keyboard here and under a kilo. Integrated graphics limit heavy editing.",
+    "weakness": "",
+    "battery": {
+      "wh": 57,
+      "chargerW": 65,
+      "fastChargeMin": 35,
+      "unpluggedPerf": "Slightly slower"
+    },
+    "bt": "5.4",
+    "webcam": "5 MP IR",
+    "sources": []
+  },
+  "zenbook-14-oled": {
+    "build": {
+      "materials": 8.5,
+      "rigidity": 8,
+      "hinge": 8,
+      "keyboard": 8,
+      "trackpad": 7.5,
+      "thermals": 7.5,
+      "notes": {
+        "materials": "Matte aluminium; resists fingerprints.",
+        "rigidity": "Minor flex above the keyboard.",
+        "hinge": "Lifts the deck slightly for airflow.",
+        "keyboard": "Comfortable travel, a little soft.",
+        "trackpad": "Glass, decent size, average click.",
+        "thermals": "Gets warm on long exports."
+      },
+      "chassis": "Aluminium",
+      "repairability": "Medium · M.2 SSD swappable",
+      "warrantyYears": 1
+    },
+    "specNotes": {
+      "cpu": "Strong multi-core for the price",
+      "gpu": "Handles 1080p edits",
+      "ram": "Soldered",
+      "storage": "M.2, swappable",
+      "display": "2880 × 1800 · 120 Hz · 550 nits",
+      "ports": "Full-size HDMI",
+      "wireless": "Solid range",
+      "webcam": "Face unlock",
+      "os": "Some bundled apps",
+      "size": "14.9 mm thin · 1.20 kg"
+    },
+    "summary": "OLED screen and long battery for the price. Thermals hold it back on long renders.",
+    "weakness": "",
+    "battery": {
+      "wh": 75,
+      "chargerW": 65,
+      "fastChargeMin": 35,
+      "unpluggedPerf": "Slightly slower"
+    },
+    "bt": "5.3",
+    "webcam": "1080p IR",
+    "sources": []
+  },
+  "dell-xps-14": {
+    "build": {
+      "materials": 9,
+      "rigidity": 9,
+      "hinge": 8.5,
+      "keyboard": 7,
+      "trackpad": 7.5,
+      "thermals": 8,
+      "notes": {
+        "materials": "Glass palm rest; feels premium, smudges fast.",
+        "rigidity": "Solid slab; no flex anywhere.",
+        "hinge": "Smooth, but needs two hands.",
+        "keyboard": "Zero-lattice keys; shallow travel.",
+        "trackpad": "Invisible haptic pad; edges hard to find.",
+        "thermals": "Quiet until sustained loads."
+      },
+      "chassis": "CNC aluminium + glass",
+      "repairability": "Low · soldered RAM",
+      "warrantyYears": 1
+    },
+    "specNotes": {
+      "cpu": "Good for builds",
+      "gpu": "Light editing only",
+      "ram": "Soldered",
+      "storage": "M.2, swappable",
+      "display": "1920 × 1200 · 120 Hz · 500 nits",
+      "ports": "Dongle needed for USB-A and HDMI",
+      "wireless": "Fast and stable",
+      "webcam": "Face unlock",
+      "os": "Clean install",
+      "size": "18 mm thick · 1.68 kg"
+    },
+    "summary": "Clean design and a sharp screen. Heavy for its size and short on ports.",
+    "weakness": "",
+    "battery": {
+      "wh": 69.5,
+      "chargerW": 100,
+      "fastChargeMin": 40,
+      "unpluggedPerf": "Slightly slower"
+    },
+    "bt": "5.4",
+    "webcam": "1080p IR",
+    "sources": []
+  },
+  "rog-zephyrus-g14": {
+    "build": {
+      "materials": 8.5,
+      "rigidity": 8.5,
+      "hinge": 8,
+      "keyboard": 8,
+      "trackpad": 8,
+      "thermals": 7.5,
+      "notes": {
+        "materials": "Aluminium shell with a light-bar lid.",
+        "rigidity": "Stiff deck; slight lid twist.",
+        "hinge": "Lifts the base for cooling.",
+        "keyboard": "Good travel, per-key backlight.",
+        "trackpad": "Large glass pad; accurate.",
+        "thermals": "Loud fans when gaming."
+      },
+      "chassis": "Aluminium",
+      "repairability": "Medium · SSD swappable",
+      "warrantyYears": 1
+    },
+    "specNotes": {
+      "cpu": "12 cores; fastest compiles here",
+      "gpu": "Handles 4K edits and AAA games",
+      "ram": "Soldered",
+      "storage": "M.2, swappable",
+      "display": "2880 × 1800 · 120 Hz · 500 nits",
+      "ports": "Most ports here",
+      "wireless": "Solid range",
+      "webcam": "Face unlock",
+      "os": "Armoury Crate preinstalled",
+      "size": "16.3 mm thin · 1.50 kg"
+    },
+    "summary": "Real GPU in a 14\" body. Battery and price are the trade-off.",
+    "weakness": "",
+    "battery": {
+      "wh": 73,
+      "chargerW": 200,
+      "fastChargeMin": 30,
+      "unpluggedPerf": "Much slower"
+    },
+    "bt": "5.3",
+    "webcam": "1080p IR",
+    "sources": []
+  },
+  "surface-laptop-7": {
+    "build": {
+      "materials": 9,
+      "rigidity": 8.5,
+      "hinge": 8.5,
+      "keyboard": 8.5,
+      "trackpad": 9,
+      "thermals": 9,
+      "notes": {
+        "materials": "Anodised aluminium in four colours.",
+        "rigidity": "Firm deck; minimal flex.",
+        "hinge": "One-finger open, steady screen.",
+        "keyboard": "Quiet, well spaced.",
+        "trackpad": "Haptic, large, precise.",
+        "thermals": "Silent in most work."
+      },
+      "chassis": "Aluminium",
+      "repairability": "Medium · SSD swappable",
+      "warrantyYears": 1
+    },
+    "specNotes": {
+      "cpu": "Efficient; some x86 apps emulated",
+      "gpu": "Weak for editing and games",
+      "ram": "Soldered",
+      "storage": "Swappable",
+      "display": "2304 × 1536 · 120 Hz · 600 nits",
+      "ports": "Plus Surface Connect",
+      "wireless": "Fast and stable",
+      "webcam": "Good in low light",
+      "os": "Check your tools run on Arm",
+      "size": "17.5 mm thick · 1.34 kg"
+    },
+    "summary": "Longest battery here. Some dev tools and games still lack Arm builds.",
+    "weakness": "",
+    "battery": {
+      "wh": 54,
+      "chargerW": 65,
+      "fastChargeMin": 30,
+      "unpluggedPerf": "Same as plugged"
+    },
+    "bt": "5.4",
+    "webcam": "1080p Studio",
+    "sources": []
+  },
+  "galaxy-book4-pro": {
+    "build": {
+      "materials": 8,
+      "rigidity": 7.5,
+      "hinge": 8,
+      "keyboard": 7.5,
+      "trackpad": 8.5,
+      "thermals": 7,
+      "notes": {
+        "materials": "Thin aluminium; light but dents easily.",
+        "rigidity": "Noticeable flex in the middle.",
+        "hinge": "360° hinge; firm in tent mode.",
+        "keyboard": "Shallow but accurate.",
+        "trackpad": "Very large; good palm rejection.",
+        "thermals": "Throttles on long loads."
+      },
+      "chassis": "Aluminium",
+      "repairability": "Low · soldered RAM",
+      "warrantyYears": 1
+    },
+    "specNotes": {
+      "cpu": "Good for builds",
+      "gpu": "Light editing only",
+      "ram": "Soldered",
+      "storage": "Swappable",
+      "display": "2880 × 1800 · 120 Hz · 500 nits",
+      "ports": "Plus microSD",
+      "wireless": "Solid range",
+      "webcam": "Average in low light",
+      "os": "Samsung apps preinstalled",
+      "size": "11.6 mm thin · 1.23 kg"
+    },
+    "summary": "Thinnest here with a bright AMOLED touch screen. Integrated graphics only.",
+    "weakness": "",
+    "battery": {
+      "wh": 63,
+      "chargerW": 65,
+      "fastChargeMin": 35,
+      "unpluggedPerf": "Slightly slower"
+    },
+    "bt": "5.3",
+    "webcam": "1080p",
+    "sources": []
+  }
+}
