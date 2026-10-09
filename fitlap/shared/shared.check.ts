@@ -4,6 +4,7 @@ import type { Brief } from './brief.ts';
 import type { Config, Laptop } from './catalog.ts';
 import { CPU_FAMILIES, GPU_FAMILIES, isKnownFamily } from './hardware.ts';
 import { displayRaw, mixHours, percentiles, staticDims } from './scoring/dimensions.ts';
+import { briefPrice, isSlim, passes, sizeBucket } from './scoring/filters.ts';
 import { PERF_MIX, USE_WEIGHTS } from './scoring/weights.ts';
 
 const near = (a: number, b: number, msg: string) => assert.ok(Math.abs(a - b) < 1e-3, `${msg}: ${a} is not ≈ ${b}`);
@@ -74,5 +75,50 @@ assert.equal(staticDims(pair), dims, 'cached per catalog array');
 near(mixHours(light, { ...BRIEF, uses: ['coding', 'gaming'] }), 6, 'mean of coding 10 h and gaming 2 h');
 near(mixHours(light, { ...BRIEF, uses: [] }), 11, 'no use case = work = office hours');
 near(mixHours(light, { ...BRIEF, mode: 'advanced', uses: ['gaming'] }), 12, 'advanced mode = web hours');
+
+// ── filters ──
+const base = mk('base');
+const c0 = base.configs[0];
+assert.deepEqual(briefPrice(c0, BRIEF), { php: 80_000, used: false }, 'SRP when used is off');
+assert.deepEqual(briefPrice(c0, { ...BRIEF, includeUsed: true }), { php: 55_000, used: true }, 'the lower of SRP and used');
+const usedOnly = mk('usedonly', {}, { usedOnly: true, price: { usedPhp: 30_000 } });
+assert.equal(briefPrice(usedOnly.configs[0], BRIEF), null, 'used-only needs Including used');
+assert.deepEqual(briefPrice(usedOnly.configs[0], { ...BRIEF, includeUsed: true }), { php: 30_000, used: true });
+const odd = mk('odd', {}, { price: { srpPhp: 40_000, usedPhp: 45_000 } });
+assert.deepEqual(briefPrice(odd.configs[0], { ...BRIEF, includeUsed: true }), { php: 40_000, used: false }, 'a used price above SRP is ignored');
+
+const ok = (l: Laptop, b: Partial<Brief>) => passes(l, l.configs[0], { ...BRIEF, ...b });
+assert.equal(ok(base, {}), true, 'the top step has no price cap');
+assert.equal(ok(usedOnly, {}), false, 'top step + New only still hides used-only configs');
+assert.equal(ok(base, { budgetMax: 75_000 }), false, 'SRP over budget');
+assert.equal(ok(base, { budgetMax: 75_000, includeUsed: true }), true, 'the used price fits');
+assert.equal(ok(base, { minRamGb: 32 }), false);
+assert.equal(ok(base, { minStorageGb: 1024 }), false);
+assert.equal(isSlim(mk('edge', { weightKg: 1.6, dims: { w: 300, d: 200, h: 18 } })), true, 'slim limits are inclusive');
+assert.equal(ok(mk('chunky', { weightKg: 1.68 }), { forms: ['slim'] }), false, 'slim is a hard filter');
+assert.equal(ok(mk('plastic', { metal: false }), { forms: ['metal'] }), false, 'metal is a hard filter');
+assert.equal(ok(base, { forms: ['convertible'] }), false);
+assert.equal(ok(mk('flip', { twoInOne: true }), { forms: ['convertible'] }), true);
+assert.equal(ok(mk('big', { sizeIn: 16 }), { forms: ['bigScreen'] }), true);
+assert.equal(ok(mk('almost', { sizeIn: 15.6 }), { forms: ['bigScreen'] }), false);
+assert.equal(ok(mk('all', { twoInOne: true }), { forms: ['slim', 'metal', 'convertible'] }), true, 'chips combine with AND');
+
+const adv = (l: Laptop, a: Partial<Brief['advanced']>) => ok(l, { mode: 'advanced', advanced: { ...BRIEF.advanced, ...a } });
+const intel = (f: string) => CPU_FAMILIES.Intel.indexOf(f);
+assert.equal(ok(base, { advanced: { ...BRIEF.advanced, brands: ['Nope'] } }), true, 'advanced filters are ignored in simple mode');
+assert.equal(adv(base, {}), true, 'empty groups match everything');
+assert.equal(adv(base, { brands: ['Acme'] }), true);
+assert.equal(adv(base, { brands: ['Dell'] }), false);
+assert.equal(adv(base, { cpu: { brand: 'Intel', range: [intel('Core Ultra 5'), intel('Core Ultra 7')] } }), true, 'Core Ultra 7 inside 5..7');
+assert.equal(adv(base, { cpu: { brand: 'Intel', range: [intel('Core Ultra 9'), intel('Core Ultra 9')] } }), false);
+assert.equal(adv(base, { cpu: { brand: 'AMD', range: [0, CPU_FAMILIES.AMD.length - 1] } }), false, 'wrong CPU brand');
+assert.equal(adv(base, { gpu: { brand: 'NVIDIA', range: [0, GPU_FAMILIES.NVIDIA.length - 1] } }), false, 'integrated Arc is not NVIDIA');
+assert.equal(adv(base, { batteryH: [12, 24] }), true, '12 h web, open top end');
+assert.equal(adv(base, { batteryH: [0, 10] }), false, 'over the upper limit');
+assert.equal(adv(mk('marathon', { hoursByUse: { ...base.hoursByUse, web: 30 } }), { batteryH: [12, 24] }), true, '24 means no upper limit');
+assert.equal(adv(base, { screens: ['ips'] }), false);
+assert.equal(adv(base, { screens: ['oled', 'ips'] }), true);
+assert.deepEqual([13.3, 14.2, 15.6, 16, 17.3].map(sizeBucket), [13, 14, 15, 16, 16]);
+assert.equal(adv(mk('fourteen', { sizeIn: 14.2 }), { sizes: [14] }), true);
 
 console.log('shared ok');
