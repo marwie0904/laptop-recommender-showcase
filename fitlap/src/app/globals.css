@@ -1,0 +1,128 @@
+/* ── Tokens (ported 1:1 from the prototypes' .fl blocks) ─────────────────── */
+:root {
+  --bg: #DEDEDE; --panel: #EBEBEB; --raised: #F7F7F7; --card: #F2F2F2; --card2: #E6E6E6; --slot: #E1E1E1;
+  --line: #C4C4C4; --line2: #D3D3D3; --knob: #CFCFCF; --track: #B5B5B5; --faint: #9A9A9A;
+  --sub: #6B6B6B; --sub2: #4A4A4A; --ink: #111111; --on-ink: #FFFFFF; --pop: #FFFFFF;
+  --glass: rgba(255,255,255,0.82); --hdr: rgba(222,222,222,0.88); --dash: #FFFFFF;
+  --d-y: #A16207; --d-o: #C2410C; --d-r: #C81E1E; --good: #3F8F2F; --skel: #D9D9D9;
+  --accent: #E0581F; --blue: #1E6BF2; --lime: #9DB227;
+  color-scheme: light;
+}
+/* .dark-scope forces the dark token set on always-dark surfaces (landing "Why", used price tag) */
+:root[data-theme=dark], .dark-scope {
+  --bg: #0E0E0F; --panel: #18181A; --raised: #26262A; --card: #1F1F22; --card2: #1C1C1F; --slot: #141416;
+  --line: #3A3A3E; --line2: #2A2A2E; --knob: #3A3A3E; --track: #4A4A4F; --faint: #5E5E63;
+  --sub: #9C9CA3; --sub2: #C4C4CA; --ink: #EDEDED; --on-ink: #111111; --pop: #26262A;
+  --glass: rgba(24,24,26,0.86); --hdr: rgba(14,14,15,0.86); --dash: #3A3A3E;
+  --d-y: #E8B931; --d-o: #F07A3E; --d-r: #FF5C5C; --good: #6CC25A; --skel: #26262A;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme=auto] {
+    --bg: #0E0E0F; --panel: #18181A; --raised: #26262A; --card: #1F1F22; --card2: #1C1C1F; --slot: #141416;
+    --line: #3A3A3E; --line2: #2A2A2E; --knob: #3A3A3E; --track: #4A4A4F; --faint: #5E5E63;
+    --sub: #9C9CA3; --sub2: #C4C4CA; --ink: #EDEDED; --on-ink: #111111; --pop: #26262A;
+    --glass: rgba(24,24,26,0.86); --hdr: rgba(14,14,15,0.86); --dash: #3A3A3E;
+    --d-y: #E8B931; --d-o: #F07A3E; --d-r: #FF5C5C; --good: #6CC25A; --skel: #26262A;
+    color-scheme: dark;
+  }
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-urbanist), 'Urbanist', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+button, input { font-family: inherit; color: inherit; }
+a { color: var(--ink); }
+a:hover { color: #C2410C; }
+
+/* ── Shared interaction utilities (from the prototypes) ───────────────────── */
+.ring:hover { border-color: var(--ink) !important; }
+.cta .arw { transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+.cta:hover .arw { transform: translateX(5px); }
+.marq { animation: marquee 38s linear infinite; }
+.marq:hover { animation-play-state: paused; }
+
+/* Rail: custom scrollbar (6.4) */
+.rail::-webkit-scrollbar { height: 16px; }
+.rail::-webkit-scrollbar-track { margin: 0 8px; background: linear-gradient(var(--track), var(--track)) center / 100% 1px no-repeat; }
+.rail::-webkit-scrollbar-thumb { background-color: var(--ink); border-radius: 999px; border: 6px solid transparent; background-clip: padding-box; transition: background-color .3s; }
+.rail::-webkit-scrollbar-thumb:hover { border-width: 4px; background-color: #E0581F; }
+.rail::-webkit-scrollbar-thumb:active { border-width: 4px; background-color: #C2410C; }
+.rail::-webkit-scrollbar-button { display: none; }
+@supports not selector(::-webkit-scrollbar) { .rail { scrollbar-width: thin; scrollbar-color: var(--ink) transparent; } }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Edge fade on horizontal scrollers (6.13). ScrollRow toggles .scrollRow only when the row overflows. */
+@property --sf { syntax: '<length>'; inherits: false; initial-value: 56px; }
+.scrollRow {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--sf)), transparent);
+          mask-image: linear-gradient(to right, #000 calc(100% - var(--sf)), transparent);
+}
+@supports (animation-timeline: scroll()) {
+  .scrollRow { animation: sfade linear both; animation-timeline: scroll(self inline); }
+}
+
+/* ── Theme iris (4.3) ─────────────────────────────────────────────────────── */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root) { animation: themeIris 700ms cubic-bezier(.4,0,.2,1); }
+
+/* ── Keyframes (section 7). One keyframe per effect; replay with a React key. ─ */
+@keyframes themeIris { from { clip-path: circle(0px at var(--tx,50%) var(--ty,40px)); } to { clip-path: circle(var(--tr,160vmax) at var(--tx,50%) var(--ty,40px)); } }
+@keyframes iconSpin { from { transform: rotate(-120deg) scale(.4); opacity: 0; } }
+@keyframes sfade { 0%, 80% { --sf: 56px; } 100% { --sf: 0px; } }
+@keyframes navDrop { from { opacity: 0; transform: translateY(-26px) rotate(-90deg); } to { opacity: 1; transform: none; } }
+@keyframes railIn { from { transform: translateX(115vw); } to { transform: translateX(0); } }
+@keyframes railInShort { from { transform: translateX(110vw); } to { transform: translateX(0); } }
+@keyframes railInLanding { from { transform: translateX(70vw); } to { transform: translateX(0); } }
+@keyframes sleepers { from { background-position: 0 0; } to { background-position: -900px 0; } }
+@keyframes dith { 0% { opacity: 0; transform: scale(0); } 30% { opacity: 1; transform: scale(1.7); } 45% { opacity: .1; } 65% { opacity: 1; transform: scale(1); } 100% { transform: scale(1); } }
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes wipeIn { from { clip-path: inset(0 0 0 100%); transform: translateX(60px); } to { clip-path: inset(0 0 0 0); transform: none; } }
+@keyframes printIn { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes printOut { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 0 100%); } }
+@keyframes scan { from { transform: translateY(-120%); } to { transform: translateY(420%); } }
+@keyframes tick { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes lid { 0% { transform: perspective(900px) rotateX(-90deg); } 55% { transform: perspective(900px) rotateX(9deg); } 75% { transform: perspective(900px) rotateX(-3deg); } 100% { transform: perspective(900px) rotateX(0deg); } }
+@keyframes lidHero { 0% { transform: perspective(1000px) rotateX(-90deg); } 55% { transform: perspective(1000px) rotateX(9deg); } 75% { transform: perspective(1000px) rotateX(-3deg); } 100% { transform: perspective(1000px) rotateX(0deg); } }
+@keyframes power { 0%, 50% { opacity: 0; filter: brightness(3); } 60% { opacity: 1; } 66% { opacity: .25; } 74% { opacity: 1; filter: brightness(1.6); } 100% { opacity: 1; filter: none; } }
+@keyframes deck { 0% { transform: translateY(14px); opacity: 0; } 40% { transform: none; opacity: 1; } }
+@keyframes deckHero { from { transform: translateY(16px); opacity: 0; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes backdropIn { from { opacity: 0; } }
+@keyframes panelLid { 0% { opacity: 0; transform: perspective(1200px) rotateX(-70deg) translateY(40px); } 60% { opacity: 1; transform: perspective(1200px) rotateX(6deg); } 80% { transform: perspective(1200px) rotateX(-2deg); } 100% { transform: perspective(1200px) rotateX(0deg); } }
+@keyframes loadbar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes popDot { from { transform: scale(0); } }
+@keyframes pulse { 0%, 100% { opacity: .25; transform: scale(.6); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes skel { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes drawRing { from { stroke-dashoffset: 352; } to { stroke-dashoffset: 0; } }
+@keyframes iconIn { from { opacity: 0; transform: translateY(8px) scale(.8); } }
+@keyframes rollUp { from { transform: translateY(70%); opacity: 0; filter: blur(3px); } to { transform: none; opacity: 1; filter: none; } }
+@keyframes rollDown { from { transform: translateY(-70%); opacity: 0; filter: blur(3px); } to { transform: none; opacity: 1; filter: none; } }
+@keyframes nope { 0%, 100% { transform: none; } 20% { transform: translateX(-8px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+@keyframes crtOn { 0% { transform: scale(0,.006); filter: brightness(4); } 35% { transform: scale(1,.006); filter: brightness(4); } 70% { transform: scale(1,1); filter: brightness(1.7); } 100% { transform: none; filter: none; } }
+@keyframes iris { from { clip-path: circle(0% at 50% 55%); } to { clip-path: circle(80% at 50% 55%); } }
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } }
+@keyframes riseFar { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+@keyframes slab { from { transform: scaleX(0); } }
+@keyframes keyIn { from { opacity: 0; transform: translateY(-10px); } }
+@keyframes squeeze { to { transform: scaleX(0); opacity: 0; } }
+@keyframes unfurl { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes floatIn { from { opacity: 0; transform: translateY(18px) scale(.94); } }
+@keyframes windReveal { from { clip-path: inset(0 100% 0 0); filter: contrast(2.5) brightness(1.3); transform: translateX(-24px); } 55% { filter: contrast(1.5); } to { clip-path: inset(0 0 0 0); filter: none; transform: none; } }
+@keyframes pop { from { opacity: 0; transform: scale(.3); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

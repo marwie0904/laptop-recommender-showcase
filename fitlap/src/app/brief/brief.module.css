@@ -1,0 +1,89 @@
+/* Static styles from design-reference/02-brief.dc.html. Animations live in inline styles (global keyframes). */
+
+.wrap { max-width: 1440px; margin: 0 auto; padding: 18px 20px 28px; display: flex; flex-direction: column; gap: 14px; }
+
+/* Header */
+.header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 4px 8px; }
+.progress { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--sub2); }
+.dots { display: flex; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; box-sizing: border-box; transition: background-color .35s; }
+.actions { display: flex; align-items: center; gap: 8px; }
+.skip { min-height: 44px; display: inline-flex; align-items: center; padding: 0 20px; border-radius: 999px; border: 1px solid var(--line); text-decoration: none; font-size: 14px; }
+
+/* Use case + form */
+.top { display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch; }
+.main { flex: 999 1 560px; min-width: 0; background: var(--panel); border-radius: 22px; padding: 26px; display: flex; flex-direction: column; gap: 24px; }
+.titleRow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.titleCol { display: flex; flex-direction: column; gap: 4px; }
+.label { font-size: 13px; font-weight: 300; color: var(--sub); }
+.title { font-size: 40px; font-weight: 300; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 18px 14px; }
+.uc:hover { --ct-hover: 1.06; }
+.divider { height: 1px; background: var(--line2); }
+.formCol { display: flex; flex-direction: column; gap: 14px; }
+.pills { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* Simple / Advanced toggle */
+.titleSide { display: flex; align-items: center; gap: 12px; }
+.clear { border: 0; background: transparent; padding: 0; font-size: 13px; text-decoration: underline; cursor: pointer; }
+.modes { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 3px; border: 1px solid var(--line); border-radius: 999px; }
+.modePill { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 999px; background: var(--ink); transition: transform .5s cubic-bezier(.3,1.3,.5,1); }
+.modeBtn { position: relative; z-index: 1; min-height: 38px; padding: 0 18px; border: 0; border-radius: 999px; background: transparent; font-size: 14px; cursor: pointer; transition: color .35s; }
+
+/* Advanced filters */
+.adv { display: flex; flex-direction: column; --pill-h: 36px; --pill-px: 14px; --pill-fs: 14px; }
+.row { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 16px; padding: 16px 0; border-top: 1px solid var(--line2); }
+.row:first-child { border-top: 0; padding-top: 0; }
+.rowHead { display: flex; flex-direction: column; gap: 2px; padding-top: 8px; }
+.rowLabel { font-size: 15px; }
+.rowHint { font-size: 12px; font-weight: 300; color: var(--sub); }
+.rowBody { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.rangeRow { display: flex; align-items: flex-start; gap: 18px; max-width: 620px; }
+.rangeCol { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.ticks { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 300; color: var(--sub); }
+.readout { flex: none; min-width: 150px; text-align: right; font-size: 15px; line-height: 18px; font-variant-numeric: tabular-nums; }
+
+/* Budget + specs */
+.side { flex: 1 1 320px; max-width: 420px; display: flex; flex-direction: column; gap: 14px; }
+.budget { background: var(--panel); border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.budgetNum { display: flex; justify-content: center; align-items: baseline; gap: 10px; font-size: 34px; font-weight: 300; }
+.to { color: var(--faint); font-size: 20px; }
+.budgetRow { display: flex; align-items: center; gap: 12px; }
+.circle { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: transparent; padding: 0; font-size: 20px; font-weight: 300; cursor: pointer; }
+.center { display: flex; justify-content: center; }
+.used { min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-size: 14px; font-weight: 400; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.usedDot { width: 7px; height: 7px; border-radius: 50%; transition: background-color .3s; }
+
+/* Live preview */
+.preview { background: var(--panel); border-radius: 22px; padding: 18px 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+.countCol { display: flex; flex-direction: column; gap: 2px; min-width: 170px; }
+.count { font-size: 28px; font-weight: 300; display: flex; gap: 8px; }
+.minis { flex: 1; min-width: 0; display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; padding: 2px; }
+.mini { flex: none; width: 150px; padding: 12px; border-radius: 16px; border: 1px solid var(--line2); background: var(--card2); display: flex; flex-direction: column; align-items: center; gap: 8px; box-sizing: border-box; }
+.miniName { font-size: 13px; text-align: center; }
+.cta { min-height: 52px; display: inline-flex; align-items: center; gap: 10px; padding: 0 26px; border-radius: 999px; text-decoration: none; font-size: 16px; transition: background-color .3s, color .3s; }
+.arw { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; }
+
+/* Phone (prototype @media max-width 640px). Shared controls size through their CSS vars. */
+@media (max-width: 640px) {
+  .wrap { padding: 12px 10px 24px; }
+  .main { padding: 16px; gap: 16px; }
+  .title { font-size: 28px; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 6px; --ct-size: 72px; --ct-icon: 24px; --ct-label: 13px; --ct-gap: 6px; --ct-hint: none; }
+  .pills { --pill-h: 38px; --pill-px: 12px; --pill-fs: 13px; }
+  .titleSide { width: 100%; }
+  .modes { margin-left: auto; }
+  .adv { --pill-h: 34px; --pill-px: 12px; --pill-fs: 13px; }
+  .row { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 14px 0; }
+  .rowHead { flex-direction: row; align-items: baseline; gap: 8px; padding-top: 0; }
+  .rangeRow { gap: 12px; }
+  .readout { min-width: 0; max-width: 40%; font-size: 13px; }
+  .side { max-width: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; --st-pad: 12px; --st-gap: 6px; --st-note: none; --st-val-h: 40px; --st-val-fs: 24px; --st-row-gap: 4px; --st-btn: 34px; --st-btn-fs: 16px; }
+  .budget { grid-column: span 2; padding: 14px; gap: 10px; }
+  .budgetNum { font-size: 24px; }
+  .preview { padding: 14px; gap: 12px; }
+  .minis { flex: 1 1 100%; --mini-draw: 72px; }
+  .mini { width: 108px; padding: 8px; }
+  .cta { width: 100%; justify-content: center; }
+}

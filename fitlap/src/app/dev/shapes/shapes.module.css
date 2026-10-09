@@ -1,0 +1,18 @@
+/* /dev/shapes. Ported from design-reference/06-laptop-shapes.dc.html with theme tokens. */
+.page { padding: 40px 40px 56px; }
+.inner { max-width: 1360px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+.head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.titleBox { display: flex; flex-direction: column; gap: 6px; }
+.eyebrow { font-size: 13px; font-weight: 300; color: var(--sub); }
+.title { margin: 0; font-size: 44px; font-weight: 300; letter-spacing: -0.02em; }
+.intro { font-size: 14px; color: var(--sub2); max-width: 460px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+.card { background: var(--panel); border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+.stage { height: 190px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
+.nameRow { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.name { font-size: 18px; }
+.key { font-size: 12px; color: var(--sub); }
+.note { font-size: 13px; color: var(--sub2); }
+.used { align-self: flex-start; font-size: 12px; padding: 4px 10px; border-radius: 999px; }
+.usedOn { background: var(--ink); color: var(--on-ink); }
+.usedOff { border: 1px solid var(--line); color: var(--sub); }

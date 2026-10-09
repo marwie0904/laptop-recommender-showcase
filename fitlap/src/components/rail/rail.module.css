@@ -1,0 +1,38 @@
+.row { display: flex; gap: 10px; overflow-x: auto; padding: 8px 2px 10px; scroll-behavior: smooth; }
+
+/* Sleeper track under the rail */
+.track {
+  height: 8px; margin: 2px 4px 0; border-top: 1px solid var(--faint);
+  background-image: repeating-linear-gradient(90deg, var(--faint) 0 2px, transparent 2px 18px);
+  background-size: 900px 6px; background-repeat: repeat-x;
+}
+
+/* MatchCard (.lift in the prototype) */
+.card {
+  position: relative; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 18px;
+  text-align: left; color: var(--ink); cursor: pointer;
+  transition: width .5s cubic-bezier(.2,.8,.2,1), transform .35s cubic-bezier(.2,.8,.2,1), background-color .3s, border-color .3s;
+  background: var(--card2); border: 1px solid var(--line2);
+}
+.card:hover { transform: translateY(-5px); }
+/* Top three sit raised in gold / silver / bronze (--medal is set inline). */
+.medal { transform: translateY(-4px); border-color: var(--medal); background: color-mix(in srgb, var(--medal) 14%, var(--card2)); box-shadow: 0 10px 18px -12px var(--medal); }
+.medal:hover { transform: translateY(-8px); }
+.sel { background: var(--raised); border-color: var(--raised); }
+.sel.medal { border-color: var(--medal); }
+.badge { padding: 1px 7px; border-radius: 999px; background: var(--medal); color: #111111; font-weight: 600; }
+.top { display: flex; justify-content: space-between; width: 100%; font-size: 13px; }
+.cfg { font-size: 10px; padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,0.35); color: #FFFFFF; }
+.name { font-size: 14px; text-align: left; }
+.prices { display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; }
+.priceText { font-size: 12px; font-weight: 300; color: var(--sub2); text-align: left; }
+.coupler {
+  position: absolute; left: 50%; bottom: -5px; height: 3px; border-radius: 2px; background: var(--accent);
+  transform: translateX(-50%); transition: width .45s cubic-bezier(.2,.8,.2,1);
+}
+
+@media (max-width: 640px) {
+  /* width is inline (density control), so it needs !important here */
+  .card { width: 148px !important; padding: 10px; gap: 6px; }
+  .drawing { width: 96px !important; }
+}

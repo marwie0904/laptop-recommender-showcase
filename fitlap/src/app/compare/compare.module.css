@@ -1,0 +1,124 @@
+/* Ported from design-reference/05-compare.dc.html. Animations live inline in CompareClient. */
+
+.page { --lc: 220px; --cw: 1040px; max-width: 1440px; margin: 0 auto; padding: 18px 20px 40px; display: flex; flex-direction: column; gap: 14px; }
+
+/* Header */
+.header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 4px 8px; }
+.headL { display: flex; align-items: center; gap: 14px; }
+.headR { display: flex; flex-wrap: wrap; gap: 8px; }
+.back { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 18px; font-weight: 300; }
+.chip { min-height: 40px; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); font-size: 13px; }
+.chipDot { width: 6px; height: 6px; border-radius: 50%; }
+.edit { min-height: 40px; display: inline-flex; align-items: center; padding: 0 14px; font-size: 13px; }
+
+.scroller { overflow-x: auto; border-radius: 22px; }
+.inner { min-width: var(--cw); display: flex; flex-direction: column; gap: 14px; }
+
+/* Panels */
+.csec { background: var(--panel); border-radius: 22px; padding: 22px; display: flex; flex-direction: column; }
+.csec1 { display: grid; grid-template-columns: var(--lc) repeat(4, minmax(0, 1fr)); gap: 12px; align-items: stretch; overflow: hidden; }
+.lc1 { display: flex; flex-direction: column; justify-content: space-between; gap: 16px; padding: 4px 0; }
+.titleBlock { display: flex; flex-direction: column; gap: 4px; }
+.kicker { font-size: 13px; font-weight: 300; color: var(--sub); }
+.ctitle { font-size: 40px; font-weight: 300; line-height: 1.05; }
+
+/* Cards */
+.slot { display: flex; transform-origin: center; }
+.ccard { flex: 1; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: var(--card2); border: 1px solid var(--line2); }
+.top { background: var(--raised); border-color: var(--raised); }
+.cardHead { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.x { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: transparent; font-size: 16px; font-weight: 300; color: var(--sub2); cursor: pointer; }
+.pic { display: flex; flex-direction: column; align-items: center; padding: 8px 0 4px; text-decoration: none; }
+.cpic { width: 128px; }
+.names { display: flex; flex-direction: column; gap: 2px; }
+.cname { font-size: 18px; }
+.cfg { font-size: 12px; font-weight: 300; color: var(--sub); }
+.priceRow { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; }
+.prices { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.used { color: var(--sub2); }
+.cfit { font-size: 34px; font-weight: 300; line-height: 1; }
+.pct { font-size: 15px; color: var(--sub); }
+
+/* Add slot + picker */
+.add { position: relative; border: 1.5px dashed var(--dash); border-radius: 18px; background: var(--slot); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 250px; }
+.addBtn { position: relative; width: 60px; height: 60px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.plus { width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: var(--on-ink); font-size: 22px; font-weight: 300; display: flex; align-items: center; justify-content: center; transition: transform .45s cubic-bezier(.3,1.5,.5,1); }
+.addLabel { font-size: 14px; color: var(--sub2); }
+.left { font-size: 12px; font-weight: 300; color: var(--sub); }
+.picker { position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 8px; border-radius: 14px; background: var(--pop); box-shadow: 0 10px 30px rgba(0,0,0,0.12); display: flex; flex-direction: column; gap: 2px; }
+.pick { min-height: 40px; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 0 10px; border: 0; border-radius: 10px; background: var(--pop); font-size: 14px; font-weight: 400; color: var(--ink); cursor: pointer; text-align: left; }
+.pick:hover { background-color: var(--raised); }
+.pickFit { color: var(--sub); }
+.blank { border: 1px dashed var(--knob); border-radius: 18px; min-height: 250px; }
+
+/* Section heads + legends */
+.secHead { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+.secTitle { display: flex; flex-direction: column; gap: 2px; }
+.cst { font-size: 30px; font-weight: 300; }
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--sub2); }
+.legendItem { display: inline-flex; align-items: center; gap: 6px; }
+.fitsDot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.gapDot { width: 3px; height: 3px; border-radius: 50%; background: var(--faint); }
+.bestKey { padding: 2px 8px; border-radius: 999px; background: var(--ink); color: var(--on-ink); }
+
+/* 01 fit charts */
+.cgrid { display: grid; grid-template-columns: var(--lc) repeat(4, minmax(0, 1fr)); gap: 12px; align-items: stretch; padding-top: 16px; border-top: 1px solid var(--line2); }
+.lc2 { display: flex; flex-direction: column; gap: 14px; padding-top: 6px; }
+.lcnote { font-size: 13px; font-weight: 300; color: var(--sub); }
+.axis { display: flex; flex-direction: column; gap: 2px; }
+.axisName { font-size: 14px; }
+.axisPos { color: var(--sub); }
+.why { font-size: 12px; }
+.chartCol { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 6px 0 4px; }
+.chartRow { display: flex; align-items: center; gap: 6px; }
+.axl { font-size: 12px; color: var(--sub2); }
+.vert { writing-mode: vertical-rl; }
+.flip { transform: rotate(180deg); }
+.fitPill { position: absolute; left: 50%; top: 14px; transform: translateX(-6px); white-space: nowrap; font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--glass); }
+.pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 6px; }
+.pill { min-height: 30px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); font-size: 12px; }
+.mDot { width: 6px; height: 6px; border-radius: 50%; }
+.emptyChart { display: flex; align-items: center; justify-content: center; border: 1.5px dashed var(--dash); border-radius: 18px; min-height: 260px; font-size: 13px; color: var(--sub); }
+
+/* 02 specs */
+.row { display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .5s cubic-bezier(.7,0,.2,1), opacity .35s; }
+.collapsed { grid-template-rows: 0fr; opacity: 0; }
+.rowInner { min-height: 0; overflow: hidden; }
+.crow { display: grid; grid-template-columns: var(--lc) repeat(4, minmax(0, 1fr)); gap: 12px; align-items: center; padding: 13px 0; border-top: 1px solid var(--line2); }
+.cell { display: flex; align-items: center; gap: 8px; padding: 0 6px; min-width: 0; }
+.dot { flex: none; width: 7px; height: 7px; border-radius: 50%; box-sizing: border-box; }
+.meets { background: var(--accent); }
+.misses { border: 1px solid var(--faint); }
+.val { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; transition: background-color .4s, color .4s, padding .4s; border-radius: 999px; padding: 4px 0; background: transparent; color: var(--ink); }
+.valMiss { color: var(--sub); }
+.best { padding: 4px 10px; background: var(--ink); color: var(--on-ink); }
+.none { font-size: 14px; color: var(--track); }
+.hiddenNote { padding-top: 12px; font-size: 12px; color: var(--sub); transition: opacity .3s; }
+
+/* Footer */
+.footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 8px; }
+.footNote { font-size: 13px; color: var(--sub); }
+.cta { min-height: 52px; display: inline-flex; align-items: center; gap: 10px; padding: 0 26px; border-radius: 999px; background: var(--ink); color: var(--on-ink); text-decoration: none; font-size: 16px; }
+.cta:hover { color: var(--on-ink); }
+.arw { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; }
+
+/* Phone (section 13): title/count/switch stack, cards and charts snap rows, spec table scrolls with sticky labels */
+@media (max-width: 640px) {
+  .page { --lc: 92px; --cw: 0px; padding: 12px 10px 24px; }
+  .cg { zoom: .9; }
+  .lc { position: sticky; left: 0; z-index: 2; background: var(--panel); align-self: stretch; padding-right: 6px; }
+  .lcnote { display: none; }
+  .csec { padding: 12px; border-radius: 18px; overflow-x: auto; scrollbar-width: none; }
+  .csec1 { grid-template-columns: repeat(4, 74%); gap: 14px 10px; scroll-snap-type: x mandatory; }
+  .csec1 > .lc { grid-column: 1 / -1; width: calc(100vw - 48px); gap: 10px; padding: 0; }
+  .csec1 > div:not(.lc) { scroll-snap-align: start; }
+  .crow { min-width: 620px; }
+  .cgrid { grid-template-columns: repeat(4, 74%); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: 14px 10px; }
+  .cgrid > .lc { grid-column: 1 / -1; position: static; width: calc(100vw - 48px); flex-direction: row; flex-wrap: wrap; gap: 6px 14px; padding: 0; }
+  .cgrid > *:not(.lc) { scroll-snap-align: start; }
+  .ctitle, .cst { font-size: 22px; }
+  .ccard { padding: 10px; gap: 8px; }
+  .cpic { width: 84px; }
+  .cname { font-size: 14px; }
+  .cfit { font-size: 24px; }
+}

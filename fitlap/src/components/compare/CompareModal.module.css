@@ -1,0 +1,63 @@
+/* The <dialog> covers the viewport (transparent); the panel sits centred inside it, so a click on the dialog itself is a backdrop click. */
+.dialog {
+  position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0;
+  padding: 20px; box-sizing: border-box; border: 0; background: transparent; color: var(--ink); overflow: hidden;
+}
+.dialog[open] { display: flex; align-items: center; justify-content: center; }
+.dialog::backdrop {
+  background: rgba(30,30,30,0.35); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  transition: opacity 350ms ease-out; /* = backdropIn */
+}
+@starting-style { .dialog[open]::backdrop { opacity: 0; } }
+
+.panel {
+  position: relative; width: 100%; max-width: 720px; max-height: 90vh; overflow: auto; box-sizing: border-box;
+  background: var(--panel); border-radius: 26px; padding: 26px; display: flex; flex-direction: column; gap: 20px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.25); transform-origin: 50% 100%;
+}
+.head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.headText { display: flex; flex-direction: column; gap: 4px; }
+.kicker { font-size: 13px; font-weight: 300; color: var(--sub); }
+.title { font-size: 30px; font-weight: 300; line-height: 1.15; }
+.x { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: transparent; font-size: 20px; font-weight: 300; cursor: pointer; }
+
+.pinned { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: var(--raised); }
+.pinText { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.pinName { font-size: 15px; }
+.pinSub { font-size: 12px; font-weight: 300; color: var(--sub); }
+.slots { display: flex; gap: 6px; }
+.slot {
+  width: 10px; height: 10px; border-radius: 50%; box-sizing: border-box;
+  transition: background-color .3s, transform .4s cubic-bezier(.3,1.6,.5,1);
+  background: transparent; border: 1px solid var(--faint); transform: scale(1);
+}
+.slotOn { background: var(--ink); border-color: var(--ink); transform: scale(1.1); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.opt {
+  display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 18px; text-align: left; color: var(--ink); cursor: pointer;
+  transition: background-color .3s, border-color .3s, transform .35s cubic-bezier(.2,.8,.2,1), opacity .3s;
+  background: var(--card2); border: 1.5px solid var(--line2);
+}
+.optOn { background: var(--raised); border-color: var(--ink); transform: translateY(-3px); }
+.optBlocked { cursor: not-allowed; opacity: 0.45; }
+.optTop { display: flex; justify-content: space-between; align-items: center; width: 100%; font-size: 13px; }
+.check {
+  width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px;
+  transition: transform .4s cubic-bezier(.3,1.6,.5,1), background-color .3s;
+  background: transparent; color: transparent; border: 1px solid var(--track); box-sizing: border-box; transform: scale(.85);
+}
+.checkOn { background: var(--accent); color: #FFFFFF; border: 0; transform: scale(1); }
+.optName { font-size: 14px; }
+.optSub { font-size: 12px; font-weight: 300; color: var(--sub2); }
+
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+.hint { font-size: 13px; color: var(--sub); }
+.go {
+  min-height: 52px; display: inline-flex; align-items: center; gap: 10px; padding: 0 24px; border-radius: 999px;
+  text-decoration: none; font-size: 15px; transition: background-color .3s, color .3s, opacity .3s; background: var(--ink);
+}
+.go, .go:hover { color: var(--on-ink); }
+.goOff { background: var(--line2); pointer-events: none; }
+.goOff, .goOff:hover { color: var(--sub); }
+.arw { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; color: #FFFFFF; }
