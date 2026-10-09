@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import type { Brief } from './brief.ts';
 import type { Config, Laptop } from './catalog.ts';
 import { CPU_FAMILIES, GPU_FAMILIES, isKnownFamily } from './hardware.ts';
+import { compareLabels, goodFor, missesGpu, portCount, wifiRank } from './scoring/compare.ts';
 import { displayRaw, mixHours, percentiles, staticDims } from './scoring/dimensions.ts';
 import { briefPrice, isSlim, passes, sizeBucket } from './scoring/filters.ts';
 import { axisWeights, defaultScore, idealAxes, rankForBrief, scoreCatalog, verdictFor } from './scoring/fit.ts';
@@ -193,5 +194,30 @@ assert.equal(idealAxes({ ...BRIEF, uses: ['gaming'] }).performance, 1, 'the gami
 
 assert.equal(scoreCatalog(CAT, BRIEF), scoreCatalog(CAT, { ...BRIEF }), 'memoized per brief');
 assert.notEqual(scoreCatalog(CAT, BRIEF), scoreCatalog(CAT, { ...BRIEF, uses: ['gaming'] }));
+
+// ── compare ──
+assert.equal(portCount(base), 3);
+assert.ok(wifiRank(mk('w7', { wifi: '7' })) > wifiRank(mk('w6e', { wifi: '6E' })));
+
+const G: Brief = { ...BRIEF, uses: ['gaming'] };
+const sg = scoreCatalog(CAT, G);
+assert.equal(missesGpu(sg.get('WEAK')!, G), true, 'a weak GPU misses a gaming brief');
+assert.equal(missesGpu(sg.get('GPUBOX')!, G), false);
+assert.equal(missesGpu(sg.get('WEAK')!, { ...BRIEF, uses: ['work'] }), false, 'no GPU-heavy use case');
+assert.equal(missesGpu(sg.get('WEAK')!, { ...G, mode: 'advanced' }), false, 'advanced mode ignores use cases');
+
+const cpuCheap = mk('cpucheap', {}, { cpu: { name: 'Fast CPU', cores: 16, score: 16_000 }, gpu: { name: 'iGPU', score: 2_000 }, price: { srpPhp: 60_000 } });
+const lighter = mk('lighter', { weightKg: 1.0 });
+const duo = scoreCatalog([cpuCheap, lighter], G);
+assert.deepEqual(compareLabels([duo.get('CPUCHEAP')!, duo.get('LIGHTER')!], G), ['Lowest SRP', 'Best all-rounder'], 'one label each; a labelled laptop is skipped for later labels');
+assert.deepEqual(compareLabels([duo.get('LIGHTER')!], G), [null], 'labels need 2+ laptops');
+const twins = scoreCatalog([mk('t1'), mk('t2')], BRIEF);
+assert.deepEqual(compareLabels([twins.get('T1')!, twins.get('T2')!], BRIEF), [null, null], 'identical laptops: every label ties, none given');
+
+const gf = goodFor(CAT, BRIEF, 'GPUBOX');
+assert.ok(gf.length <= 3);
+assert.ok(gf.includes('gaming'), 'a strong GPU is good for gaming');
+assert.ok(!gf.includes('coding'), 'a mid CPU is not good for coding here');
+assert.ok(gf.every((x) => scoreCatalog(CAT, { ...BRIEF, uses: [x] }).get('GPUBOX')!.fit >= 80), 'only use cases with fit ≥ 80');
 
 console.log('shared ok');
