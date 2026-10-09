@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { LaptopShapeKey } from '@/data/types';
+import type { Archetype as LaptopShapeKey } from '@shared/catalog';
 
 // Typed port of design-reference/laptop-shapes.generator.js. Every size is a % of the wrapper width.
 

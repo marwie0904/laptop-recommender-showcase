@@ -3,10 +3,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState, type CSSProperties } from 'react';
-import type { Brief } from '@/data/types';
-import { DEFAULT_BRIEF, USE_CASES, fmtStorage } from '@/lib/brief';
-import { getLaptops, rankForBrief } from '@/lib/catalog';
-import { fmtUsd } from '@/lib/price';
+import type { Brief } from '@shared/brief';
+import { DEFAULT_BRIEF, USE_CASES, budgetCap, fmtStorage } from '@/lib/brief';
+import { baseConfig, getLaptops, rankForBrief } from '@/lib/catalog';
+import { fmtPhp, priceLine } from '@/lib/price';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import { DotFitChart } from '@/components/charts/DotFitChart';
 import { PriceDelta } from '@/components/price/PriceDelta';
@@ -19,15 +19,14 @@ import s from './landing.module.css';
 // ── Static data (pure, computed once) ─────────────────────────────────────────
 const LAPTOPS = getLaptops();
 const RANKED = rankForBrief(DEFAULT_BRIEF);
-const TOP = RANKED[0]; // DEFAULT_BRIEF matches the whole catalog (scoring.check.ts)
-const HOT = new Set(RANKED.filter((r) => r.hot).map((r) => r.laptop.id));
-const TOP_NEW = TOP.laptop.price.newUsd;
-const TOP_USED = TOP.laptop.price.usedAvgUsd;
+const TOP = RANKED[0]; // DEFAULT_BRIEF matches 6 of the 7 seed laptops (seed.check.ts)
+const HOT = new Set(RANKED.filter((r) => r.hot).map((r) => r.laptop.slug));
+const TOP_PRICE = TOP.config.price;
 
 const PRESETS: { label: string; hint: string; brief: Brief }[] = [
   { label: 'Coding + editing', hint: 'balanced', brief: DEFAULT_BRIEF },
-  { label: 'Gaming', hint: 'GPU first', brief: { ...DEFAULT_BRIEF, uses: ['gaming', '3d'], forms: [], budgetMax: 2400, minRamGb: 32, minStorageGb: 1024 } },
-  { label: 'Student on a budget', hint: 'value first', brief: { ...DEFAULT_BRIEF, uses: ['work', 'school'], forms: [], budgetMax: 1000, minRamGb: 8, minStorageGb: 256 } },
+  { label: 'Gaming', hint: 'GPU first', brief: { ...DEFAULT_BRIEF, uses: ['gaming', '3d'], forms: [], budgetMax: 140_000, minRamGb: 32, minStorageGb: 1024 } },
+  { label: 'Student on a budget', hint: 'value first', brief: { ...DEFAULT_BRIEF, uses: ['work', 'school'], forms: [], budgetMax: 60_000, minRamGb: 8, minStorageGb: 256 } },
 ];
 const RANKS = PRESETS.map((p) => rankForBrief(p.brief));
 const AUTO_MS = 4200;
@@ -71,9 +70,9 @@ export function LandingClient() {
   const ranked = RANKS[demo.preset];
   const best = ranked.at(0);
   const axes: [number, number, number, number] = best
-    ? [best.laptop.axes.performance, best.laptop.axes.portability, best.laptop.axes.battery, best.laptop.axes.value]
+    ? [best.axes.performance, best.axes.portability, best.axes.battery, best.axes.value]
     : [0, 0, 0, 0];
-  const vals = [['Budget', '≤ ' + fmtUsd(brief.budgetMax)], ['RAM', brief.minRamGb + ' GB'], ['Storage', fmtStorage(brief.minStorageGb)]];
+  const vals = [['Budget', budgetCap(brief.budgetMax)], ['RAM', brief.minRamGb + ' GB'], ['Storage', fmtStorage(brief.minStorageGb)]];
 
   return (
     <>
@@ -123,7 +122,7 @@ export function LandingClient() {
               <div className={s.heroArt}>
                 <div className={s.hlap} style={{ animation: 'deckHero 900ms cubic-bezier(.2,.9,.2,1) 200ms backwards' }}>
                   <LaptopDrawing
-                    shape={TOP.laptop.shape}
+                    shape={TOP.laptop.archetype}
                     hot={TOP.hot}
                     big
                     floor
@@ -141,14 +140,14 @@ export function LandingClient() {
                 <div className={s.tagL} style={{ animation: 'floatIn 600ms cubic-bezier(.2,1.2,.4,1) 1500ms backwards' }}>
                   <div className={s.priceTag} style={{ animation: 'bob 4s ease-in-out 2.2s infinite' }}>
                     <span className={s.tagK}>Brand new</span>
-                    <span className={s.tagV}>{fmtUsd(TOP_NEW)}</span>
+                    <span className={s.tagV}>{TOP_PRICE.srpPhp !== undefined ? fmtPhp(TOP_PRICE.srpPhp) : 'Used only'}</span>
                   </div>
                 </div>
                 <div className={s.tagR} style={{ animation: 'floatIn 600ms cubic-bezier(.2,1.2,.4,1) 1700ms backwards' }}>
                   <div className={`dark-scope ${s.priceTag} ${s.priceTagDark}`} style={{ animation: 'bob 4.6s ease-in-out 2.6s infinite' }}>
                     <span className={`${s.tagK} ${s.tagKDark}`}>Used average</span>
                     <span className={s.tagV}>
-                      {fmtUsd(TOP_USED)} <PriceDelta newUsd={TOP_NEW} usedUsd={TOP_USED} size={14} />
+                      {TOP_PRICE.usedPhp !== undefined ? fmtPhp(TOP_PRICE.usedPhp) : '—'} <PriceDelta price={TOP_PRICE} size={14} />
                     </span>
                   </div>
                 </div>
@@ -158,13 +157,13 @@ export function LandingClient() {
             <div className={s.hmarq}>
               <div className={`marq ${s.marqTrack}`}>
                 {[...LAPTOPS, ...LAPTOPS].map((l, i) => (
-                  <div key={`${l.id}-${i}`} className={s.mchip} aria-hidden={i >= LAPTOPS.length || undefined}>
-                    <LaptopDrawing shape={l.shape} hot={HOT.has(l.id)} size={56} style={{ flex: 'none' }} />
+                  <div key={`${l.slug}-${i}`} className={s.mchip} aria-hidden={i >= LAPTOPS.length || undefined}>
+                    <LaptopDrawing shape={l.archetype} hot={HOT.has(l.slug)} size={56} style={{ flex: 'none' }} />
                     <span className={s.mtext}>
-                      <span className={s.mname}>{l.name}</span>
+                      <span className={s.mname}>{l.model}</span>
                       <span className={s.mprice}>
-                        New {fmtUsd(l.price.newUsd)} · Used {fmtUsd(l.price.usedAvgUsd)}{' '}
-                        <PriceDelta newUsd={l.price.newUsd} usedUsd={l.price.usedAvgUsd} size={12} big={13} />
+                        {priceLine(baseConfig(l).price)}{' '}
+                        <PriceDelta price={baseConfig(l).price} size={12} big={13} />
                       </span>
                     </span>
                   </div>
@@ -260,23 +259,23 @@ export function LandingClient() {
               {ranked.length === 0 && <p className={s.empty}>Nothing fits this brief yet.</p>}
               {ranked.slice(0, 3).map((r, i) => (
                 <div
-                  key={`${demo.run}-${r.laptop.id}`}
+                  key={`${demo.run}-${r.laptop.slug}`}
                   className={s.match}
                   style={{ background: i === 0 ? 'var(--raised)' : 'var(--card2)', animation: `railInLanding ${1000 + i * 140}ms cubic-bezier(.12,.9,.25,1) ${i * 80}ms backwards` }}
                 >
                   <span className={s.rank}>#0{i + 1}</span>
-                  <LaptopDrawing shape={r.laptop.shape} hot={r.hot} size={72} style={{ flex: 'none' }} />
+                  <LaptopDrawing shape={r.laptop.archetype} hot={r.hot} size={72} style={{ flex: 'none' }} />
                   <span className={s.mtext2}>
-                    <span className={s.matchName}>{r.laptop.name}</span>
+                    <span className={s.matchName}>{r.laptop.model}</span>
                     <span className={s.mprice}>
-                      New {fmtUsd(r.laptop.price.newUsd)} · Used {fmtUsd(r.laptop.price.usedAvgUsd)}{' '}
-                      <PriceDelta newUsd={r.laptop.price.newUsd} usedUsd={r.laptop.price.usedAvgUsd} size={12} big={13} />
+                      {priceLine(r.config.price)}{' '}
+                      <PriceDelta price={r.config.price} size={12} big={13} />
                     </span>
                   </span>
                   <span className={s.matchFit}>{r.fit}<span className={s.pct}>%</span></span>
                 </div>
               ))}
-              <Link href="/results" onClick={() => { setBrief(brief); select(ranked[0]?.laptop.id ?? ''); }} className={`cta ${s.lineBtn}`}>Open the full results <span className="arw">→</span></Link>
+              <Link href="/results" onClick={() => { setBrief(brief); select(ranked[0]?.laptop.slug ?? ''); }} className={`cta ${s.lineBtn}`}>Open the full results <span className="arw">→</span></Link>
             </div>
           </div>
         </section>

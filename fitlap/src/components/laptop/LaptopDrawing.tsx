@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { LaptopShapeKey } from '@/data/types';
+import type { Archetype as LaptopShapeKey } from '@shared/catalog';
 import { laptopShape } from './shapes';
 
 interface Props {

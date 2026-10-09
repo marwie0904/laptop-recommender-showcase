@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check": "node shared/shared.check.ts && node src/data/seed/seed.check.ts"
+    "check": "node shared/shared.check.ts && node src/data/seed/seed.check.ts && node src/store/migrate.check.ts"
   },
   "dependencies": {
     "next": "16.4.0",

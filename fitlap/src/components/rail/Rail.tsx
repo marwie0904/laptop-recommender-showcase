@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/feedback/Skeleton';
 import { ScrollRow } from '@/components/layout/ScrollRow';
-import type { Scored } from '@/lib/scoring';
+import type { Scored } from '@shared/scoring/fit';
 import { MatchCard } from './MatchCard';
 import s from './rail.module.css';
 
@@ -24,8 +24,8 @@ export function Rail({ items, currentId, width, loading, replay, onPick }: Props
         {loading
           ? Array.from({ length: 7 }, (_, i) => <Skeleton key={i} width={width} index={i} />)
           : items.map((it, i) => (
-              <span key={it.laptop.id} style={{ flex: 'none', display: 'block', animation: `railIn ${1250 + i * 110}ms cubic-bezier(.12,.9,.25,1) ${i * 60}ms backwards` }}>
-                <MatchCard item={it} rank={i + 1} selected={it.laptop.id === currentId} width={width} onPick={() => onPick(it.laptop.id)} />
+              <span key={it.laptop.slug} style={{ flex: 'none', display: 'block', animation: `railIn ${1250 + i * 110}ms cubic-bezier(.12,.9,.25,1) ${i * 60}ms backwards` }}>
+                <MatchCard item={it} rank={i + 1} selected={it.laptop.slug === currentId} width={width} onPick={() => onPick(it.laptop.slug)} />
               </span>
             ))}
       </ScrollRow>

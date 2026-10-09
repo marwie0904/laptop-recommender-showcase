@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import { rankTag } from '@/components/rail/MatchCard';
-import { fmtUsd } from '@/lib/price';
-import type { Scored } from '@/lib/scoring';
+import { newPriceLabel } from '@/lib/price';
+import type { Scored } from '@shared/scoring/fit';
 import { useFitlap } from '@/store/useFitlap';
 import s from './CompareModal.module.css';
 
@@ -38,7 +38,7 @@ export function CompareModal({ ranked, current, onClose }: Props) {
   const cur = ranked[current];
   const full = picks.length >= MAX_PICKS;
   const total = picks.length + 1;
-  const ids = [cur.laptop.id, ...picks];
+  const ids = [cur.laptop.slug, ...picks];
   const left = MAX_PICKS - picks.length;
   const hint = !picks.length ? 'Pick up to 3 more' : full ? 'That’s the max · 4 laptops' : `${left} more slot${left === 1 ? '' : 's'} left`;
   const close = () => ref.current?.close();
@@ -56,15 +56,15 @@ export function CompareModal({ ranked, current, onClose }: Props) {
         <div className={s.head}>
           <div className={s.headText}>
             <span className={s.kicker}>Compare · up to 4</span>
-            <span className={s.title}>Compare {cur.laptop.name} with…</span>
+            <span className={s.title}>Compare {cur.laptop.model} with…</span>
           </div>
           <button aria-label="Close" className={`ring ${s.x}`} onClick={close}>×</button>
         </div>
 
         <div className={s.pinned}>
-          <LaptopDrawing shape={cur.laptop.shape} hot={cur.hot} size={64} style={{ flex: 'none' }} />
+          <LaptopDrawing shape={cur.laptop.archetype} hot={cur.hot} size={64} style={{ flex: 'none' }} />
           <span className={s.pinText}>
-            <span className={s.pinName}>{cur.laptop.name}</span>
+            <span className={s.pinName}>{cur.laptop.model}</span>
             <span className={s.pinSub}>Selected · {cur.fit}% fit</span>
           </span>
           <span className={s.slots} aria-label={`${total} of 4 slots used`} role="img">
@@ -76,7 +76,7 @@ export function CompareModal({ ranked, current, onClose }: Props) {
           {ranked.map((r, i) => {
             if (i === current) return null;
             const k = i < current ? i : i - 1;
-            const id = r.laptop.id;
+            const id = r.laptop.slug;
             const on = picks.includes(id);
             const blocked = !on && full;
             return (
@@ -92,9 +92,9 @@ export function CompareModal({ ranked, current, onClose }: Props) {
                   <span>{rankTag(i + 1)}</span>
                   <span aria-hidden className={on ? `${s.check} ${s.checkOn}` : s.check}>✓</span>
                 </span>
-                <LaptopDrawing shape={r.laptop.shape} hot={r.hot} size={96} style={{ alignSelf: 'center' }} />
-                <span className={s.optName}>{r.laptop.name}</span>
-                <span className={s.optSub}>{r.fit}% fit · New {fmtUsd(r.laptop.price.newUsd)}</span>
+                <LaptopDrawing shape={r.laptop.archetype} hot={r.hot} size={96} style={{ alignSelf: 'center' }} />
+                <span className={s.optName}>{r.laptop.model}</span>
+                <span className={s.optSub}>{r.fit}% fit · {newPriceLabel(r.config.price)}</span>
               </button>
             );
           })}

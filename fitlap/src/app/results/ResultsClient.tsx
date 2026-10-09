@@ -10,12 +10,12 @@ import { Loader } from '@/components/feedback/Loader';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import { Logo } from '@/components/layout/Logo';
 import { PriceDelta } from '@/components/price/PriceDelta';
-import { cfgLabel, rankTag } from '@/components/rail/MatchCard';
+import { rankTag } from '@/components/rail/MatchCard';
 import { Rail } from '@/components/rail/Rail';
-import { briefSummary, fmtStorage } from '@/lib/brief';
-import { rankForBrief } from '@/lib/catalog';
-import { fmtUsd } from '@/lib/price';
-import { idealAxes } from '@/lib/scoring';
+import { briefSummary, fmtStorage, useLabel } from '@/lib/brief';
+import { goodFor, rankForBrief } from '@/lib/catalog';
+import { fmtPhp } from '@/lib/price';
+import { idealAxes } from '@shared/scoring/fit';
 import { useFitlap, useHydrated } from '@/store/useFitlap';
 import s from './results.module.css';
 
@@ -101,9 +101,10 @@ export function ResultsClient() {
   }, [loading, run]);
 
   const ranked = rankForBrief(brief);
-  const idx = Math.max(0, ranked.findIndex((r) => r.laptop.id === selectedId));
+  const idx = Math.max(0, ranked.findIndex((r) => r.laptop.slug === selectedId));
   const cur = ranked[idx];
-  const ideal = idealAxes(brief);
+  // ponytail: advanced mode draws the 4 work-mix axes with no ideal outline until the 8-axis chart is designed (spec §4.6).
+  const ideal = brief.mode === 'simple' ? idealAxes(brief) : null;
   const summary = hydrated ? briefSummary(brief) : undefined;
 
   if (!cur)
@@ -122,18 +123,19 @@ export function ResultsClient() {
   const busy = loading || !hydrated;
   const dim = { opacity: !hydrated ? 0 : busy ? 0.35 : 1 };
   const l = cur.laptop;
-  const p = l.price;
-  const detailsHref = `/laptop/${l.id}`;
+  const c = cur.config;
+  const p = c.price;
+  const detailsHref = `/laptop/${l.slug}`;
   const next = [...ranked.slice(idx + 1), ...ranked.slice(0, idx)].slice(0, 2);
-  const compareHref = '/compare?ids=' + [cur, ...next].map((r) => r.laptop.id).join(',');
-  const cfg = cfgLabel(l.config.ramGb, l.config.storageGb);
+  const compareHref = '/compare?ids=' + [cur, ...next].map((r) => r.laptop.slug).join(',');
+  const cfg = c.label;
 
   const pick = (id: string) => {
     select(id);
     setTick((n) => n + 1);
     setWhyT((n) => n + 1);
   };
-  const go = (d: number) => pick(ranked[(idx + d + ranked.length) % ranked.length].laptop.id);
+  const go = (d: number) => pick(ranked[(idx + d + ranked.length) % ranked.length].laptop.slug);
   const toggleWhy = () => {
     setWhy((w) => !w);
     setWhyT((n) => n + 1);
@@ -145,21 +147,21 @@ export function ResultsClient() {
   const openCmp = () => setCmpOpen(true);
 
   const facts: [string, string][] = [
-    ['Model', l.name],
+    ['Model', l.model],
     ['Weight', l.weightKg.toFixed(2) + ' kg'],
-    ['Memory', l.config.ramGb + ' GB'],
-    ['Storage', fmtStorage(l.config.storageGb)],
-    ['Good for', l.goodFor.join(' · ')],
+    ['Memory', c.ramGb + ' GB'],
+    ['Storage', fmtStorage(c.storageGb)],
+    ['Good for', goodFor(brief, c.code).map(useLabel).join(' · ') || '—'],
   ];
   const prices = [
     {
-      meta: 'Brand new · ' + p.retailer, dot: 'var(--lime)', label: 'New price', value: fmtUsd(p.newUsd), delay: 80, off: null,
-      block: 'var(--accent)', blockDelay: 120, pills: [['Retailer', p.retailer, 'var(--lime)'], ['Config', cfg, 'var(--blue)']],
+      meta: 'SRP · ' + (p.srpSource ?? '—'), dot: 'var(--lime)', label: 'New price', value: p.srpPhp !== undefined ? fmtPhp(p.srpPhp) : 'Used only', delay: 80, off: null,
+      block: 'var(--accent)', blockDelay: 120, pills: [['Source', p.srpSource ?? '—', 'var(--lime)'], ['Config', cfg, 'var(--blue)']],
     },
     {
-      meta: `${p.usedListings} listings · 30 days`, dot: 'var(--accent)', label: 'Used average', value: fmtUsd(p.usedAvgUsd), delay: 160,
-      off: <PriceDelta newUsd={p.newUsd} usedUsd={p.usedAvgUsd} size={13} suffix=" vs new" />,
-      block: '#B8B8B8', blockDelay: 220, pills: [['Condition', 'Good', 'var(--accent)'], ['Market', 'Marketplace', 'var(--blue)']],
+      meta: 'Used est. · ' + (p.usedSource ?? '—'), dot: 'var(--accent)', label: 'Used price', value: p.usedPhp !== undefined ? fmtPhp(p.usedPhp) : '—', delay: 160,
+      off: <PriceDelta price={p} size={13} suffix=" vs new" />,
+      block: '#B8B8B8', blockDelay: 220, pills: [['Source', p.usedSource ?? '—', 'var(--accent)'], ['Checked', p.usedSeenAt ?? '—', 'var(--blue)']],
     },
   ];
 
@@ -177,7 +179,7 @@ export function ResultsClient() {
           </div>
           <div className={s.idBox}>
             <span className={s.light}>Match ID</span>
-            <span className={s.idLine}><span key={tick} style={tk(0)}><span className={s.idVal}>{l.code}</span></span></span>
+            <span className={s.idLine}><span key={tick} style={tk(0)}><span className={s.idVal}>{c.code}</span></span></span>
           </div>
           <div className={s.facts}>
             {facts.map(([k, v], i) => (
@@ -191,7 +193,7 @@ export function ResultsClient() {
             <span className={s.axis}>Performance</span>
             <div className={s.chartMid}>
               <span className={s.axis}>Value</span>
-              <DotFitChart key={tick} axes={[l.axes.performance, l.axes.portability, l.axes.battery, l.axes.value]} ideal={[ideal.performance, ideal.portability, ideal.battery, ideal.value]} className={s.chart}>
+              <DotFitChart key={tick} axes={[cur.axes.performance, cur.axes.portability, cur.axes.battery, cur.axes.value]} ideal={ideal ? [ideal.performance, ideal.portability, ideal.battery, ideal.value] : undefined} className={s.chart}>
                 <button className={s.pill} onClick={toggleWhy} aria-expanded={why} title="How is this scored?" style={{ animation: wipe(500, 1150) }}>
                   <span style={{ color: 'var(--good)' }}>↑</span> {cur.fit}% · {cur.verdict} <span className={why ? `${s.q} ${s.qOn}` : s.q}>?</span>
                 </button>
@@ -199,7 +201,7 @@ export function ResultsClient() {
               <span className={s.axis}>Portability</span>
             </div>
             <span className={s.axis}>Battery</span>
-            <span className={s.legend}>Ideal for your brief</span>
+            {ideal && <span className={s.legend}>Ideal for your brief</span>}
           </div>
           <FitBreakdown
             rows={cur.rows}
@@ -230,7 +232,7 @@ export function ResultsClient() {
                 <div className={s.stageRow}>
                   <Link key={tick} href={detailsHref} aria-label="Open details" className={s.heroLink} style={{ animation: 'deck 1100ms cubic-bezier(.2,.9,.2,1) backwards' }}>
                     <LaptopDrawing
-                      shape={l.shape}
+                      shape={l.archetype}
                       hot={cur.hot}
                       animate="lid"
                       big
@@ -243,7 +245,7 @@ export function ResultsClient() {
                           <span className={s.disc}>
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" aria-hidden><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
                           </span>
-                          <span className={s.screenText}>{`${l.config.ramGb} GB\n${fmtStorage(l.config.storageGb)}\n${cur.fit}%`}</span>
+                          <span className={s.screenText}>{`${c.ramGb} GB\n${fmtStorage(c.storageGb)}\n${cur.fit}%`}</span>
                         </>
                       }
                     />
@@ -314,7 +316,7 @@ export function ResultsClient() {
         </div>
       </div>
 
-      <Rail items={ranked} currentId={l.id} width={WIDTHS[dens]} loading={busy} replay={loads} onPick={pick} />
+      <Rail items={ranked} currentId={l.slug} width={WIDTHS[dens]} loading={busy} replay={loads} onPick={pick} />
 
       {cmpOpen && <CompareModal ranked={ranked} current={idx} onClose={() => setCmpOpen(false)} />}
     </div>

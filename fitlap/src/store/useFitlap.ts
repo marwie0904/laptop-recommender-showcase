@@ -3,8 +3,10 @@
 import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Brief, FormPref, UseCase } from '@/data/types';
-import { BUDGET_STEPS, DEFAULT_BRIEF, RAM_STEPS, STORAGE_STEPS, step } from '@/lib/brief';
+import type { Brief, FormPref, UseCase } from '@shared/brief';
+import { BUDGET_STEPS } from '@shared/brief';
+import { DEFAULT_BRIEF, RAM_STEPS, STORAGE_STEPS, step } from '@/lib/brief';
+import { migratePersisted } from './migrate';
 
 export type Theme = 'auto' | 'light' | 'dark';
 export const THEME_KEY = 'fitlap-theme';
@@ -39,7 +41,7 @@ export const useFitlap = create<FitlapState>()(
       setBrief: (patch) => set((s) => ({ brief: { ...s.brief, ...patch } })),
       toggleUse: (u) => set((s) => ({ brief: { ...s.brief, uses: toggle(s.brief.uses, u) } })),
       toggleForm: (f) => set((s) => ({ brief: { ...s.brief, forms: toggle(s.brief.forms, f) } })),
-      stepBudget: (dir) => set((s) => ({ brief: { ...s.brief, budgetMax: step(BUDGET_STEPS, s.brief.budgetMax as (typeof BUDGET_STEPS)[number], dir) } })),
+      stepBudget: (dir) => set((s) => ({ brief: { ...s.brief, budgetMax: step(BUDGET_STEPS, s.brief.budgetMax, dir) } })),
       stepRam: (dir) => set((s) => ({ brief: { ...s.brief, minRamGb: step(RAM_STEPS, s.brief.minRamGb, dir) } })),
       stepStorage: (dir) => set((s) => ({ brief: { ...s.brief, minStorageGb: step(STORAGE_STEPS, s.brief.minStorageGb, dir) } })),
       select: (id) => set({ selectedId: id }),
@@ -54,6 +56,9 @@ export const useFitlap = create<FitlapState>()(
     }),
     {
       name: 'fitlap',
+      // v1: briefs are in pesos and have no budgetMin. Older briefs reset to the defaults.
+      version: 1,
+      migrate: (p, v) => migratePersisted(p, v) as Pick<FitlapState, 'brief' | 'selectedId' | 'compareIds'>,
       // Theme lives under its own key so the blocking ThemeScript can read it before paint.
       partialize: (s) => ({ brief: s.brief, selectedId: s.selectedId, compareIds: s.compareIds }),
       // Briefs saved before a field existed pick up its default.

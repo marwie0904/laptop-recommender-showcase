@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { FitRow } from '@/lib/scoring';
+import type { FitRow } from '@shared/scoring/fit';
 
 interface Props {
   rows: FitRow[];

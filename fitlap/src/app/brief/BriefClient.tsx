@@ -3,11 +3,13 @@
 import { useRef, useState, type AnimationEvent, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 import Link from 'next/link';
-import type { AdvancedFilters, Brief, CpuBrand, GpuBrand } from '@/data/types';
-import { BATTERY_MAX, CPU_FAMILIES, DEFAULT_ADVANCED, GPU_FAMILIES, SCREEN_SIZES, SCREEN_TYPES, advancedActive } from '@/lib/advanced';
-import { BUDGET_MIN, BUDGET_STEPS, FORMS, RAM_STEPS, STORAGE_STEPS, USE_CASES, fmtStorage, step } from '@/lib/brief';
+import type { AdvancedFilters, Brief } from '@shared/brief';
+import { BATTERY_MAX, BUDGET_STEPS, BUDGET_TOP } from '@shared/brief';
+import type { CpuBrand, GpuBrand } from '@shared/catalog';
+import { CPU_FAMILIES, GPU_FAMILIES } from '@shared/hardware';
+import { DEFAULT_ADVANCED, SCREEN_SIZES, SCREEN_TYPES, advancedActive } from '@/lib/advanced';
+import { FORMS, RAM_STEPS, STORAGE_STEPS, USE_CASES, budgetValue, fmtStorage, step } from '@/lib/brief';
 import { getLaptops, rankForBrief } from '@/lib/catalog';
-import { fmtUsd } from '@/lib/price';
 import { useFitlap, useHydrated } from '@/store/useFitlap';
 import { Logo } from '@/components/layout/Logo';
 import { ScrollRow } from '@/components/layout/ScrollRow';
@@ -23,7 +25,7 @@ import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import s from './brief.module.css';
 
 const RAIL_EASE = 'cubic-bezier(.12,.9,.25,1)';
-const pct = (n: number) => ((n - 400) / 2600) * 100;
+const pct = (n: number) => 8 + ((n - BUDGET_STEPS[0]) / (BUDGET_TOP - BUDGET_STEPS[0])) * 92;
 const PRINT = 'printIn 900ms cubic-bezier(.7,0,.2,1) backwards';
 const WIPE_OUT = 'printOut 320ms cubic-bezier(.7,0,.2,1) forwards';
 const WIPE_IN = 'printIn 620ms cubic-bezier(.7,0,.2,1) backwards';
@@ -111,11 +113,11 @@ function Panels({ brief }: { brief: Brief }) {
   const count = ranked.length;
   const ramIdx = RAM_STEPS.indexOf(brief.minRamGb);
   const stoIdx = STORAGE_STEPS.indexOf(brief.minStorageGb);
-  const topBudget = BUDGET_STEPS[BUDGET_STEPS.length - 1];
+  const topBudget = BUDGET_TOP;
 
   const fixes: { label: string; onClick: () => void }[] = [];
   if (advanced && active > 0) fixes.push({ label: 'Clear advanced filters', onClick: () => setAdv(DEFAULT_ADVANCED) });
-  if (brief.budgetMax < topBudget) fixes.push({ label: 'Raise budget to ' + fmtUsd(step(BUDGET_STEPS, brief.budgetMax as (typeof BUDGET_STEPS)[number], 1)), onClick: () => stepBudget(1) });
+  if (brief.budgetMax < topBudget) fixes.push({ label: 'Raise budget to ' + budgetValue(step(BUDGET_STEPS, brief.budgetMax, 1)), onClick: () => stepBudget(1) });
   if (brief.minRamGb > 16) fixes.push({ label: `Drop RAM to ${step(RAM_STEPS, brief.minRamGb, -1)} GB`, onClick: () => stepRam(-1) });
   if (brief.minStorageGb > 512) fixes.push({ label: 'Drop storage to ' + fmtStorage(step(STORAGE_STEPS, brief.minStorageGb, -1)), onClick: () => stepStorage(-1) });
   if (!brief.includeUsed) fixes.push({ label: 'Include used laptops', onClick: () => setBrief({ includeUsed: true }) });
@@ -166,9 +168,9 @@ function Panels({ brief }: { brief: Brief }) {
           <section className={s.budget}>
             <span className={s.label}>Budget</span>
             <div className={s.budgetNum}>
-              <span>{fmtUsd(BUDGET_MIN)}</span>
+              <span>{budgetValue(BUDGET_STEPS[0])}</span>
               <span className={s.to}>to</span>
-              <Odometer value={fmtUsd(brief.budgetMax)} rank={brief.budgetMax} height={44} />
+              <Odometer value={budgetValue(brief.budgetMax)} rank={brief.budgetMax} height={44} />
             </div>
             <div className={s.budgetRow}>
               <button aria-label="Lower budget" className={`ring ${s.circle}`} onClick={() => stepBudget(-1)}>−</button>
@@ -197,9 +199,9 @@ function Panels({ brief }: { brief: Brief }) {
         {count > 0 ? (
           <ScrollRow className={`no-scrollbar ${s.minis}`}>
             {ranked.map((r, i) => (
-              <div key={`${seen.n}-${r.laptop.id}`} className={s.mini} style={{ animation: `railInShort ${1000 + i * 90}ms ${RAIL_EASE} ${i * 50}ms backwards` }}>
-                <LaptopDrawing shape={r.laptop.shape} hot={r.hot} size="var(--mini-draw, 92px)" />
-                <span className={s.miniName}>{r.laptop.name}</span>
+              <div key={`${seen.n}-${r.laptop.slug}`} className={s.mini} style={{ animation: `railInShort ${1000 + i * 90}ms ${RAIL_EASE} ${i * 50}ms backwards` }}>
+                <LaptopDrawing shape={r.laptop.archetype} hot={r.hot} size="var(--mini-draw, 92px)" />
+                <span className={s.miniName}>{r.laptop.model}</span>
               </div>
             ))}
           </ScrollRow>

@@ -1,9 +1,19 @@
 import type { CSSProperties } from 'react';
+import type { Price } from '@shared/catalog';
 
-export const fmtUsd = (n: number) => '$' + n.toLocaleString('en-US');
+export const fmtPhp = (n: number) => '₱' + n.toLocaleString('en-US');
 
-/** Used vs new, in percent off: round((1 - used/new) * 100). */
-export const usedDiscountPct = (newUsd: number, usedUsd: number) => Math.round((1 - usedUsd / newUsd) * 100);
+/** "New ₱92,990", or "Used only" for configs without an SRP. */
+export const newPriceLabel = (p: Price) => (p.srpPhp !== undefined ? 'New ' + fmtPhp(p.srpPhp) : 'Used only');
+
+/** "New ₱92,990 · Used ₱64,990", "Used only · ₱30,000", or "No price yet". */
+export function priceLine(p: Price) {
+  if (p.srpPhp === undefined) return p.usedPhp !== undefined ? 'Used only · ' + fmtPhp(p.usedPhp) : 'No price yet';
+  return 'New ' + fmtPhp(p.srpPhp) + (p.usedPhp !== undefined ? ' · Used ' + fmtPhp(p.usedPhp) : '');
+}
+
+/** Used vs SRP, in percent off: round((1 - used/srp) * 100). */
+export const usedDiscountPct = (srp: number, used: number) => Math.round((1 - used / srp) * 100);
 
 /** Discount colour tier (section 10). `big` is the font size used for the ≥50% tier. */
 export function discountTierStyle(pct: number, big = 15): CSSProperties {

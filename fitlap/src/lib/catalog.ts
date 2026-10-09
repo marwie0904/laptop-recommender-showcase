@@ -1,27 +1,37 @@
-import { LAPTOPS } from '../data/laptops.ts';
-import type { Brief, Laptop } from '../data/types';
-import { scoreLaptop, type Scored } from './scoring.ts';
+import type { Brief, UseCase } from '@shared/brief';
+import type { Config, Laptop } from '@shared/catalog';
+import { goodFor as goodForIn } from '@shared/scoring/compare';
+import type { Scored } from '@shared/scoring/fit';
+import { defaultScore, rankForBrief as rankIn, scoreCatalog } from '@shared/scoring/fit';
+import { LAPTOPS } from '@/data/catalog';
 
-// Data layer. Reads the mock array today; swap the bodies for API calls later and keep the signatures.
-// ponytail: synchronous while the data is local; make these async when a real source lands.
+// Data layer: the app reads the catalog only through these.
 
 export function getLaptops(): Laptop[] {
   return LAPTOPS;
 }
 
-export function getLaptop(id: string): Laptop | undefined {
-  return LAPTOPS.find((l) => l.id === id);
+export function getLaptop(slug: string): Laptop | undefined {
+  return LAPTOPS.find((l) => l.slug === slug);
 }
 
-/** Laptops that fit the brief, best fit first. */
+/** Models that fit the brief, best fit first, each on its default config. */
 export function rankForBrief(brief: Brief): Scored[] {
-  return LAPTOPS.map((l) => scoreLaptop(l, brief))
-    .filter((s): s is Scored => s !== null)
-    .sort((a, b) => b.fit - a.fit);
+  return rankIn(LAPTOPS, brief);
 }
 
-/** Stub until marketplace data exists (section 15). */
-export function getUsedPriceHistory(id: string): { date: string; usd: number }[] {
-  void id;
-  return [];
+/** Score for a laptop opened directly (details, compare): its default config, even when the brief excludes it. */
+export function scoreForDisplay(l: Laptop, brief: Brief): Scored {
+  return defaultScore(scoreCatalog(LAPTOPS, brief), l);
+}
+
+/** Use cases the config is good for (single-use fit ≥ 80). */
+export function goodFor(brief: Brief, code: string): UseCase[] {
+  return goodForIn(LAPTOPS, brief, code);
+}
+
+/** The config shown where no brief applies (landing marquee): lowest SRP, else lowest used price. */
+export function baseConfig(l: Laptop): Config {
+  const price = (c: Config) => c.price.srpPhp ?? c.price.usedPhp ?? Infinity;
+  return l.configs.reduce((a, c) => (price(c) < price(a) ? c : a));
 }

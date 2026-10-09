@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useEffect, useState, type CSSProperties } from 'react';
-import type { Laptop, SpecKey, UseCase } from '@/data/types';
+import type { UseCase } from '@shared/brief';
+import type { BuildKey, HourKey, Laptop, LaptopDetails, SpecKey } from '@shared/catalog';
+import { USE_HOURS } from '@shared/scoring/weights';
 import { FitBreakdown } from '@/components/charts/FitBreakdown';
 import { ThemeToggle } from '@/components/controls/ThemeToggle';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
@@ -10,14 +12,12 @@ import { Logo } from '@/components/layout/Logo';
 import { ScrollRow } from '@/components/layout/ScrollRow';
 import { PriceDelta } from '@/components/price/PriceDelta';
 import { USE_CASES, fmtStorage } from '@/lib/brief';
-import { getLaptops } from '@/lib/catalog';
-import { fmtUsd } from '@/lib/price';
-import { scoreForDisplay } from '@/lib/scoring';
+import { getLaptops, scoreForDisplay } from '@/lib/catalog';
+import { fmtPhp } from '@/lib/price';
+import { displayLine, fastChargeLabel, specValues, warrantyLabel } from '@/lib/format';
 import { useFitlap, useHydrated } from '@/store/useFitlap';
 import s from './details.module.css';
 
-type HourKey = keyof Laptop['battery']['hoursByUse'];
-type BuildKey = keyof Laptop['build']['notes'];
 
 const TABS = [['Specs', '#specs'], ['Battery life', '#battery'], ['Build quality', '#build'], ['Prices', '#prices']] as const;
 const VIEWS = ['Front', 'Side', 'Ports', 'Keyboard'];
@@ -34,14 +34,13 @@ const MATTERS: Record<UseCase, SpecKey[]> = {
   work: ['wireless', 'webcam', 'size'],
   school: ['size', 'wireless'],
 };
-const HOURS: Record<UseCase, HourKey> = { coding: 'coding', editing: 'editing', gaming: 'gaming3d', '3d': 'gaming3d', work: 'office', school: 'web' };
 const BATTERY: [string, string, HourKey][] = [
   ['Video playback', 'local 1080p, Wi-Fi off', 'video'],
   ['Web browsing', '10 tabs, light use', 'web'],
   ['Coding', 'IDE + browser + local server', 'coding'],
   ['General office', 'docs, email, calls', 'office'],
   ['Video editing', '4K timeline export', 'editing'],
-  ['Gaming / 3D render', 'sustained GPU load', 'gaming3d'],
+  ['Gaming / 3D render', 'sustained GPU load', 'gaming'],
 ];
 const BUILD: [BuildKey, string][] = [
   ['materials', 'Materials'], ['rigidity', 'Rigidity'], ['hinge', 'Hinge'],
@@ -66,7 +65,7 @@ function scramble(str: string, tick: number, offset: number) {
 const scrollLinked = (animation: string, range: string): CSSProperties => ({ animation, animationTimeline: 'view()', animationRange: range });
 const lowerFirst = (t: string) => t[0].toLowerCase() + t.slice(1);
 
-export function DetailsClient({ laptop }: { laptop: Laptop }) {
+export function DetailsClient({ laptop, details }: { laptop: Laptop; details: LaptopDetails }) {
   const hydrated = useHydrated();
   const brief = useFitlap((st) => st.brief);
   const compareIds = useFitlap((st) => st.compareIds);
@@ -83,8 +82,8 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
 
   // /results returns to this laptop. Wait for rehydration so the persisted value doesn't overwrite it.
   useEffect(() => {
-    if (hydrated) select(laptop.id);
-  }, [hydrated, select, laptop.id]);
+    if (hydrated) select(laptop.slug);
+  }, [hydrated, select, laptop.slug]);
 
   useEffect(() => {
     if (tick >= TICKS) return;
@@ -94,16 +93,18 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
   }, [tick]);
 
   const scored = scoreForDisplay(laptop, brief);
+  const c = scored.config;
+  const specs = specValues(laptop, c, details);
   const uses: UseCase[] = brief.uses.length ? brief.uses : ['work'];
   const matters = new Set(uses.flatMap((u) => MATTERS[u]));
   const mixUses = USE_CASES.filter((c) => uses.includes(c.key));
-  const mixHours = Math.round(uses.reduce((a, u) => a + laptop.battery.hoursByUse[HOURS[u]], 0) / uses.length);
+  const mixHours = Math.round(uses.reduce((a, u) => a + laptop.hoursByUse[USE_HOURS[u]], 0) / uses.length);
   const pending: CSSProperties | undefined = hydrated ? undefined : { visibility: 'hidden' };
 
-  const compareHref = '/compare?ids=' + [laptop.id, ...compareIds.filter((x) => x !== laptop.id)].slice(0, 4).join(',');
-  const others = getLaptops().filter((l) => l.id !== laptop.id);
+  const compareHref = '/compare?ids=' + [laptop.slug, ...compareIds.filter((x) => x !== laptop.slug)].slice(0, 4).join(',');
+  const others = getLaptops().filter((l) => l.slug !== laptop.slug);
   const thinnerPct = others.length ? Math.round((others.filter((l) => l.dims.h > laptop.dims.h).length / others.length) * 100) : 0;
-  const [res, hz, nits] = laptop.displayDetail.split(' · ');
+  const [res, hz, nits] = displayLine(c).split(' · ');
   const { w, d, h } = laptop.dims;
   const kg = laptop.weightKg.toFixed(2) + ' kg';
   const mm = (n: number) => n.toFixed(1) + ' mm';
@@ -151,7 +152,7 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
               <path d="M6 3h12v18l-6-4-6 4z" />
             </svg>
           </button>
-          <Link href={compareHref} onClick={() => addCompare(laptop.id)} aria-label="Add to compare" className={s.plus}>+</Link>
+          <Link href={compareHref} onClick={() => addCompare(laptop.slug)} aria-label="Add to compare" className={s.plus}>+</Link>
         </div>
       </header>
 
@@ -159,21 +160,21 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
         <aside id="prices" className={s.side}>
           <span className={s.label13}>Laptop details</span>
           <div className={s.col6}>
-            <span className={s.meta13}>Match ID · {scramble(laptop.code, tick, 0)}</span>
-            <span className={s.name} style={{ animation: 'printIn 900ms cubic-bezier(.7,0,.2,1) 150ms backwards' }}>{laptop.name}</span>
+            <span className={s.meta13}>Match ID · {scramble(c.code, tick, 0)}</span>
+            <span className={s.name} style={{ animation: 'printIn 900ms cubic-bezier(.7,0,.2,1) 150ms backwards' }}>{laptop.model}</span>
             <span className={s.subline}>
-              {laptop.config.cpu} · {laptop.config.ramGb} GB · {fmtStorage(laptop.config.storageGb)} · {laptop.finish}
+              {c.cpu.name} · {c.ramGb} GB · {fmtStorage(c.storageGb)} · {c.color}
             </span>
           </div>
           <div className={s.tiles}>
             <div className={`${s.tile} ${s.tileNew}`} style={{ animation: 'rise 600ms cubic-bezier(.2,.9,.2,1) 300ms backwards' }}>
               <span className={s.meta12}>New</span>
-              <span className={s.tileVal}>{scramble(fmtUsd(laptop.price.newUsd), tick, 0.2)}</span>
+              <span className={s.tileVal}>{scramble(c.price.srpPhp !== undefined ? fmtPhp(c.price.srpPhp) : 'Used only', tick, 0.2)}</span>
             </div>
             <div className={`${s.tile} ${s.tileUsed}`} style={{ animation: 'rise 600ms cubic-bezier(.2,.9,.2,1) 380ms backwards' }}>
-              <span className={s.meta12}>Used avg · {laptop.price.usedListings} listings</span>
-              <span className={s.tileVal}>{scramble(fmtUsd(laptop.price.usedAvgUsd), tick, 0.3)}</span>
-              <PriceDelta newUsd={laptop.price.newUsd} usedUsd={laptop.price.usedAvgUsd} size={13} suffix=" vs new" />
+              <span className={s.meta12}>Used est. · {c.price.usedSource ?? '—'}</span>
+              <span className={s.tileVal}>{scramble(c.price.usedPhp !== undefined ? fmtPhp(c.price.usedPhp) : '—', tick, 0.3)}</span>
+              <PriceDelta price={c.price} size={13} suffix=" vs new" />
             </div>
           </div>
           <div className={s.pills} style={pending}>
@@ -196,7 +197,7 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
               {scramble(String(scored.fit), tick, 0.4)}
               <span className={s.fitPct}>%</span>
             </span>
-            <span className={s.summary}>{laptop.summary}</span>
+            <span className={s.summary}>{details.summary}</span>
             <button onClick={() => setWhy(!why)} aria-expanded={why} className={`${s.why} ring`}>
               How is this scored? <span className={s.whyIcon} style={{ transform: `rotate(${why ? 45 : 0}deg)` }}>+</span>
             </button>
@@ -215,7 +216,7 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
             <div key={vt} className={s.stage} style={{ animation: vt ? 'iris 650ms cubic-bezier(.7,0,.2,1) backwards' : 'none' }}>
               {view === 0 && (
                 <LaptopDrawing
-                  shape={laptop.shape}
+                  shape={laptop.archetype}
                   hot={scored.hot}
                   big
                   animate="crt"
@@ -226,7 +227,7 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
                   screen={
                     <>
                       <span className={s.screenTop}>
-                        {laptop.specs.display.v} · {res}
+                        {specs.display} · {res}
                       </span>
                       <span className={s.screenDisc}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
@@ -257,7 +258,7 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
               )}
               {view === 2 && (
                 <div className={s.portsView}>
-                  {[laptop.portSides.left, laptop.portSides.right].map((ports, side) => (
+                  {[laptop.ports.left, laptop.ports.right].map((ports, side) => (
                     <div key={side} className={s.portSide}>
                       <span className={s.meta12}>{side ? 'Right side' : 'Left side'}</span>
                       <div className={s.portRail}>
@@ -317,8 +318,8 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
                   <span className={s.meta12}>{label}</span>
                   <span className={`${s.dot} ${m ? s.dotHot : s.dotCold}`} style={pending} />
                 </div>
-                <span className={s.sv}>{scramble(laptop.specs[k].v, tick, (i % 5) * 0.12)}</span>
-                <span className={s.sn}>{laptop.specs[k].note}</span>
+                <span className={s.sv}>{scramble(specs[k], tick, (i % 5) * 0.12)}</span>
+                <span className={s.sn}>{details.specNotes[k]}</span>
               </div>
             );
           })}
@@ -344,19 +345,19 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
           <div className={s.facts}>
             <div className={`${s.col2} ${s.factTop}`}>
               <span className={s.meta12}>Capacity</span>
-              <span className={s.factVal}>{laptop.battery.wh} Wh</span>
+              <span className={s.factVal}>{details.battery.wh} Wh</span>
             </div>
             <div className={`${s.col2} ${s.factTop}`}>
               <span className={s.meta12}>Charger</span>
-              <span className={s.factVal}>{laptop.battery.chargerW} W USB-C</span>
+              <span className={s.factVal}>{details.battery.chargerW} W USB-C</span>
             </div>
             <div className={s.col2}>
               <span className={s.meta12}>0 → 50%</span>
-              <span className={s.factVal}>{laptop.battery.fastCharge}</span>
+              <span className={s.factVal}>{fastChargeLabel(details.battery.fastChargeMin)}</span>
             </div>
             <div className={s.col2}>
               <span className={s.meta12}>Unplugged perf.</span>
-              <span className={s.factVal}>{laptop.battery.unplugged}</span>
+              <span className={s.factVal}>{details.battery.unpluggedPerf}</span>
             </div>
           </div>
         </div>
@@ -371,7 +372,7 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
             <span className={s.right}>Hours</span>
           </div>
           {BATTERY.map(([label, how, key], r) => {
-            const hrs = laptop.battery.hoursByUse[key];
+            const hrs = laptop.hoursByUse[key];
             const n = Math.min(48, Math.max(1, Math.round((hrs / 24) * 48)));
             return (
               <div key={key} className={`${s.brow} ${s.bline}`}>
@@ -405,7 +406,7 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
           </div>
           <div className={s.overall}>
             <span className={s.meta13}>Overall</span>
-            <span className={s.bbigBuild}>{laptop.build.overall.toFixed(1)}</span>
+            <span className={s.bbigBuild}>{laptop.buildOverall.toFixed(1)}</span>
             <span className={s.outOf}>/ 10</span>
           </div>
         </div>
@@ -424,10 +425,10 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
             </div>
             <div className={s.chassis}>
               {[
-                ['Chassis', laptop.build.chassis],
+                ['Chassis', details.build.chassis],
                 ['Weight', kg],
-                ['Repairability', laptop.build.repairability],
-                ['Warranty', laptop.build.warranty],
+                ['Repairability', details.build.repairability],
+                ['Warranty', warrantyLabel(details.build.warrantyYears)],
               ].map(([k, v]) => (
                 <div key={k} className={s.col2}>
                   <span className={s.meta12}>{k}</span>
@@ -438,7 +439,7 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
           </div>
           <div className={s.bgrid}>
             {BUILD.map(([k, label]) => {
-              const sc = laptop.build[k];
+              const sc = details.build[k];
               return (
                 <div key={k} className={`${s.spec} ${s.buildCard}`}>
                   <div className={s.bcHead}>
@@ -457,7 +458,7 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
                       />
                     ))}
                   </div>
-                  <span className={`${s.sn} ${s.snBuild}`}>{laptop.build.notes[k]}</span>
+                  <span className={`${s.sn} ${s.snBuild}`}>{details.build.notes[k]}</span>
                 </div>
               );
             })}
@@ -467,7 +468,7 @@ export function DetailsClient({ laptop }: { laptop: Laptop }) {
 
       <div className={s.footer}>
         <Link href="/results" className={s.backLink}>‹ Back to all matches</Link>
-        <Link href={compareHref} onClick={() => addCompare(laptop.id)} className={s.compareCta}>
+        <Link href={compareHref} onClick={() => addCompare(laptop.slug)} className={s.compareCta}>
           Compare with others <span className={s.ctaArw}>→</span>
         </Link>
       </div>

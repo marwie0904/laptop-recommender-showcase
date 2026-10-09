@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import type { LaptopShapeKey } from '@/data/types';
+import type { Archetype as LaptopShapeKey } from '@shared/catalog';
 import { getLaptops } from '@/lib/catalog';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import { LAPTOP_SHAPES } from '@/components/laptop/shapes';
@@ -27,7 +27,7 @@ export default function ShapesPage() {
         </div>
         <div className={s.grid}>
           {keys.map((key, i) => {
-            const usedBy = laptops.find((l) => l.shape === key);
+            const usedBy = laptops.find((l) => l.archetype === key);
             return (
               <article key={key} className={s.card}>
                 <div className={s.stage}>
@@ -43,7 +43,7 @@ export default function ShapesPage() {
                 </div>
                 <span className={s.note}>{LAPTOP_SHAPES[key].note}</span>
                 <span className={`${s.used} ${usedBy ? s.usedOn : s.usedOff}`}>
-                  {usedBy ? 'Used for: ' + usedBy.name : 'Not used by sample data yet'}
+                  {usedBy ? 'Used for: ' + usedBy.model : 'Not used by sample data yet'}
                 </span>
               </article>
             );

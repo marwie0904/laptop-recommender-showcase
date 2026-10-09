@@ -1,9 +1,8 @@
-import type { Brief, FormPref, UseCase } from '../data/types';
+import type { Brief, FormPref, UseCase } from '@shared/brief';
+import { BUDGET_TOP } from '@shared/brief';
 import { DEFAULT_ADVANCED } from './advanced.ts';
-import { fmtUsd } from './price.ts';
+import { fmtPhp } from './price.ts';
 
-export const BUDGET_MIN = 600;
-export const BUDGET_STEPS = [1000, 1400, 1800, 2400, 3000] as const;
 export const RAM_STEPS = [8, 16, 32, 64] as const;
 export const STORAGE_STEPS = [256, 512, 1024, 2048] as const;
 
@@ -28,8 +27,7 @@ export const DEFAULT_BRIEF: Brief = {
   advanced: DEFAULT_ADVANCED,
   uses: ['coding', 'editing'],
   forms: ['slim', 'metal'],
-  budgetMin: BUDGET_MIN,
-  budgetMax: 1800,
+  budgetMax: 105_000,
   includeUsed: true,
   minRamGb: 16,
   minStorageGb: 512,
@@ -38,9 +36,14 @@ export const DEFAULT_BRIEF: Brief = {
 export const fmtStorage = (gb: number) => (gb >= 1024 ? gb / 1024 + ' TB' : gb + ' GB');
 export const useLabel = (u: UseCase) => USE_CASES.find((x) => x.key === u)!.label;
 
-/** "Coding · Editing · ≤ $1,800" */
+/** "₱105,000", or "₱175,000+" at the top step (no cap). */
+export const budgetValue = (n: number) => fmtPhp(Math.min(n, BUDGET_TOP)) + (n >= BUDGET_TOP ? '+' : '');
+/** "≤ ₱105,000", or "₱175,000+" at the top step. */
+export const budgetCap = (n: number) => (n >= BUDGET_TOP ? '' : '≤ ') + budgetValue(n);
+
+/** "Coding · Editing · ≤ ₱105,000" */
 export function briefSummary(b: Brief) {
-  return [...b.uses.map(useLabel), '≤ ' + fmtUsd(b.budgetMax)].join(' · ');
+  return [...b.uses.map(useLabel), budgetCap(b.budgetMax)].join(' · ');
 }
 
 /** Move `cur` one step along `steps`, clamped. */
