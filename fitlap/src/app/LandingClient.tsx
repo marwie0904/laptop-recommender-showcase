@@ -6,7 +6,8 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import type { Brief } from '@shared/brief';
 import { DEFAULT_BRIEF, USE_CASES, budgetCap, fmtStorage } from '@/lib/brief';
 import { baseConfig, getLaptops, rankForBrief, topPick } from '@/lib/catalog';
-import { fmtPhp, priceLine } from '@/lib/price';
+import { fmtDate, fmtPhp, priceLine } from '@/lib/price';
+import { CATALOG } from '@/data/catalog';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import { DotFitChart } from '@/components/charts/DotFitChart';
 import { PriceDelta } from '@/components/price/PriceDelta';
@@ -32,12 +33,12 @@ const RANKS = PRESETS.map((p) => rankForBrief(p.brief));
 const AUTO_MS = 4200;
 
 const NAV = [['#demo', 'See it work'], ['#why', 'Why I built it'], ['#faq', 'FAQ']];
-const STATS = [['[N]', 'laptops tracked'], ['[N]', 'used listings checked daily'], ['[N]', 'marketplaces covered'], ['~1 min', 'to your shortlist']];
+const STATS = [[String(CATALOG.stats.laptops), 'laptops tracked'], [String(CATALOG.stats.sources), 'sources cited'], ['~1 min', 'to your shortlist']];
 const FAQ = [
-  { q: 'Where do used prices come from?', a: 'The 30-day average of active listings on [marketplaces].' },
-  { q: 'How is fit scored?', a: 'Your use cases weight the specs. Your filters add or remove points.' },
+  { q: 'Where do used prices come from?', a: 'SRP is the brand’s official Philippine price. Used prices are estimates compiled from public sources with AI help, then reviewed by hand. Each laptop shows when its price was last checked.' },
+  { q: 'How is fit scored?', a: 'Your use cases weight the specs. Your filters decide what makes the list.' },
   { q: 'Is it free?', a: 'Yes. No account needed.' },
-  { q: 'Do you earn from links?', a: '[Your affiliate policy.]' },
+  { q: 'Do you earn from links?', a: 'No — we don’t link to sellers.' },
 ];
 
 /** Scroll-linked animation: shorthand first, then timeline and range (the shorthand resets them). */
@@ -100,7 +101,7 @@ export function LandingClient() {
             <div className={s.heroRow}>
               <div className={s.heroCopy}>
                 <span className={s.tag} style={{ animation: 'floatIn 600ms cubic-bezier(.2,.9,.2,1) 100ms backwards' }}>
-                  <span className={s.limeDot} />Used prices updated daily
+                  <span className={s.limeDot} />Prices hand-checked{CATALOG.stats.latestPriceCheck && ' · updated ' + fmtDate(CATALOG.stats.latestPriceCheck)}
                 </span>
                 <h1 className={s.h1}>
                   <span className={s.line} style={{ animation: 'printIn 900ms cubic-bezier(.7,0,.2,1) 150ms backwards' }}>The right laptop,</span>
@@ -288,7 +289,7 @@ export function LandingClient() {
                 src="/marwie-halftone.png"
                 width={1100}
                 height={900}
-                alt="MarWie"
+                alt="Mar Wie Ang"
                 sizes="(max-width: 640px) 300px, 520px"
                 className={s.portrait}
                 style={onView('windReveal 1.6s steps(18, end) both', 'entry 5% cover 45%')}
@@ -297,13 +298,17 @@ export function LandingClient() {
             <div className={s.whyText}>
               <span className={s.whyEyebrow}>02 · Why I built this</span>
               <p className={s.quote} style={onView('printIn 1.2s cubic-bezier(.7,0,.2,1) both', 'entry 10% cover 40%')}>
-                &quot;Ask anyone which laptop to buy and you get <span className={s.orange}>it depends</span>. So I built the thing that does the depending.&quot;
+                &quot;You kept asking on my lives which laptop to buy. So I built <span className={s.orange}>the answer</span>.&quot;
               </p>
-              <p className={s.whyLine}>Developer and creator. I built FITLAP so choosing a laptop takes a minute, not twenty reviews.</p>
+              <p className={s.whyLine}>
+                Pick your use case and budget, and FITLAP ranks the laptops that actually fit, priced at SRP and used. I built it as the showcase
+                project for my free course on going from an AI workflow to a production-ready app.
+              </p>
               <div className={s.whyLinks}>
-                <span className={s.whyName}>MarWie</span>
+                <span className={s.whyName}>Mar Wie Ang</span>
                 <a href="https://marwieang.com" className={s.whyLink}>marwieang.com</a>
-                <a href="#" className={s.whyLink}>TikTok [@handle]</a>
+                <a href="https://www.tiktok.com/@marwie_ang" className={s.whyLink}>TikTok @marwie_ang</a>
+                <a href="https://course.marwieang.com" className={s.whyLink}>Take the free course →</a>
               </div>
             </div>
           </div>
@@ -335,6 +340,7 @@ export function LandingClient() {
               <Link href="/results">Results</Link>
               <Link href="/compare">Compare</Link>
               <a href="#faq">FAQ</a>
+              <Link href="/legal">Legal</Link>
             </span>
           </footer>
         </section>
