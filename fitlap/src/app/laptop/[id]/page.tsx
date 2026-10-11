@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { LaptopDetails } from '@shared/catalog';
 import details from '@/data/generated/details.json';
@@ -18,15 +17,8 @@ export function generateStaticParams() {
 // Only laptops in this build exist; promote triggers a rebuild for new ones (PLAN §3).
 export const dynamicParams = false;
 
-export default function LaptopPage({ params }: { params: Promise<{ id: string }> }) {
-  return (
-    <Suspense>
-      <Details params={params} />
-    </Suspense>
-  );
-}
-
-async function Details({ params }: { params: Promise<{ id: string }> }) {
+// No Suspense here: in the static export a streamed boundary is revealed but never hydrated, which froze this page.
+export default async function LaptopPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const laptop = getLaptop(id);
   if (!laptop || !DETAILS[id]) notFound();
