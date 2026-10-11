@@ -30,7 +30,7 @@ backend design, records the decisions made so far, and lists what is still open.
 | Save button | **Dropped for v1.** |
 | Seller links | **None.** Prices and source names appear as plain text. |
 | Admin auth | **A secret admin key, local admin only** (2026-10-11): the admin runs on your machine against dev, unlocked by `ADMIN_KEY` (dev only, set by `npm run admin-key`). Prod ships without `/admin` and has no key, so admin functions refuse there. Replaces the course-site sign-in port. |
-| Abuse protection | Visitors only load static files, so there are **no public Convex queries** (changed 2026-10-09). **Per-IP + global rate limits** wrap admin sign-in and every admin function. **No spending caps for now.** Recommended instead: warning-only usage alerts, which don't shut anything off. A Cloudflare front is deferred until it's needed. |
+| Abuse protection | Visitors only load static files, so there are **no public Convex queries** (changed 2026-10-09). **Per-IP + global rate limits** wrap every admin function. **No spending caps for now.** Recommended instead: warning-only usage alerts, which don't shut anything off. A Cloudflare front is deferred until it's needed. |
 | Used price | **Depreciation estimate** from the launch SRP (research guide retention curve), replaced by cited PH listings when found. See `fitlap/shared/usedPrice.ts`. |
 | Retail feeds | The skill checks SRPs against the PC Express, Octagon and Power Mac Center Shopify feeds. Shelf prices are evidence, never the SRP. |
 | Convex plan | **Starter (pay-as-you-go)**: S16 limits, overage billed (§9). |
@@ -39,7 +39,7 @@ backend design, records the decisions made so far, and lists what is still open.
 | Analytics / error monitoring | **None** for now. |
 | New price | **Official SRP** from the brand (PH). The UI shows "SRP · {Brand} PH". If the AI finds no official PH SRP, the field is left empty for you to fill in at review. **Grey-market / imported units are excluded.** |
 | Catalog scope | Current models **plus discontinued models that are popular used** (M1/M2 MacBook Air, older ThinkPads, …). Those are flagged `usedOnly` and appear only when "Including used" is on. |
-| Admin | **One admin: `marwie0904@gmail.com`.** It receives the sign-in codes, which are sent from `marwie@otomatesystems.com`. |
+| Admin | **One admin: `marwie0904@gmail.com`.** The admin key (§1) replaces emailed sign-in codes. |
 | Language | **English** for now. |
 | Convex region | **US East (`aws-us-east-1`)**, standard pricing. The only Asia-Pacific option is Sydney (`aws-ap-southeast-2`, +30%). **A deployment's region can't be changed after it's created**, so confirm before creating prod. |
 | Domain | The **Vercel-provided domain** for now. A custom domain comes later. |
@@ -91,7 +91,7 @@ backend design, records the decisions made so far, and lists what is still open.
 - Auto labels: Best all-rounder, Lightest, Best value, Cheapest new, Most GPU power, Longest battery.
 
 **Implied but not drawn.**
-- An admin area (sign-in with emailed code → review the skill's drafts → approve), run locally against dev, plus a promote step to prod.
+- An admin area (unlocked by the admin key → review the skill's drafts → approve), run locally against dev, plus a promote step to prod.
 - A config switcher on result cards, Details and Compare (CPU / RAM / storage), with prices updating live.
 - 10–20 laptop mockup archetypes, which replace the single generic laptop drawing.
 - A "Photo" view on Details for the real image.
@@ -123,10 +123,10 @@ Your machine (Claude Code session)
 
 Convex deployments: dev (drafts, review) and prod (approved data only, read by the build)
  ├─ catalog.ts   internal exportForBuild (no public queries)
- ├─ admin/       adminQuery / adminMutation / adminAction wrappers (session token + rate limits)
+ ├─ admin/       adminQuery / adminMutation / adminAction wrappers (admin key + rate limits)
  │               + internal drafts.submit and promote functions (CLI only, no public endpoint)
  ├─ prices/      price-source adapters (v2: Shopee affiliate, parked)
- ├─ crons.ts     cleanup only (expired sign-in codes, old auth events)
+ ├─ crons.ts     none needed while the admin is local-only
  ├─ components   @convex-dev/rate-limiter (+ resend, superseded: §6a)
  ├─ http.ts      POST /admin-login (superseded: §6a)
  └─ adminAuth.ts course-site port (superseded: §6a)
@@ -239,7 +239,7 @@ Designed on 2026-10-09 in [the frontend-gaps spec, §3](superpowers/specs/2026-1
 1. **Public reads.** None. Visitors load the static build (§3), and prod Convex only answers the build's internal query and admin functions.
 2. **Public writes.** None in v1. Any future one (e.g. "report wrong price") goes through an **HTTP action** that reads `cf-connecting-ip` and applies a per-IP limit plus a sharded global limit before doing anything, the same pattern as the course site's `/notify-email`. All public endpoints live in `convex/http.ts` and `convex/public/`, so they're easy to audit.
 3. **Admin functions.** `adminMutation` / `adminAction` wrappers:
-   - require a valid admin session token (`requireAdmin`, as in course-site)
+   - require the admin key (`requireAdmin`)
    - apply a per-admin limit and a global limit
 4. **Auth (superseded 2026-10-11, §6a).** The course site's flow: a per-IP escalating lockout, plus a global cap on code emails. A code email goes out only after a correct password, so an attacker can't use the sign-in form to spam your inbox.
 5. **No spending caps (your decision).** Visitor traffic never reaches Convex, so it can't run up a Convex bill. Photo views are the exception (§7a). Every write and action is rate-limited. Drafting adds no backend cost, because it runs in your Claude Code session. Recommended: **warning-only** usage alerts, which email you without disabling anything. A future Cloudflare front would need a custom domain, which is Convex Pro only.
@@ -250,8 +250,8 @@ Designed on 2026-10-09 in [the frontend-gaps spec, §3](superpowers/specs/2026-1
 |---|---|---|
 | `ipPublicWrite` (future) | token bucket | 10 / min, capacity 20 |
 | `globalPublicWrite` (future) | token bucket, 10 shards | 2,000 / min |
-| Admin sign-in, per IP | escalating lockout (course-site) | 3 wrong tries → locked 1 min → 1 h → 1 day → 2 days → then banned. A successful sign-in resets the count. |
-| `adminLoginGlobal` | fixed window | 20 code emails / hour (course-site value) |
+| Admin sign-in, per IP (superseded, §6a) | escalating lockout (course-site) | 3 wrong tries → locked 1 min → 1 h → 1 day → 2 days → then banned. A successful sign-in resets the count. |
+| `adminLoginGlobal` (superseded, §6a) | fixed window | 20 code emails / hour (course-site value) |
 | `adminAction` per admin | token bucket | 120 / min |
 
 ### 6a. Admin sign-in: reuse the course site's flow
@@ -369,7 +369,7 @@ fitlap/                # the app root: Next.js App Router (output: "export")
     admin/   drafts.ts (incl. internal submit) laptops.ts prices.ts promote.ts
     prices/  sources/shopee.ts aggregate.ts
     lib/     functions.ts (custom wrappers) rateLimits.ts
-  scripts/             # hash-password.mjs, promote.mjs, fetch-catalog.mjs
+  scripts/             # admin-key.mjs, promote.mjs, fetch-catalog.mjs
 .claude/skills/draft-laptop/SKILL.md
 docs/
 ```
@@ -405,7 +405,7 @@ The frontend mock UI is still being iterated (desktop, then mobile). The phases 
 | Phase | Goal | Main deliverables | Exit criteria | Depends on |
 |---|---|---|---|---|
 | **0. Setup & spikes** | Accounts in place; the risky unknowns answered | Setup checklist (§12). **S1** (dropped, local-only admin) IP check: log the headers an HTTP action receives (`cf-connecting-ip`, `x-forwarded-for`) and try faking them. **S2** a first version of the `/draft-laptop` skill on 3 laptops, writing JSON to a local file (accuracy, source quality, time per laptop), including Geekbench 6 multi-core and 3DMark Steel Nomad Light scores with sources. If GPU coverage is poor (older chips, M1, RTX 30), pick another cross-platform GPU benchmark before Phase 2. The submit step comes in Phase 2. **S3** (dropped, local-only admin) port the course-site admin sign-in and run it end to end from the static site, with Resend from `otomatesystems.com`. **S4** static export + Convex on Vercel, including `/laptop/[id]` pre-rendered from Convex at build, a deploy-hook rebuild, whether the frontend's `cacheComponents` setting works with `output: "export"`, whether `npx convex run` can call an internal query with `CONVEX_DEPLOY_KEY` inside the Vercel build, and whether `generateStaticParams` can read the generated `details.json`. | A short written result per spike, added to this doc, with a go / adjust decision for each | Your accounts and keys |
-| **1. Backend foundation** | A secure, empty backend you can sign into | Schema v1. `public/` / `admin/` wrappers. Rate limits. Admin key (`requireAdmin`), schema v2 instead of the sign-in port. Cleanup crons (expired challenges and sessions). `/legal` + static shell deployed on the Vercel domain. | The admin key unlocks the local admin against dev, and admin functions refuse on prod. Tests show rate limits rejecting excess calls. | Phase 0 (S4) |
+| **1. Backend foundation** | A secure, empty backend the local admin can use | Schema v1. `public/` / `admin/` wrappers. Rate limits. Admin key (`requireAdmin`), schema v2 instead of the sign-in port. `/legal` + static shell deployed on the Vercel domain. | The admin key unlocks the local admin against dev, and admin functions refuse on prod. Tests show rate limits rejecting excess calls. | Phase 0 (S4) |
 | **2. Data pipeline & admin** | Laptops go from "model name" to published | `/draft-laptop` skill → `drafts.submit` on dev → review diff in the local admin → approve → `promote` to prod → rebuild. Configs + SRP + used estimates. `/draft-laptop recheck` (single and batch) and staleness flags. Archetype pick. Press-photo upload (in-browser resize to WebP). The `catalog:exportForBuild` query and `scripts/fetch-catalog.mjs`. | ~20 laptops drafted, approved on dev and promoted to prod. `catalog.json` under 150 KB raw. | Phase 1. S2 results. |
 | **3. Scoring engine** | Rankings that feel right | `shared/scoring`: filters, use-case weights, fit %, axes, verdicts, compare labels, config switching. Started on seed data by [the shared-scoring plan](superpowers/plans/2026-10-09-shared-scoring-and-data-swap.md). Unit tests against hand-made expected rankings. Admin "preview ranking for brief X" page. | Your sample briefs (Coding ≤ ₱60k, Gaming ≤ ₱90k, Student ≤ ₱40k, …) rank the way you'd recommend on a live | Phase 2 data (can start in parallel with seed data) |
 | **4. Public app** | Every screen wired to live data | Port Landing, Brief (simple + advanced mode), Results, Details, Compare (desktop + mobile) and the 10–20 mockup archetypes. Config switcher. Brief in the URL. Photo view. Empty / loading / busy states. | All screens work on phone and desktop against the baked catalog. Nothing loads a photo until the Photo view is opened. | **Design freeze** for desktop + mobile. Phases 2–3. |
