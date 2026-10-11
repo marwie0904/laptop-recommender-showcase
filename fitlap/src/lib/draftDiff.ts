@@ -3,8 +3,11 @@
 import type { DraftPayload } from '@convex/schema';
 
 export type Leaf = string | number | boolean | string[] | undefined;
-/** `key` is the path with the config code swapped for its index, so renaming a code keeps its inputs mounted. */
-export interface Row { path: string; key: string; draft: Leaf; published: Leaf; changed: boolean }
+/**
+ * `key` is the path with the config code swapped for its index, so renaming a code keeps its inputs mounted.
+ * `removed`: a published config the full draft drops (approve deletes it). Read-only.
+ */
+export interface Row { path: string; key: string; draft: Leaf; published: Leaf; changed: boolean; removed?: boolean }
 type Obj = Record<string, unknown>;
 type Source = { field: string; url: string; title: string; seenAt: string };
 
@@ -43,7 +46,12 @@ export function rows(draft: DraftPayload, published: DraftPayload | null): Row[]
   const p = published ? leaves(published) : new Map<string, Leaf>();
   const codes = (draft.kind === 'full' ? draft.configs : draft.prices).map((c) => c.code);
   const key = (path: string) => path.replace(/^configs\.([^.]*)/, (_, code: string) => `configs.${codes.indexOf(code)}`);
-  return [...leaves(draft)].map(([path, v]) => ({ path, key: key(path), draft: v, published: p.get(path), changed: !published || !same(v, p.get(path)) }));
+  const d = leaves(draft);
+  const out: Row[] = [...d].map(([path, v]) => ({ path, key: key(path), draft: v, published: p.get(path), changed: !published || !same(v, p.get(path)) }));
+  // Only a full draft replaces the config list. A price-only draft has no laptop rows, so this would flag everything.
+  if (draft.kind === 'full')
+    for (const [path, v] of p) if (!d.has(path)) out.push({ path, key: `removed:${path}`, draft: undefined, published: v, changed: true, removed: true });
+  return out;
 }
 
 const optional = (path: string) => path.startsWith('configs.') && OPTIONAL.includes(path.split('.').slice(2).join('.'));
@@ -58,8 +66,14 @@ export function setAt(d: DraftPayload, path: string, value: Leaf): DraftPayload 
     const code = parts[1];
     parts.splice(0, 2);
     const list = (next.kind === 'full' ? next.configs : next.prices) as unknown as Obj[];
-    // A code another config already uses would merge the two (and later edits would hit the wrong one).
-    if (parts.join('.') === 'code' && list.some((c) => c.code === value)) return next;
+    if (parts.join('.') === 'code') {
+      // A code another config already uses would merge the two (and later edits would hit the wrong one).
+      // A dot would split the path. Real codes are ^[A-Z0-9-]+$.
+      if (String(value).includes('.') || list.some((c) => c.code === value)) return next;
+      const old = `configs.${code}`;
+      if (next.kind === 'full')
+        for (const s of next.laptop.sources) if (s.field === old || s.field.startsWith(old + '.')) s.field = `configs.${value}${s.field.slice(old.length)}`;
+    }
     target = list.find((c) => c.code === code)!;
   } else target = (next as Extract<DraftPayload, { kind: 'full' }>).laptop as unknown as Obj;
   const last = parts.pop()!;

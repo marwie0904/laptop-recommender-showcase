@@ -32,6 +32,13 @@ assert.equal(leaves(renamed).get('configs.X-2.ramGb'), 16, 'a renamed code moves
 assert.equal(rows(renamed, null).find((x) => x.path === 'configs.X-2.ramGb')!.key, 'configs.0.ramGb', 'row keys survive a rename');
 const two = { ...draft, configs: [...(draft as FullDraft).configs, { ...(draft as FullDraft).configs[0], code: 'X-2' }] } as DraftPayload;
 assert.deepEqual((setAt(two, 'configs.X-2.code', 'X-1') as FullDraft).configs.map((c) => c.code), ['X-1', 'X-2'], 'a rename onto a used code is ignored');
+assert.equal((setAt(draft, 'configs.X-1.code', 'X-1.') as FullDraft).configs[0].code, 'X-1', 'a code with a dot is ignored (it would break paths)');
+const cited = structuredClone(draft) as FullDraft;
+cited.laptop.sources = ['configs.X-1', 'configs.X-1.price', 'configs.X-10.ramGb', 'battery'].map((field) => ({ field, url: '', title: '', seenAt: '' }));
+assert.deepEqual((setAt(cited, 'configs.X-1.code', 'X-3') as FullDraft).laptop.sources.map((x) => x.field),
+  ['configs.X-3', 'configs.X-3.price', 'configs.X-10.ramGb', 'battery'], 'sources follow a code rename');
+const gone = rows(draft, two).find((x) => x.path === 'configs.X-2.ramGb');
+assert.deepEqual(gone && [gone.draft, gone.published, gone.changed, gone.removed], [undefined, 16, true, true], 'a published config the draft drops shows as removed');
 
 assert.equal(leaves(setAt(draft, 'weightKg', undefined)).get('weightKg'), 1.2, 'a cleared required field keeps its last value');
 assert.equal(leaves(setAt(draft, 'configs.X-1.ramGb', undefined)).get('configs.X-1.ramGb'), 16, 'same for required config fields');
@@ -41,6 +48,7 @@ assert.ok(!('srpSource' in unshop.configs[0].price), 'a cleared optional text fi
 
 const p = { kind: 'priceOnly', slug: 'x', flags: [], sources: [], prices: [{ code: 'X-1', price: { srpPhp: 1 } }] } as unknown as DraftPayload;
 assert.equal(leaves(setAt(p, 'configs.X-1.price.srpPhp', 2)).get('configs.X-1.price.srpPhp'), 2, 'price-only drafts use the same paths');
+assert.ok(rows(p, two).every((x) => !x.removed), 'a price-only draft removes nothing');
 
 const src = [{ field: 'battery', url: 'a', title: 'A', seenAt: '' }, { field: 'batteryX', url: 'b', title: 'B', seenAt: '' }];
 assert.deepEqual(sourcesFor('battery.wh', src).map((s) => s.url), ['a'], 'a source covers its subtree only');

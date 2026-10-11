@@ -65,7 +65,9 @@ function Review({ id, row, published }: { id: Id<'aiDrafts'>; row: Doc<'aiDrafts
             <tr key={r.key} className={r.changed ? s.changed : undefined}>
               <td className={s.path}>{r.path}</td>
               <td>{show(r.published)}</td>
-              <td><Field path={r.path} value={r.draft} onChange={(v) => setDraft((d) => setAt(d, r.path, v))} /></td>
+              <td>{r.removed ? <span className={s.warn}>removed on approve</span> : (
+                <Field path={r.path} value={r.draft} onChange={(v) => setDraft((d) => setAt(d, r.path, v))} />
+              )}</td>
               <td>{sourcesFor(r.path, sources).map((src) => (
                 <a key={src.field + src.url} className={s.src} href={src.url} target="_blank" rel="noreferrer">{src.title}</a>
               ))}</td>
