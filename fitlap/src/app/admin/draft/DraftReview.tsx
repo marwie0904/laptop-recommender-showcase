@@ -62,7 +62,7 @@ function Review({ id, row, published }: { id: Id<'aiDrafts'>; row: Doc<'aiDrafts
         <thead><tr><th>Field</th><th>Published</th><th>Draft</th><th>Sources</th></tr></thead>
         <tbody>
           {rows(draft, pub).map((r) => (
-            <tr key={r.path} className={r.changed ? s.changed : undefined}>
+            <tr key={r.key} className={r.changed ? s.changed : undefined}>
               <td className={s.path}>{r.path}</td>
               <td>{show(r.published)}</td>
               <td><Field path={r.path} value={r.draft} onChange={(v) => setDraft((d) => setAt(d, r.path, v))} /></td>
@@ -99,7 +99,7 @@ function Field({ path, value, onChange }: { path: string; value: Leaf; onChange:
   if (kind === 'boolean') return <input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} />;
   const text = value === undefined ? '' : Array.isArray(value) ? value.join(', ') : String(value);
   if (kind === 'text' && text.length > 60)
-    return <textarea className={s.input} rows={3} defaultValue={text} onChange={(e) => onChange(e.target.value)} />;
+    return <textarea className={s.input} rows={3} defaultValue={text} onChange={(e) => onChange(parseInput(e.target.value, 'text'))} />;
   return (
     <input className={s.input} type={kind === 'number' ? 'number' : 'text'} step="any" defaultValue={text}
       onChange={(e) => onChange(parseInput(e.target.value, kind))} />

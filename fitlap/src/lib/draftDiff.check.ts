@@ -1,6 +1,6 @@
 // Run: npm run check
 import assert from 'node:assert/strict';
-import type { DraftPayload } from '../../convex/schema.ts';
+import type { DraftPayload, FullDraft } from '../../convex/schema.ts';
 import { inputKind, leaves, parseInput, rows, setAt, sourcesFor } from './draftDiff.ts';
 
 const draft = {
@@ -28,6 +28,16 @@ const priced = setAt(draft, 'configs.X-1.price.srpPhp', undefined);
 assert.equal(leaves(priced).get('configs.X-1.price.srpPhp'), undefined, 'undefined deletes an optional field');
 const renamed = setAt(draft, 'configs.X-1.code', 'X-2');
 assert.equal(leaves(renamed).get('configs.X-2.ramGb'), 16, 'a renamed code moves its rows');
+
+assert.equal(rows(renamed, null).find((x) => x.path === 'configs.X-2.ramGb')!.key, 'configs.0.ramGb', 'row keys survive a rename');
+const two = { ...draft, configs: [...(draft as FullDraft).configs, { ...(draft as FullDraft).configs[0], code: 'X-2' }] } as DraftPayload;
+assert.deepEqual((setAt(two, 'configs.X-2.code', 'X-1') as FullDraft).configs.map((c) => c.code), ['X-1', 'X-2'], 'a rename onto a used code is ignored');
+
+assert.equal(leaves(setAt(draft, 'weightKg', undefined)).get('weightKg'), 1.2, 'a cleared required field keeps its last value');
+assert.equal(leaves(setAt(draft, 'configs.X-1.ramGb', undefined)).get('configs.X-1.ramGb'), 16, 'same for required config fields');
+const shop = setAt(draft, 'configs.X-1.price.srpSource', 'Shop');
+const unshop = setAt(shop, 'configs.X-1.price.srpSource', parseInput('', 'text')) as FullDraft;
+assert.ok(!('srpSource' in unshop.configs[0].price), 'a cleared optional text field is removed, not stored as ""');
 
 const p = { kind: 'priceOnly', slug: 'x', flags: [], sources: [], prices: [{ code: 'X-1', price: { srpPhp: 1 } }] } as unknown as DraftPayload;
 assert.equal(leaves(setAt(p, 'configs.X-1.price.srpPhp', 2)).get('configs.X-1.price.srpPhp'), 2, 'price-only drafts use the same paths');

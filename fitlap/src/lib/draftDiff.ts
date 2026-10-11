@@ -3,7 +3,8 @@
 import type { DraftPayload } from '@convex/schema';
 
 export type Leaf = string | number | boolean | string[] | undefined;
-export interface Row { path: string; draft: Leaf; published: Leaf; changed: boolean }
+/** `key` is the path with the config code swapped for its index, so renaming a code keeps its inputs mounted. */
+export interface Row { path: string; key: string; draft: Leaf; published: Leaf; changed: boolean }
 type Obj = Record<string, unknown>;
 type Source = { field: string; url: string; title: string; seenAt: string };
 
@@ -40,18 +41,25 @@ const same = (a: Leaf, b: Leaf) => JSON.stringify(a) === JSON.stringify(b);
 
 export function rows(draft: DraftPayload, published: DraftPayload | null): Row[] {
   const p = published ? leaves(published) : new Map<string, Leaf>();
-  return [...leaves(draft)].map(([path, v]) => ({ path, draft: v, published: p.get(path), changed: !published || !same(v, p.get(path)) }));
+  const codes = (draft.kind === 'full' ? draft.configs : draft.prices).map((c) => c.code);
+  const key = (path: string) => path.replace(/^configs\.([^.]*)/, (_, code: string) => `configs.${codes.indexOf(code)}`);
+  return [...leaves(draft)].map(([path, v]) => ({ path, key: key(path), draft: v, published: p.get(path), changed: !published || !same(v, p.get(path)) }));
 }
 
-/** A copy of the draft with `path` set (undefined removes an optional field). */
+const optional = (path: string) => path.startsWith('configs.') && OPTIONAL.includes(path.split('.').slice(2).join('.'));
+
+/** A copy of the draft with `path` set. Undefined removes an optional field; a required field keeps its last value. */
 export function setAt(d: DraftPayload, path: string, value: Leaf): DraftPayload {
   const next = structuredClone(d);
+  if (value === undefined && !optional(path)) return next;
   const parts = path.split('.');
   let target: Obj;
   if (parts[0] === 'configs') {
     const code = parts[1];
     parts.splice(0, 2);
     const list = (next.kind === 'full' ? next.configs : next.prices) as unknown as Obj[];
+    // A code another config already uses would merge the two (and later edits would hit the wrong one).
+    if (parts.join('.') === 'code' && list.some((c) => c.code === value)) return next;
     target = list.find((c) => c.code === code)!;
   } else target = (next as Extract<DraftPayload, { kind: 'full' }>).laptop as unknown as Obj;
   const last = parts.pop()!;
@@ -74,5 +82,5 @@ export function inputKind(path: string, value: Leaf): 'number' | 'boolean' | 'li
 export function parseInput(raw: string, kind: 'number' | 'list' | 'text'): Leaf {
   if (kind === 'number') return raw.trim() === '' ? undefined : Number(raw);
   if (kind === 'list') return raw.split(',').map((x) => x.trim()).filter(Boolean);
-  return raw;
+  return raw.trim() === '' ? undefined : raw;
 }
