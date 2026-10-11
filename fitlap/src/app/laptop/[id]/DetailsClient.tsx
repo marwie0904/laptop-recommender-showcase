@@ -160,7 +160,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
             <div className={`${s.tile} ${s.tileUsed}`} style={{ animation: 'rise 600ms cubic-bezier(.2,.9,.2,1) 380ms backwards' }}>
               <span className={s.meta12}>Used estimate · {c.price.usedSource ?? '—'}</span>
               <span className={s.tileVal}>{scramble(c.price.usedPhp !== undefined ? fmtPhp(c.price.usedPhp) : '—', tick, 0.3)}</span>
-              <PriceDelta price={c.price} size={13} suffix=" vs new" />
+              <PriceDelta price={c.price} size={13} suffix=" vs SRP" />
             </div>
           </div>
           {checked && <span className={s.meta12}>Price checked {fmtDate(checked)}</span>}

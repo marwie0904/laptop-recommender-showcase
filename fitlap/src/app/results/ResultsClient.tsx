@@ -16,7 +16,7 @@ import { Rail } from '@/components/rail/Rail';
 import { DEFAULT_BRIEF, briefSummary, fmtStorage, useLabel } from '@/lib/brief';
 import { goodFor, rankForBrief } from '@/lib/catalog';
 import { fmtDate, fmtPhp, usedEstimateLine } from '@/lib/price';
-import { briefFromParams, briefToParams } from '@shared/briefUrl';
+import { briefFromParams, briefToParams, sameBrief } from '@shared/briefUrl';
 import { idealAxes } from '@shared/scoring/fit';
 import { useFitlap, useHydrated } from '@/store/useFitlap';
 import s from './results.module.css';
@@ -82,7 +82,6 @@ export function ResultsClient() {
   const router = useRouter();
   const sp = useSearchParams();
   const stored = useFitlap((st) => st.brief);
-  const setBrief = useFitlap((st) => st.setBrief);
   // The URL is the brief (PLAN §3); the store mirrors it for /brief and the next visit.
   // With no brief in the URL, the stored brief is written there so the page can be shared.
   const fromUrl = useMemo(() => briefFromParams(sp, DEFAULT_BRIEF), [sp]);
@@ -112,8 +111,9 @@ export function ResultsClient() {
   useEffect(() => {
     if (!hydrated) return;
     if (!fromUrl) router.replace('/results?' + briefToParams(stored, DEFAULT_BRIEF), { scroll: false });
-    else if (JSON.stringify(fromUrl) !== JSON.stringify(stored)) setBrief(fromUrl);
-  }, [hydrated, fromUrl, stored, router, setBrief]);
+    // Replace, not merge: a merge would keep stale keys from an older saved brief.
+    else if (!sameBrief(fromUrl, stored, DEFAULT_BRIEF)) useFitlap.setState({ brief: fromUrl });
+  }, [hydrated, fromUrl, stored, router]);
 
   const ranked = rankForBrief(brief);
   const idx = Math.max(0, ranked.findIndex((r) => r.laptop.slug === selectedId));
@@ -175,7 +175,7 @@ export function ResultsClient() {
     },
     {
       meta: usedEstimateLine(p), dot: 'var(--accent)', label: 'Used estimate', value: p.usedPhp !== undefined ? fmtPhp(p.usedPhp) : '—', delay: 160,
-      off: <PriceDelta price={p} size={13} suffix=" vs new" />,
+      off: <PriceDelta price={p} size={13} suffix=" vs SRP" />,
       block: '#B8B8B8', blockDelay: 220, pills: [['Source', p.usedSource ?? '—', 'var(--accent)'], ['Checked', p.usedSeenAt ? fmtDate(p.usedSeenAt) : '—', 'var(--blue)']],
     },
   ];

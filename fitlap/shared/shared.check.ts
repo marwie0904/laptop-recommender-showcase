@@ -1,7 +1,7 @@
 // Self-check for fitlap/shared. Run: npm run check
 import assert from 'node:assert/strict';
 import type { Brief } from './brief.ts';
-import { briefFromParams, briefToParams } from './briefUrl.ts';
+import { briefFromParams, briefToParams, sameBrief } from './briefUrl.ts';
 import type { Config, Laptop } from './catalog.ts';
 import { CPU_FAMILIES, GPU_FAMILIES, isKnownFamily } from './hardware.ts';
 import { compareLabels, goodFor, missesGpu, portCount, wifiRank } from './scoring/compare.ts';
@@ -243,5 +243,8 @@ assert.deepEqual(
   { ...BRIEF, mode: 'advanced', uses: ['coding'], forms: ['slim'], advanced: { ...BRIEF.advanced, screens: ['oled'], sizes: [13] } },
   'every bad value falls back to its default',
 );
+// A saved brief with a key the codec doesn't know (an old or renamed field) still matches its URL, so /results settles in one step.
+assert.ok(sameBrief({ ...SIMPLE, legacyField: 1 } as Brief, briefFromParams(qs(briefToParams(SIMPLE, BRIEF)), BRIEF)!, BRIEF), 'extra keys are ignored');
+assert.ok(!sameBrief(SIMPLE, ADV, BRIEF), 'a real difference still counts');
 
 console.log('shared ok');

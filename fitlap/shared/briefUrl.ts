@@ -50,6 +50,9 @@ export function briefToParams(b: Brief, defaults: Brief): string {
   return sp.toString().replaceAll('%2C', ',');
 }
 
+/** Same brief as far as the URL can tell: compares the canonical params, so keys the codec doesn't know never count. */
+export const sameBrief = (a: Brief, b: Brief, defaults: Brief) => briefToParams(a, defaults) === briefToParams(b, defaults);
+
 /** The brief a URL carries, or null when it carries none. */
 export function briefFromParams(sp: URLSearchParams, defaults: Brief): Brief | null {
   if (!KEYS.some((k) => sp.has(k))) return null;
