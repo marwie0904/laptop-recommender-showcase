@@ -142,7 +142,7 @@ export function ResultsClient() {
   const p = c.price;
   const detailsHref = `/laptop/${l.slug}`;
   const next = [...ranked.slice(idx + 1), ...ranked.slice(0, idx)].slice(0, 2);
-  const compareHref = '/compare?ids=' + [cur, ...next].map((r) => r.laptop.slug).join(',');
+  const compareHref = '/compare?c=' + [cur, ...next].map((r) => r.config.code).join(',');
   const cfg = c.label;
 
   const pick = (id: string) => {

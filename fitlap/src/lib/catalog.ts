@@ -30,6 +30,11 @@ export function scoreForDisplay(l: Laptop, brief: Brief): Scored {
   return defaultScore(scoreCatalog(LAPTOPS, brief), l);
 }
 
+/** A config's score by its code (compare URLs), even when the brief filters its laptop out. Undefined for an unknown code. */
+export function scoreForCode(code: string, brief: Brief): Scored | undefined {
+  return scoreCatalog(LAPTOPS, brief).get(code);
+}
+
 /** Use cases the config is good for (single-use fit ≥ 80). */
 export function goodFor(brief: Brief, code: string): UseCase[] {
   return goodForIn(LAPTOPS, brief, code);

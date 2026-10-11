@@ -8,7 +8,7 @@ import type { Laptop } from '@shared/catalog';
 import { compareLabels, missesGpu, portCount, wifiRank } from '@shared/scoring/compare';
 import type { Scored } from '@shared/scoring/fit';
 import { SLIM_KG, SLIM_MM } from '@shared/scoring/weights';
-import { getLaptop, getLaptops, rankForBrief, scoreForDisplay } from '@/lib/catalog';
+import { getLaptops, rankForBrief, scoreForCode, scoreForDisplay } from '@/lib/catalog';
 import { budgetCap, fmtStorage, USE_CASES } from '@/lib/brief';
 import { displayShort, portSummary, wifiLabel } from '@/lib/format';
 import { fmtPhp, newPriceLabel } from '@/lib/price';
@@ -41,8 +41,9 @@ const SPEC_ROWS: SpecRow[] = [
   ['OS', (s) => [s.laptop.os, null]],
 ];
 
-/** Valid laptop ids only, deduped, max 4. */
-const clean = (list: string[]) => [...new Set(list)].filter((id) => getLaptop(id)).slice(0, 4);
+const CODES = new Set(getLaptops().flatMap((l) => l.configs.map((c) => c.code)));
+/** Known config codes only, deduped, max 4. Slugs from old links or saved lists drop out here. */
+const clean = (list: string[]) => [...new Set(list)].filter((code) => CODES.has(code)).slice(0, 4);
 
 // Scramble decode (section 5): 20 ticks of 40ms, p += .05. Glyphs come from a hash instead of Math.random so render stays pure.
 const GLYPHS = '0123456789#%/<>=+×';
@@ -61,7 +62,7 @@ function scramble(str: string, tick: number, offset: number, seed: number) {
 
 export default function CompareClient() {
   const router = useRouter();
-  const raw = useSearchParams().get('ids') ?? '';
+  const raw = useSearchParams().get('c') ?? '';
   const hydrated = useHydrated();
   const brief = useFitlap((st) => st.brief);
   const compareIds = useFitlap((st) => st.compareIds);
@@ -70,12 +71,13 @@ export default function CompareClient() {
   const ranked = useMemo(() => rankForBrief(brief), [brief]);
   const scores = useMemo(() => new Map(getLaptops().map((l) => [l.slug, scoreForDisplay(l, brief)])), [brief]);
 
-  // URL is the source of truth. With no valid ids: the store's list, else the brief's top 3, else the catalog's first 3.
+  // URL is the source of truth (?c=MBP14-M,X1C-13, spec §4.3). With no valid codes: the store's list,
+  // else the brief's top 3, else the catalog's first 3, each on its default config.
   const urlIds = clean(raw.split(','));
   const fallback = () => {
     const stored = clean(compareIds);
     if (stored.length) return stored;
-    return (ranked.length ? ranked.map((r) => r.laptop) : getLaptops()).slice(0, 3).map((l) => l.slug);
+    return (ranked.length ? ranked : getLaptops().map((l) => scores.get(l.slug)!)).slice(0, 3).map((r) => r.config.code);
   };
   const ids = !hydrated ? [] : urlIds.length ? urlIds : fallback();
   const key = ids.join(',');
@@ -102,11 +104,11 @@ export default function CompareClient() {
     return () => clearInterval(timer);
   }, [run.n]);
 
-  // Normalise the URL (fallback, bad or duplicate ids) and mirror it into the store.
+  // Normalise the URL (fallback, bad or duplicate codes) and mirror it into the store.
   useEffect(() => {
     if (!key) return;
     setCompare(key.split(','));
-    if (raw !== key) router.replace('/compare?ids=' + key, { scroll: false });
+    if (raw !== key) router.replace('/compare?c=' + key, { scroll: false });
   }, [key, raw, router, setCompare]);
 
   const out = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -114,7 +116,7 @@ export default function CompareClient() {
 
   const commit = (next: string[]) => {
     setCompare(next);
-    router.replace('/compare?ids=' + next.join(','), { scroll: false });
+    router.replace('/compare?c=' + next.join(','), { scroll: false });
   };
   const remove = (id: string) => {
     if (leaving) return;
@@ -133,8 +135,8 @@ export default function CompareClient() {
     return '#' + String((i === -1 ? getLaptops().indexOf(l) : i) + 1).padStart(2, '0');
   };
 
-  const cols = ids.map((id) => getLaptop(id)!);
-  const colScores = cols.map((l) => scores.get(l.slug)!);
+  const colScores = ids.map((code) => scoreForCode(code, brief)!);
+  const cols = colScores.map((sc) => sc.laptop);
   const labels = compareLabels(colScores, brief);
   const slotsLeft = 4 - cols.length;
 
@@ -224,8 +226,8 @@ export default function CompareClient() {
                         <span className={s.left}>{slotsLeft} {slotsLeft === 1 ? 'slot' : 'slots'} left</span>
                         {picker && (
                           <div className={s.picker} style={{ animation: 'unfurl 380ms cubic-bezier(.7,0,.2,1) backwards' }}>
-                            {getLaptops().filter((o) => !ids.includes(o.slug)).map((o) => (
-                              <button key={o.slug} className={s.pick} onClick={() => add(o.slug)}>
+                            {getLaptops().filter((o) => !cols.includes(o)).map((o) => (
+                              <button key={o.slug} className={s.pick} onClick={() => add(scores.get(o.slug)!.config.code)}>
                                 <span>{o.model}</span>
                                 <span className={s.pickFit}>{scores.get(o.slug)!.fit}%</span>
                               </button>
@@ -235,13 +237,13 @@ export default function CompareClient() {
                       </div>
                     );
                   }
-                  const sc = scores.get(l.slug)!;
+                  const sc = colScores[i];
                   return (
                     <div
-                      key={l.slug + ':' + run.n}
+                      key={ids[i] + ':' + run.n}
                       className={s.slot}
                       style={{
-                        animation: leaving === l.slug
+                        animation: leaving === ids[i]
                           ? 'squeeze 420ms cubic-bezier(.7,0,.2,1) forwards'
                           : `railInShort ${1100 + i * 120}ms cubic-bezier(.12,.9,.25,1) ${i * 70}ms backwards`,
                       }}
@@ -249,7 +251,7 @@ export default function CompareClient() {
                       <article className={`${s.ccard} ${i === 0 ? s.top : ''}`}>
                         <div className={s.cardHead}>
                           <span>{rankOf(l)}{i === 0 && ' · Top pick'}</span>
-                          <button aria-label={`Remove ${l.model} from compare`} className={`ring ${s.x}`} onClick={() => remove(l.slug)}>×</button>
+                          <button aria-label={`Remove ${l.model} from compare`} className={`ring ${s.x}`} onClick={() => remove(ids[i])}>×</button>
                         </div>
                         <Link href={`/laptop/${l.slug}`} aria-label={`${l.model} details`} className={s.pic}>
                           <div className={s.cpic}><LaptopDrawing shape={l.archetype} hot={sc.hot} /></div>
@@ -301,13 +303,13 @@ export default function CompareClient() {
                     if (!l) return <div key={'empty' + col} className={s.emptyChart}>Add a laptop to see its fit</div>;
                     const a = colScores[col].axes;
                     return (
-                      <div key={l.slug} className={s.chartCol}>
+                      <div key={ids[col]} className={s.chartCol}>
                         <span className={s.axl}>Performance</span>
                         <div className={s.chartRow}>
                           <span className={`${s.axl} ${s.vert} ${s.flip}`}>Value</span>
                           <DotFitChart key={l.slug + ':' + run.n} axes={[a.performance, a.portability, a.battery, a.value]} offset={col * 160} className={s.cg}>
                             <span className={s.fitPill} style={{ animation: `fadeIn 300ms steps(3, end) ${col * 160 + 1150}ms backwards` }}>
-                              <span style={{ color: col === 0 ? 'var(--good)' : 'var(--sub)' }}>{col === 0 ? '↑' : '·'}</span> {scores.get(l.slug)!.fit}%
+                              <span style={{ color: col === 0 ? 'var(--good)' : 'var(--sub)' }}>{col === 0 ? '↑' : '·'}</span> {colScores[col].fit}%
                             </span>
                           </DotFitChart>
                           <span className={`${s.axl} ${s.vert}`}>Portability</span>
@@ -345,7 +347,7 @@ export default function CompareClient() {
 
           <div className={s.footer}>
             <span className={s.footNote}>Sample data · prices from retail + marketplace listings, last 30 days</span>
-            <Link href={`/laptop/${ids[0]}`} className={`cta ${s.cta}`}>
+            <Link href={`/laptop/${cols[0].slug}`} className={`cta ${s.cta}`}>
               Open top pick <span className={`arw ${s.arw}`}>→</span>
             </Link>
           </div>

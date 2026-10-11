@@ -38,7 +38,7 @@ export function CompareModal({ ranked, current, onClose }: Props) {
   const cur = ranked[current];
   const full = picks.length >= MAX_PICKS;
   const total = picks.length + 1;
-  const ids = [cur.laptop.slug, ...picks];
+  const ids = [cur.config.code, ...picks];
   const left = MAX_PICKS - picks.length;
   const hint = !picks.length ? 'Pick up to 3 more' : full ? 'That’s the max · 4 laptops' : `${left} more slot${left === 1 ? '' : 's'} left`;
   const close = () => ref.current?.close();
@@ -76,7 +76,7 @@ export function CompareModal({ ranked, current, onClose }: Props) {
           {ranked.map((r, i) => {
             if (i === current) return null;
             const k = i < current ? i : i - 1;
-            const id = r.laptop.slug;
+            const id = r.config.code;
             const on = picks.includes(id);
             const blocked = !on && full;
             return (
@@ -103,7 +103,7 @@ export function CompareModal({ ranked, current, onClose }: Props) {
         <div className={s.foot}>
           <span className={s.hint}>{hint}</span>
           <Link
-            href={'/compare?ids=' + ids.join(',')}
+            href={'/compare?c=' + ids.join(',')}
             className={`cta ${s.go}${picks.length ? '' : ' ' + s.goOff}`}
             aria-disabled={!picks.length || undefined}
             tabIndex={picks.length ? undefined : -1}

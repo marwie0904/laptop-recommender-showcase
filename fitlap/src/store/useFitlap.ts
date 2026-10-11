@@ -14,7 +14,7 @@ export const THEME_KEY = 'fitlap-theme';
 interface FitlapState {
   brief: Brief;
   selectedId: string;
-  compareIds: string[]; // max 4
+  compareIds: string[]; // config codes, max 4
   theme: Theme;
   setBrief: (patch: Partial<Brief>) => void;
   toggleUse: (u: UseCase) => void;

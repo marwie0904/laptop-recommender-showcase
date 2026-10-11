@@ -101,7 +101,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
   const mixHours = Math.round(uses.reduce((a, u) => a + laptop.hoursByUse[USE_HOURS[u]], 0) / uses.length);
   const pending: CSSProperties | undefined = hydrated ? undefined : { visibility: 'hidden' };
 
-  const compareHref = '/compare?ids=' + [laptop.slug, ...compareIds.filter((x) => x !== laptop.slug)].slice(0, 4).join(',');
+  const compareHref = '/compare?c=' + [c.code, ...compareIds.filter((x) => x !== c.code)].slice(0, 4).join(',');
   const others = getLaptops().filter((l) => l.slug !== laptop.slug);
   const thinnerPct = others.length ? Math.round((others.filter((l) => l.dims.h > laptop.dims.h).length / others.length) * 100) : 0;
   const [res, hz, nits] = displayLine(c).split(' · ');
@@ -152,7 +152,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
               <path d="M6 3h12v18l-6-4-6 4z" />
             </svg>
           </button>
-          <Link href={compareHref} onClick={() => addCompare(laptop.slug)} aria-label="Add to compare" className={s.plus}>+</Link>
+          <Link href={compareHref} onClick={() => addCompare(c.code)} aria-label="Add to compare" className={s.plus}>+</Link>
         </div>
       </header>
 
@@ -468,7 +468,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
 
       <div className={s.footer}>
         <Link href="/results" className={s.backLink}>‹ Back to all matches</Link>
-        <Link href={compareHref} onClick={() => addCompare(laptop.slug)} className={s.compareCta}>
+        <Link href={compareHref} onClick={() => addCompare(c.code)} className={s.compareCta}>
           Compare with others <span className={s.ctaArw}>→</span>
         </Link>
       </div>
