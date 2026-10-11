@@ -9,6 +9,8 @@
  */
 
 import type * as admin_drafts from "../admin/drafts.js";
+import type * as admin_laptops from "../admin/laptops.js";
+import type * as admin_photos from "../admin/photos.js";
 import type * as catalog from "../catalog.js";
 import type * as devSeed from "../devSeed.js";
 import type * as lib_admin from "../lib/admin.js";
@@ -24,6 +26,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   "admin/drafts": typeof admin_drafts;
+  "admin/laptops": typeof admin_laptops;
+  "admin/photos": typeof admin_photos;
   catalog: typeof catalog;
   devSeed: typeof devSeed;
   "lib/admin": typeof lib_admin;
