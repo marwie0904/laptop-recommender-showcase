@@ -70,8 +70,8 @@ A shape error or a rejection comes back as the error text. Fix the file and subm
    differs from it by more than 10%, add a flag quoting both.
    - No official PH SRP: leave `srpPhp` out, and add a flag quoting any shelf price so the user can fill it in.
    - Grey-market and imported units are excluded.
-5. **Used prices.** If you find real PH used listings for the config, use their median, `usedSource` naming the
-   site, and cite them. Otherwise estimate from the **launch** SRP:
+5. **Used prices.** `usedKind` is always `"estimate"`. If you find real PH used listings for the config, use their
+   median, `usedSource` naming the site(s), and cite them. Otherwise estimate from the **launch** SRP:
    ```bash
    node --input-type=module -e "import('./shared/usedPrice.ts').then(m => console.log(m.estimateUsedPhp(<launchSrp>, '<YYYY-MM released>', '<mac|premium|mainstream|gaming>', '<today YYYY-MM-DD>')))"
    ```
