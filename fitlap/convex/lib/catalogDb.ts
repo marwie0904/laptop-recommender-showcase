@@ -30,7 +30,11 @@ export async function checkDraft(ctx: MutationCtx, d: DraftPayload): Promise<str
   const laptop = await bySlug(ctx, d.slug);
   if (!laptop) reject([`no laptop ${d.slug}`]);
   const configs = await configsOf(ctx, laptop!._id);
-  reject(d.prices.filter((p) => !configs.some((c) => c.code === p.code)).map((p) => `${d.slug} has no config ${p.code}`));
+  const codes = d.prices.map((p) => p.code);
+  reject([
+    ...codes.filter((c, i) => codes.indexOf(c) !== i).map((c) => `config code ${c} is used twice in this draft`),
+    ...codes.filter((c) => !configs.some((x) => x.code === c)).map((c) => `${d.slug} has no config ${c}`),
+  ]);
   return [
     ...d.flags,
     ...d.prices.flatMap((p) => priceFlags(`configs.${p.code}.price`, p.price, configs.find((c) => c.code === p.code)!.usedOnly)),

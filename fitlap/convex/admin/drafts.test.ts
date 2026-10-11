@@ -99,6 +99,9 @@ test('price-only drafts: unknown slug and code are rejected, prices are flagged'
   await insertPublished(t);
   await expect(t.mutation(submit, { input, draft: priceOnly('macbook-pro-14-m4', 'NOPE', { srpPhp: 90_000 }) }))
     .rejects.toThrow(/macbook-pro-14-m4 has no config NOPE/);
+  const dup = priceOnly('macbook-pro-14-m4', 'MBP14-M', { srpPhp: 90_000 });
+  dup.prices.push({ code: 'MBP14-M', price: { srpPhp: 95_000 } });
+  await expect(t.mutation(submit, { input, draft: dup })).rejects.toThrow(/MBP14-M is used twice/);
   const r = await t.mutation(submit, { input, draft: priceOnly('macbook-pro-14-m4', 'MBP14-M', { srpPhp: 900_000 }) });
   expect(r.flags).toEqual(['configs.MBP14-M.price.srpPhp = 900000 is outside 15000–500000']);
 });
