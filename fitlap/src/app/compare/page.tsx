@@ -4,7 +4,7 @@ import CompareClient from './CompareClient';
 
 export const metadata: Metadata = { title: 'Compare laptops · FITLAP' };
 
-// CompareClient reads useSearchParams(), so it renders below a Suspense boundary (Cache Components).
+// CompareClient reads useSearchParams(), so it renders below a Suspense boundary (static prerender).
 export default function ComparePage() {
   return (
     <Suspense>

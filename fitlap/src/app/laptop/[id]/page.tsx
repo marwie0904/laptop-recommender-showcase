@@ -15,6 +15,9 @@ export function generateStaticParams() {
   return getLaptops().map((l) => ({ id: l.slug }));
 }
 
+// Only laptops in this build exist; promote triggers a rebuild for new ones (PLAN §3).
+export const dynamicParams = false;
+
 export default function LaptopPage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense>

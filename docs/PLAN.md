@@ -454,7 +454,7 @@ Resolved on 2026-10-09:
 Still open:
 
 1. **Launch list** (deferred until the frontend settles).
-2. **Spike results** to fold back in (Phase 0).
+2. **Spike results** to fold back in (Phase 0). S4, local half (2026-10-11): `output: "export"` can't run with `cacheComponents` (Next refuses PPR in export mode, and `partialPrefetching` needs Cache Components), so both are off. `generateStaticParams` reads the generated `details.json`, and `dynamicParams = false` keeps unknown laptops out of the export. Still to test on Vercel: `npx convex run` with `CONVEX_DEPLOY_KEY` inside the build, and the deploy-hook rebuild.
 3. **Deployed `/admin`.** Approvals now happen in the local admin against dev, so the admin on the prod site has no approval job. Keep it, or ship prod without `/admin` and its sign-in?
 
 ### Setup checklist (only you can do these; needed for Phase 0)
