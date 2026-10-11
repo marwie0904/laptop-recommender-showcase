@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "catalog": "node scripts/fetch-catalog.mjs",
+    "prebuild": "npm run catalog",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

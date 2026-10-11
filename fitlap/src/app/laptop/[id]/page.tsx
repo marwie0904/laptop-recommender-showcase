@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { LaptopDetails } from '@shared/catalog';
-import details from '@/data/seed/details.json';
+import details from '@/data/generated/details.json';
 import { getLaptop, getLaptops } from '@/lib/catalog';
 import { DetailsClient } from './DetailsClient';
 

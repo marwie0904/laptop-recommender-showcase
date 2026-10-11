@@ -22,6 +22,7 @@
 
 # misc
 .DS_Store
+/src/data/generated/
 *.pem
 
 # debug
