@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { DotFitChart } from '@/components/charts/DotFitChart';
 import { FitBreakdown } from '@/components/charts/FitBreakdown';
 import { CompareModal } from '@/components/compare/CompareModal';
@@ -12,9 +13,10 @@ import { Logo } from '@/components/layout/Logo';
 import { PriceDelta } from '@/components/price/PriceDelta';
 import { rankTag } from '@/components/rail/MatchCard';
 import { Rail } from '@/components/rail/Rail';
-import { briefSummary, fmtStorage, useLabel } from '@/lib/brief';
+import { DEFAULT_BRIEF, briefSummary, fmtStorage, useLabel } from '@/lib/brief';
 import { goodFor, rankForBrief } from '@/lib/catalog';
 import { fmtPhp } from '@/lib/price';
+import { briefFromParams, briefToParams } from '@shared/briefUrl';
 import { idealAxes } from '@shared/scoring/fit';
 import { useFitlap, useHydrated } from '@/store/useFitlap';
 import s from './results.module.css';
@@ -77,7 +79,14 @@ function Header({ hrefs, summary }: { hrefs?: string[]; summary?: string }) {
 
 export function ResultsClient() {
   const hydrated = useHydrated();
-  const brief = useFitlap((st) => st.brief);
+  const router = useRouter();
+  const sp = useSearchParams();
+  const stored = useFitlap((st) => st.brief);
+  const setBrief = useFitlap((st) => st.setBrief);
+  // The URL is the brief (PLAN §3); the store mirrors it for /brief and the next visit.
+  // With no brief in the URL, the stored brief is written there so the page can be shared.
+  const fromUrl = useMemo(() => briefFromParams(sp, DEFAULT_BRIEF), [sp]);
+  const brief = fromUrl ?? stored;
   const selectedId = useFitlap((st) => st.selectedId);
   const select = useFitlap((st) => st.select);
 
@@ -99,6 +108,12 @@ export function ResultsClient() {
     }, LOAD_MS);
     return () => clearTimeout(t);
   }, [loading, run]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    if (!fromUrl) router.replace('/results?' + briefToParams(stored, DEFAULT_BRIEF), { scroll: false });
+    else if (JSON.stringify(fromUrl) !== JSON.stringify(stored)) setBrief(fromUrl);
+  }, [hydrated, fromUrl, stored, router, setBrief]);
 
   const ranked = rankForBrief(brief);
   const idx = Math.max(0, ranked.findIndex((r) => r.laptop.slug === selectedId));
