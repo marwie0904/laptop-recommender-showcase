@@ -27,12 +27,16 @@ A shape error or a rejection comes back as the error text. Fix the file and subm
 ## Full draft: steps
 
 1. **Find the research file.** `grep -rl "^model: " ../laptop-specs | xargs grep -l "<model words>"`, or match the
-   file name. The research file's basename (without `.md`) is the `slug`. Set `input.researchFile` to its path from
-   the repo root. If no file exists, say so and draft from the web only (`input.researchFile` omitted).
+   file name. Set `input.researchFile` to its path from the repo root. If no file exists, say so and draft from the
+   web only (`input.researchFile` omitted).
+   **Slug:** run `npm run catalog` and read `src/data/generated/catalog.json`. If it already has this laptop (same
+   brand and model line, e.g. `thinkpad-x1-carbon` for the X1 Carbon Gen 13), reuse its `slug`, and reuse the
+   existing config `code` for a config that matches one. Otherwise the `slug` is the research file's basename
+   (without `.md`).
 2. **Map what the research file has** (frontmatter, Configurations, Specs, Pricing, Sources):
    - `brand`, `model`, `family`, `year`, `os`, `weightKg`, `sizeIn` (first of `screen_sizes_in`), `dims` (mm, from
      Dimensions), `metal` (true when the chassis is aluminium or magnesium), `twoInOne`, `wireless.wifi`/`bt`,
-     `webcam`, `battery.wh`, `battery.chargerW`.
+     `webcam`, `battery.wh`, `battery.chargerW`, `battery.fastChargeMin`, `battery.unpluggedPerf`.
    - One **config** per Configurations row you track: `cpu.name`/`cores`, `gpu.name`/`vramGb`, `ramGb`, `storageGb`,
      `display` (resolution, refresh, nits, panel `miniled`/`oled`/`ips`, touch), `price.srpPhp`.
    - `code`: capitals, digits and dashes, unique across the catalog, short (`MBA13-M4-16-256`).
@@ -46,7 +50,8 @@ A shape error or a rejection comes back as the error text. Fix the file and subm
    - `gpu.tgpW`: max GPU wattage for discrete GPUs (NVIDIA always). Leave it out for integrated GPUs.
    - `battery.hoursByUse` (video, web, coding, office, editing, gaming): official claims for video/web, reviews
      for the rest. Mark estimates in the source title ("estimate from <review>").
-   - `build` scores 0–10 with a one-line note each, `chassis`, `repairability`, `warrantyYears` (PH warranty).
+   - `build` scores 0–10 with a one-line note each, plus `build.overall` (0–10), `chassis`, `repairability`,
+     `warrantyYears` (PH warranty).
    - `ports.left` / `ports.right` by side, `display.nits` and `refreshHz` per config.
    - `hw`: `cpuBrand`/`cpuFamily`, `gpuBrand`/`gpuFamily` from `shared/hardware.ts`. If a family is missing, add it
      to that file in tier order (oldest and lowest first), then push functions before submitting:
@@ -54,7 +59,8 @@ A shape error or a rejection comes back as the error text. Fix the file and subm
    - `specNotes` (cpu, gpu, ram, storage, display, ports, wireless, webcam, os, size): one plain sentence each.
      `summary` (one sentence) and `weakness` (one sentence).
    - `visual.archetype`: pick the closest drawing from `LAPTOP_SHAPES` in `src/components/laptop/shapes.ts`
-     (each has a `name` and `note`). The user confirms it at review.
+     (each has a `name` and `note`). The value is the `LAPTOP_SHAPES` key (e.g. `pro`), not its display name.
+     The user confirms it at review.
    - Chassis material not stated anywhere: write "not stated". Never guess.
 4. **Check prices against the retail feeds.** Fetch
    `https://pcx.com.ph/products.json?limit=250&page=N`, `https://www.octagon.com.ph/products.json?limit=250&page=N`
