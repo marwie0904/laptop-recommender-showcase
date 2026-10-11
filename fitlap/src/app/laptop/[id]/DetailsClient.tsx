@@ -74,7 +74,6 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
 
   const [tick, setTick] = useState(0);
   const [tab, setTab] = useState(0);
-  const [saved, setSaved] = useState(false);
   const [why, setWhy] = useState(false);
   const [specsOpen, setSpecsOpen] = useState(false);
   const [view, setView] = useState(0);
@@ -139,20 +138,6 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
         </ScrollRow>
         <div className={s.hdrBtns}>
           <ThemeToggle />
-          <button aria-label="Save" aria-pressed={saved} onClick={() => setSaved(!saved)} className={`${s.circle} ring`}>
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              stroke="var(--ink)"
-              strokeWidth="1.8"
-              strokeLinejoin="round"
-              aria-hidden
-              style={{ transition: 'fill .3s, transform .45s cubic-bezier(.3,1.8,.5,1)', fill: saved ? 'var(--accent)' : 'none', transform: `scale(${saved ? 1.15 : 1})` }}
-            >
-              <path d="M6 3h12v18l-6-4-6 4z" />
-            </svg>
-          </button>
           <Link href={compareHref} onClick={() => addCompare(c.code)} aria-label="Add to compare" className={s.plus}>+</Link>
         </div>
       </header>

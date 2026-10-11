@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import type { Archetype as LaptopShapeKey } from '@shared/catalog';
 import { getLaptops } from '@/lib/catalog';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
@@ -11,6 +12,8 @@ export const metadata: Metadata = { title: 'Laptop shapes' };
 const WIDTHS: Partial<Record<LaptopShapeKey, number>> = { creator: 230, workstation: 236, gamingThick: 226, budget: 196, detachable: 196, convertible: 190 };
 
 export default function ShapesPage() {
+  // Dev-only page (spec §4.8): the production export serves a 404 here.
+  if (process.env.NODE_ENV === 'production') notFound();
   const laptops = getLaptops();
   const keys = Object.keys(LAPTOP_SHAPES) as LaptopShapeKey[];
   return (

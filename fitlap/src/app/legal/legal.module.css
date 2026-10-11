@@ -1,0 +1,16 @@
+/* /legal: one reading column, built from the landing page's tokens and type scale. */
+
+.page { max-width: 720px; margin: 0 auto; padding: 18px 28px 64px; display: flex; flex-direction: column; gap: 28px; }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 4px 0; }
+.eyebrow { font-size: 13px; font-weight: 300; color: var(--sub); }
+.title { margin: 6px 0 0; font-size: 52px; line-height: 1.05; font-weight: 300; letter-spacing: -0.02em; }
+.sec { padding-top: 18px; border-top: 1px solid var(--track); display: flex; flex-direction: column; gap: 8px; }
+.h2 { margin: 0; font-size: 20px; font-weight: 500; }
+.p, .list { margin: 0; font-size: 16px; line-height: 1.55; font-weight: 300; color: var(--sub); }
+.list { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.updated { font-size: 13px; font-weight: 300; color: var(--sub); }
+
+@media (max-width: 640px) {
+  .page { padding: 14px 16px 48px; gap: 22px; }
+  .title { font-size: 36px; }
+}
