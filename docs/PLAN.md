@@ -29,11 +29,13 @@ backend design, records the decisions made so far, and lists what is still open.
 | SEO | **Landing + FAQ only.** All other routes are client-rendered and `noindex`. |
 | Save button | **Dropped for v1.** |
 | Seller links | **None.** Prices and source names appear as plain text. |
-| Admin auth | **Port the course site's admin sign-in** (`course-site/convex/adminAuth.ts` + `http.ts`). One admin email, a password hash in an env var, and a 6-digit code emailed via Resend on every sign-in, showing **IP and time (PHT)**. It adds per-IP escalating lockouts and an alert when a new network signs in. **No Convex Auth and no geo-IP service** (§6a). Public users never sign in. |
+| Admin auth | **A secret admin key, local admin only** (2026-10-11): the admin runs on your machine against dev, unlocked by `ADMIN_KEY` (dev only, set by `npm run admin-key`). Prod ships without `/admin` and has no key, so admin functions refuse there. Replaces the course-site sign-in port. |
 | Abuse protection | Visitors only load static files, so there are **no public Convex queries** (changed 2026-10-09). **Per-IP + global rate limits** wrap admin sign-in and every admin function. **No spending caps for now.** Recommended instead: warning-only usage alerts, which don't shut anything off. A Cloudflare front is deferred until it's needed. |
+| Used price | **Depreciation estimate** from the launch SRP (research guide retention curve), replaced by cited PH listings when found. See `fitlap/shared/usedPrice.ts`. |
+| Retail feeds | The skill checks SRPs against the PC Express, Octagon and Power Mac Center Shopify feeds. Shelf prices are evidence, never the SRP. |
 | Convex plan | **Starter (pay-as-you-go)**: S16 limits, overage billed (§9). |
 | "Including used" | **Yes.** When it's on, a config qualifies if its used price fits the budget, and "value" scores against that price. |
-| Email sender | `marwie@otomatesystems.com` via Resend. `otomatesystems.com` must be verified in Resend. |
+| Email sender | `marwie@otomatesystems.com` via Resend. `otomatesystems.com` must be verified in Resend (not used while the admin is local-only). |
 | Analytics / error monitoring | **None** for now. |
 | New price | **Official SRP** from the brand (PH). The UI shows "SRP · {Brand} PH". If the AI finds no official PH SRP, the field is left empty for you to fill in at review. **Grey-market / imported units are excluded.** |
 | Catalog scope | Current models **plus discontinued models that are popular used** (M1/M2 MacBook Air, older ThinkPads, …). Those are flagged `usedOnly` and appear only when "Including used" is on. |
@@ -115,6 +117,7 @@ Vercel build (deploy hook or push to main)
 
 Your machine (Claude Code session)
  ├─ /draft-laptop skill  → npx convex run admin/drafts:submit   (dev only)
+ ├─ npm run admin-key    → sets ADMIN_KEY on dev
  ├─ npm run dev          → admin review + approve               (against dev)
  └─ scripts/promote.mjs  → copies approved laptops dev → prod, then triggers a Vercel rebuild
 
@@ -124,9 +127,9 @@ Convex deployments: dev (drafts, review) and prod (approved data only, read by t
  │               + internal drafts.submit and promote functions (CLI only, no public endpoint)
  ├─ prices/      price-source adapters (v2: Shopee affiliate, parked)
  ├─ crons.ts     cleanup only (expired sign-in codes, old auth events)
- ├─ components   @convex-dev/rate-limiter, @convex-dev/resend
- ├─ http.ts      POST /admin-login (needs the caller's IP, so it's HTTP)
- └─ adminAuth.ts ported from course-site: challenges, sessions, lockouts, new-network alert
+ ├─ components   @convex-dev/rate-limiter (+ resend, superseded: §6a)
+ ├─ http.ts      POST /admin-login (superseded: §6a)
+ └─ adminAuth.ts course-site port (superseded: §6a)
 ```
 
 Why this shape:
@@ -144,7 +147,7 @@ Why this shape:
 | `/results` | Client | Reads the brief from search params. |
 | `/laptop/[id]?cfg=…` | Pre-rendered at build | `generateStaticParams` lists every laptop in the build's `details.json`. A laptop that isn't in the last build returns 404, which is why `promote` triggers a rebuild. The config choice stays a query param, read client-side. |
 | `/compare?ids=a,b,c` | Client | |
-| `/admin/*` | Client | `noindex`, auth-gated. |
+| `/admin/*` | Dev only (404 in the export). Unlocked by the admin key. | `noindex`. |
 | `/legal` | Pre-rendered at build | Privacy note, price disclaimer, image credits, trademarks. |
 | `robots.txt`, `sitemap.xml` | Static | Sitemap lists `/` (and `/faq` if split out). |
 
@@ -176,7 +179,7 @@ laptops: {
 configs: {                                         // one laptop → many configs; anything that varies by SKU lives here
   laptopId, code /* globally unique, e.g. "MBP14-M" */, label /* "16 · 512" */, color,
   cpu: { name, cores, score },                     // score = Geekbench 6 multi-core, cited in sources
-  gpu: { name, vramGb?, score },                   // score = 3DMark Steel Nomad Light, cited in sources
+  gpu: { name, vramGb?, tgpW?, score },                   // score = 3DMark Steel Nomad Light, cited in sources
   ramGb, storageGb,
   display: { resolution: { w, h }, refreshHz, nits, panel: "miniled" | "oled" | "ips", touch },
   hw: { cpuBrand, cpuFamily, gpuBrand, gpuFamily },  // advanced-mode facets; families from shared/hardware.ts
@@ -185,15 +188,15 @@ configs: {                                         // one laptop → many config
            usedPhp, usedKind /* "estimate" | "avg30d" */, usedCount, usedSource, usedSeenAt },
 }
 priceObservations: {                               // append-only history, feeds the aggregates
-  configId, kind: "srp" | "used", source /* "ai_draft" | "admin" | "shopee" */,
+  configCode, kind: "srp" | "used", source /* "ai_draft" | "admin" | "shopee" */,
   sourceName, amountPhp, condition, url /* stored, never shown */, observedAt, approvedBy?,
 }
 aiDrafts: {                                        // dev only, written by the skill via drafts.submit
-  laptopId?, input: { modelName, urls[] }, kind: "full" | "priceOnly",
+  laptopId?, input: { modelName, urls[] },           // no row-level kind: the payload carries it (full | priceOnly)
   status: "ready" | "approved" | "rejected",
   output, sources, flags /* fields outside sanity ranges */,
 }
-// Admin auth, same tables as course-site (convex/adminAuth.ts):
+// Superseded 2026-10-11 (§6a), kept for reference. Admin auth tables, as in course-site:
 adminChallenges: { codeHash, ip, expiresAt }                               // pending 6-digit codes
 adminSessions:   { tokenHash, ip, expiresAt }                              // signed-in browsers
 adminLockouts:   { ip, fails, locks, lockedUntil?, banned? }               // escalating per-IP lockouts
@@ -238,7 +241,7 @@ Designed on 2026-10-09 in [the frontend-gaps spec, §3](superpowers/specs/2026-1
 3. **Admin functions.** `adminMutation` / `adminAction` wrappers:
    - require a valid admin session token (`requireAdmin`, as in course-site)
    - apply a per-admin limit and a global limit
-4. **Auth.** The course site's flow (§6a): a per-IP escalating lockout, plus a global cap on code emails. A code email goes out only after a correct password, so an attacker can't use the sign-in form to spam your inbox.
+4. **Auth (superseded 2026-10-11, §6a).** The course site's flow: a per-IP escalating lockout, plus a global cap on code emails. A code email goes out only after a correct password, so an attacker can't use the sign-in form to spam your inbox.
 5. **No spending caps (your decision).** Visitor traffic never reaches Convex, so it can't run up a Convex bill. Photo views are the exception (§7a). Every write and action is rate-limited. Drafting adds no backend cost, because it runs in your Claude Code session. Recommended: **warning-only** usage alerts, which email you without disabling anything. A future Cloudflare front would need a custom domain, which is Convex Pro only.
 
 **Proposed starting limits** (to tune after the first week of traffic):
@@ -252,6 +255,8 @@ Designed on 2026-10-09 in [the frontend-gaps spec, §3](superpowers/specs/2026-1
 | `adminAction` per admin | token bucket | 120 / min |
 
 ### 6a. Admin sign-in: reuse the course site's flow
+
+> **Superseded 2026-10-11:** the admin is local-only and uses a secret key (§1). Kept for reference if a deployed admin returns.
 
 `marwie0904/course-site` already runs this in production (`convex/adminAuth.ts`, `convex/http.ts`), so FITLAP ports it rather than building on Convex Auth. FITLAP has no public users, so it needs no auth library at all.
 
@@ -292,12 +297,12 @@ Drafting runs in your Claude Code session on your existing Claude subscription, 
 1. **Run the skill.**
    - New laptop: `/draft-laptop <model name> [source URLs…] [configs to track…]`.
    - Re-check prices: `/draft-laptop recheck <slug…>`, for one laptop or several. It starts a price-only draft. Admin lists show how old each price is: amber after 30 days, red after 60, so you know what to re-check.
-2. **Research.** Web search and web fetch, starting from the URLs you paste. Every fact gets a source URL. The draft covers specs, editorial observations, the **official PH SRP** (brand store, price list or launch press release; grey-market prices excluded), used-price evidence, and a suggested archetype. Claude Code's web search can't be pinned to the Philippines, so the skill targets PH pages directly (e.g. apple.com/ph, brand PH stores).
+2. **Research.** The skill reads the `laptop-specs/` research file first, checks SRPs against the retail feeds, records GPU TGP, and estimates used prices from the curve. Then web search and web fetch, starting from the URLs you paste. Every fact gets a source URL. The draft covers specs, editorial observations, the **official PH SRP** (brand store, price list or launch press release; grey-market prices excluded), used-price evidence, and a suggested archetype. Claude Code's web search can't be pinned to the Philippines, so the skill targets PH pages directly (e.g. apple.com/ph, brand PH stores).
 3. **Submit to dev.** The skill writes the draft JSON, with `sources[]` on every field, and calls `npx convex run admin/drafts:submit '<json>'` on the **dev** deployment. `drafts.submit` is an internal mutation, so it has no public endpoint.
    - **Validation** runs in the mutation: Zod plus sanity ranges (weight, prices, battery hours). A draft with the wrong shape is rejected with the error, and the skill fixes it in the same session. Values outside the sanity ranges are flagged in review rather than dropped.
    - **Hardware families:** the skill fills each config's `hw` facets. `drafts.submit` rejects a CPU or GPU family that isn't in `shared/hardware.ts`. When a new family shows up (e.g. the next Apple chip), the skill adds it to that file in the same session.
    - **Scores and codes:** `cpu.score` (Geekbench 6 multi-core) and `gpu.score` (3DMark Steel Nomad Light) are required, and a score borrowed from another laptop with the same chip is flagged. Config codes must be unique across the catalog.
-4. **Review on dev.** Run the admin locally (`npm run dev`, pointed at dev). It shows a field-by-field diff against the published version, with source links and inline edits. Approving writes `laptops` / `configs` / `priceObservations` (source `ai_draft`, `approvedBy`).
+4. **Review on dev.** Run the admin locally (`npm run dev`, pointed at dev). Approving needs the admin key. It shows a field-by-field diff against the published version, with source links and inline edits. Approving writes `laptops` / `configs` / `priceObservations` (source `ai_draft`, `approvedBy`).
 5. **Promote to prod.** Push any `shared/hardware.ts` change first, because the rebuild builds `main`. `scripts/promote.mjs <slug…>` reads each laptop's current state from dev (published or archived, with its configs, price observations and photo) and upserts it into prod with `npx convex run --prod`, matching laptops by `slug` and configs by `code`. Prod copies the photo from its dev storage URL into its own storage. Prod only ever receives approved data. Last, it calls the Vercel deploy hook, and the rebuild pre-renders every laptop page from prod (§3).
 
 **v1 honesty in the UI.** In v1 the used price is an **AI-assisted estimate with citations**, not "a 30-day average of N listings". The copy needs to say so (see §10).
@@ -343,8 +348,8 @@ Drafting runs in your Claude Code session on your existing Claude subscription, 
 
 - **Convex:** `dev` and `prod` deployments.
 - **Vercel:** the build command is `npx convex deploy && npm run build`, which pushes Convex functions and then builds the static site, so the build's `exportForBuild` call always runs against the functions in the same commit. (`convex deploy --cmd` runs its command *before* pushing, which would deadlock the first deploy.) `CONVEX_DEPLOY_KEY` goes in the Vercel environment variables.
-- **Convex env vars** (on both deployments): `RESEND_API_KEY`, `ADMIN_EMAIL=marwie0904@gmail.com`, `ADMIN_PASSWORD_HASH` (from the `hash-password` script), `SITE_URL` (also used for CORS on `/admin-login`): `http://localhost:3000` on dev, where the admin runs, and the Vercel domain on prod. No `ANTHROPIC_API_KEY`.
-- **Resend:** verify `otomatesystems.com` in Resend by adding its DKIM/SPF DNS records. Resend sends from a `send.` subdomain by default, so it shouldn't clash with existing mail on the domain. Check that before going live.
+- **Convex env vars:** `ADMIN_KEY` on **dev only**. `RESEND_API_KEY`, `ADMIN_EMAIL` and `ADMIN_PASSWORD_HASH` are not needed while the admin is local-only. `SITE_URL` (also used for CORS on `/admin-login`): `http://localhost:3000` on dev, where the admin runs, and the Vercel domain on prod. No `ANTHROPIC_API_KEY`.
+- **Resend (not needed while the admin is local-only):** verify `otomatesystems.com` in Resend by adding its DKIM/SPF DNS records. Resend sends from a `send.` subdomain by default, so it shouldn't clash with existing mail on the domain. Check that before going live.
 - **Vercel env vars:** `CONVEX_DEPLOY_KEY`, in the **Production** environment only. Preview builds are skipped with the Ignored Build Step `[ "$VERCEL_ENV" != "production" ]`, so a preview never deploys functions to prod. `NEXT_PUBLIC_CONVEX_URL` is only needed by the local admin (`.env.local`).
 - **Deploy hook:** a Vercel deploy hook for `main`, kept in your local `.env.local` as `VERCEL_DEPLOY_HOOK_URL` for `promote.mjs`. Anyone with the URL can trigger builds, so it stays out of the repo.
 - **Plan: Starter (pay-as-you-go).** S16 class: 16 concurrent queries, 16 concurrent mutations and 64 concurrent actions. It includes 1M function calls per month, with overage billed (about $2.20 per extra million, per the 2026-10 research). When the concurrency limits are reached, functions queue instead of failing. Pro (S256: 256 / 256 / 512, 25M calls) is only needed for a custom-domain Cloudflare front or much higher traffic ([limits](https://docs.convex.dev/production/state/limits)).
@@ -399,8 +404,8 @@ The frontend mock UI is still being iterated (desktop, then mobile). The phases 
 
 | Phase | Goal | Main deliverables | Exit criteria | Depends on |
 |---|---|---|---|---|
-| **0. Setup & spikes** | Accounts in place; the risky unknowns answered | Setup checklist (§12). **S1** IP check: log the headers an HTTP action receives (`cf-connecting-ip`, `x-forwarded-for`) and try faking them. **S2** a first version of the `/draft-laptop` skill on 3 laptops, writing JSON to a local file (accuracy, source quality, time per laptop), including Geekbench 6 multi-core and 3DMark Steel Nomad Light scores with sources. If GPU coverage is poor (older chips, M1, RTX 30), pick another cross-platform GPU benchmark before Phase 2. The submit step comes in Phase 2. **S3** port the course-site admin sign-in and run it end to end from the static site, with Resend from `otomatesystems.com`. **S4** static export + Convex on Vercel, including `/laptop/[id]` pre-rendered from Convex at build, a deploy-hook rebuild, whether the frontend's `cacheComponents` setting works with `output: "export"`, whether `npx convex run` can call an internal query with `CONVEX_DEPLOY_KEY` inside the Vercel build, and whether `generateStaticParams` can read the generated `details.json`. | A short written result per spike, added to this doc, with a go / adjust decision for each | Your accounts and keys |
-| **1. Backend foundation** | A secure, empty backend you can sign into | Schema v1. `public/` / `admin/` wrappers. Rate limits. Admin sign-in ported from course-site (code email with IP + time, new-network alert, lockouts). Cleanup crons (expired challenges and sessions). `/legal` + static shell deployed on the Vercel domain. | Password + code sign-in works from the local admin against dev (and from the deployed site, if prod keeps `/admin`; see §12). The email shows IP and time; a new network triggers the alert. Tests show rate limits rejecting excess calls. | Phase 0 (S1, S3, S4) |
+| **0. Setup & spikes** | Accounts in place; the risky unknowns answered | Setup checklist (§12). **S1** (dropped, local-only admin) IP check: log the headers an HTTP action receives (`cf-connecting-ip`, `x-forwarded-for`) and try faking them. **S2** a first version of the `/draft-laptop` skill on 3 laptops, writing JSON to a local file (accuracy, source quality, time per laptop), including Geekbench 6 multi-core and 3DMark Steel Nomad Light scores with sources. If GPU coverage is poor (older chips, M1, RTX 30), pick another cross-platform GPU benchmark before Phase 2. The submit step comes in Phase 2. **S3** (dropped, local-only admin) port the course-site admin sign-in and run it end to end from the static site, with Resend from `otomatesystems.com`. **S4** static export + Convex on Vercel, including `/laptop/[id]` pre-rendered from Convex at build, a deploy-hook rebuild, whether the frontend's `cacheComponents` setting works with `output: "export"`, whether `npx convex run` can call an internal query with `CONVEX_DEPLOY_KEY` inside the Vercel build, and whether `generateStaticParams` can read the generated `details.json`. | A short written result per spike, added to this doc, with a go / adjust decision for each | Your accounts and keys |
+| **1. Backend foundation** | A secure, empty backend you can sign into | Schema v1. `public/` / `admin/` wrappers. Rate limits. Admin key (`requireAdmin`), schema v2 instead of the sign-in port. Cleanup crons (expired challenges and sessions). `/legal` + static shell deployed on the Vercel domain. | The admin key unlocks the local admin against dev, and admin functions refuse on prod. Tests show rate limits rejecting excess calls. | Phase 0 (S4) |
 | **2. Data pipeline & admin** | Laptops go from "model name" to published | `/draft-laptop` skill → `drafts.submit` on dev → review diff in the local admin → approve → `promote` to prod → rebuild. Configs + SRP + used estimates. `/draft-laptop recheck` (single and batch) and staleness flags. Archetype pick. Press-photo upload (in-browser resize to WebP). The `catalog:exportForBuild` query and `scripts/fetch-catalog.mjs`. | ~20 laptops drafted, approved on dev and promoted to prod. `catalog.json` under 150 KB raw. | Phase 1. S2 results. |
 | **3. Scoring engine** | Rankings that feel right | `shared/scoring`: filters, use-case weights, fit %, axes, verdicts, compare labels, config switching. Started on seed data by [the shared-scoring plan](superpowers/plans/2026-10-09-shared-scoring-and-data-swap.md). Unit tests against hand-made expected rankings. Admin "preview ranking for brief X" page. | Your sample briefs (Coding ≤ ₱60k, Gaming ≤ ₱90k, Student ≤ ₱40k, …) rank the way you'd recommend on a live | Phase 2 data (can start in parallel with seed data) |
 | **4. Public app** | Every screen wired to live data | Port Landing, Brief (simple + advanced mode), Results, Details, Compare (desktop + mobile) and the 10–20 mockup archetypes. Config switcher. Brief in the URL. Photo view. Empty / loading / busy states. | All screens work on phone and desktop against the baked catalog. Nothing loads a photo until the Photo view is opened. | **Design freeze** for desktop + mobile. Phases 2–3. |
@@ -451,16 +456,16 @@ Resolved on 2026-10-09:
 - scoring: 8 base dimensions; simple mode shows 4 axes, advanced mode shows 8 with equal weights
 - scores are derived from specs and cited benchmarks; no hand-set ratings
 
+Resolved on 2026-10-11:
+- prod ships without `/admin` (open question 3)
+
 Still open:
 
 1. **Launch list** (deferred until the frontend settles).
 2. **Spike results** to fold back in (Phase 0). S4, local half (2026-10-11): `output: "export"` can't run with `cacheComponents` (Next refuses PPR in export mode, and `partialPrefetching` needs Cache Components), so both are off. `generateStaticParams` reads the generated `details.json`, and `dynamicParams = false` keeps unknown laptops out of the export. Still to test on Vercel: `npx convex run` with `CONVEX_DEPLOY_KEY` inside the build, and the deploy-hook rebuild.
-3. **Deployed `/admin`.** Approvals now happen in the local admin against dev, so the admin on the prod site has no approval job. Keep it, or ship prod without `/admin` and its sign-in?
 
 ### Setup checklist (only you can do these; needed for Phase 0)
 
 - [ ] Convex project on Starter, with the prod deployment in the chosen region (permanent), and a deploy key
 - [ ] Vercel project linked to this repo (build command in §9)
-- [ ] Resend account, and its DNS records on `otomatesystems.com`
-- [ ] Admin password hash generated with the `hash-password` script (ported from course-site)
 - [ ] Vercel deploy hook for `main` (goes in your local `.env.local` through the env form)
