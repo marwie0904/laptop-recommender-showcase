@@ -1,0 +1,155 @@
+{
+  "input": {
+    "modelName": "MacBook Pro 14-inch (M4)",
+    "urls": [],
+    "researchFile": "laptop-specs/apple/macbook-pro/macbook-pro-14-m4-2024.md"
+  },
+  "draft": {
+    "kind": "full",
+    "laptop": {
+      "slug": "macbook-pro-14-m4",
+      "brand": "Apple",
+      "model": "MacBook Pro 14\"",
+      "family": "MacBook Pro 14\"",
+      "year": 2025,
+      "metal": true,
+      "twoInOne": false,
+      "os": "macOS",
+      "weightKg": 1.55,
+      "dims": {
+        "w": 312.6,
+        "d": 221.2,
+        "h": 15.5
+      },
+      "sizeIn": 14.2,
+      "ports": {
+        "left": [
+          "MagSafe 3",
+          "TB4",
+          "TB4",
+          "3.5 mm"
+        ],
+        "right": [
+          "SDXC",
+          "HDMI 2.1",
+          "TB4"
+        ]
+      },
+      "wireless": {
+        "wifi": "6E",
+        "bt": "5.3"
+      },
+      "webcam": "12 MP Center Stage",
+      "battery": {
+        "wh": 72.4,
+        "chargerW": 70,
+        "fastChargeMin": 30,
+        "unpluggedPerf": "Same as plugged",
+        "hoursByUse": {
+          "video": 18,
+          "web": 14,
+          "coding": 11,
+          "office": 12,
+          "editing": 5.5,
+          "gaming": 2.5
+        }
+      },
+      "build": {
+        "overall": 9.1,
+        "materials": 9.5,
+        "rigidity": 9,
+        "hinge": 8.5,
+        "keyboard": 8,
+        "trackpad": 10,
+        "thermals": 9,
+        "notes": {
+          "materials": "Recycled aluminium; no creak when lifted by a corner.",
+          "rigidity": "Almost no deck flex while typing.",
+          "hinge": "Opens with one finger; slight wobble on trains.",
+          "keyboard": "1 mm travel, quiet. Backlit.",
+          "trackpad": "Large haptic glass; best in class.",
+          "thermals": "Fan rarely audible when coding."
+        },
+        "chassis": "Aluminium unibody",
+        "repairability": "Low · soldered RAM",
+        "warrantyYears": 1
+      },
+      "specNotes": {
+        "cpu": "Fast compiles, light on battery",
+        "gpu": "Fine for editing; weak for AAA games",
+        "ram": "Not upgradeable later",
+        "storage": "~3,000 MB/s read",
+        "display": "3024 × 1964 · 120 Hz · 1000 nits",
+        "ports": "MagSafe 3 · headphone jack",
+        "wireless": "Fast enough for cloud editing",
+        "webcam": "Keeps you framed on calls",
+        "os": "Windows-only apps need a VM",
+        "size": "15.5 mm thin · 1.55 kg"
+      },
+      "summary": "Strong CPU for builds, quiet under load, long battery. Gaming is its weak spot.",
+      "weakness": "",
+      "visual": {
+        "archetype": "pro"
+      },
+      "sources": [
+        {
+          "field": "weightKg",
+          "url": "https://www.apple.com/ph/macbook-pro/specs/",
+          "title": "Apple PH · MacBook Pro tech specs (example)",
+          "seenAt": "2026-10-11"
+        },
+        {
+          "field": "configs.MBP14-M.cpu.score",
+          "url": "https://browser.geekbench.com/",
+          "title": "Geekbench 6 · Apple M4 multi-core (example)",
+          "seenAt": "2026-10-11"
+        }
+      ]
+    },
+    "configs": [
+      {
+        "code": "MBP14-M",
+        "label": "16 · 512",
+        "color": "Space Black",
+        "cpu": {
+          "name": "Apple M4",
+          "cores": 10,
+          "score": 14800
+        },
+        "gpu": {
+          "name": "10-core GPU",
+          "score": 3200
+        },
+        "hw": {
+          "cpuBrand": "Apple",
+          "cpuFamily": "M4",
+          "gpuBrand": "Apple",
+          "gpuFamily": "10-core"
+        },
+        "ramGb": 16,
+        "storageGb": 512,
+        "display": {
+          "resolution": {
+            "w": 3024,
+            "h": 1964
+          },
+          "refreshHz": 120,
+          "nits": 1000,
+          "panel": "miniled",
+          "touch": false
+        },
+        "usedOnly": false,
+        "price": {
+          "srpPhp": 92990,
+          "srpSource": "Apple PH",
+          "srpSeenAt": "2026-10-09",
+          "usedPhp": 64990,
+          "usedKind": "estimate",
+          "usedSource": "Sample data",
+          "usedSeenAt": "2026-10-09"
+        }
+      }
+    ],
+    "flags": []
+  }
+}
