@@ -13,7 +13,7 @@ const subscribe = (cb: () => void) => {
 const SUN = 'M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z';
 const MOON = 'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z';
 
-/** 44px circle. Iris via the View Transitions API, instant swap as fallback (4.3). */
+/** 44px circle. Iris via the View Transitions API, instant swap as fallback. */
 export function ThemeToggle() {
   const theme = useFitlap((s) => s.theme);
   const setTheme = useFitlap((s) => s.setTheme);

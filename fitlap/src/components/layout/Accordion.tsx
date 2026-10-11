@@ -9,7 +9,7 @@ interface Props {
   defaultOpen?: number;
 }
 
-/** One-open-at-a-time FAQ (6.10): grid-template-rows 0fr ↔ 1fr, + turns into a filled ×. */
+/** One-open-at-a-time FAQ: grid-template-rows 0fr ↔ 1fr, + turns into a filled ×. */
 export function Accordion({ items, defaultOpen = 0 }: Props) {
   const [open, setOpen] = useState(defaultOpen);
   const id = useId();

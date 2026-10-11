@@ -20,7 +20,7 @@ interface Props {
 }
 
 /**
- * "+ Compare" picker (6.9). Mount to open, unmount to close.
+ * "+ Compare" picker. Mount to open, unmount to close.
  * Native modal <dialog>: focus trap, Esc (cancel → close) and top layer come from the platform.
  */
 export function CompareModal({ ranked, current, onClose }: Props) {

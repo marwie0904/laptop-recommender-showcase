@@ -11,7 +11,7 @@ interface Props {
   style?: CSSProperties;
 }
 
-/** "−30%" used vs SRP in its discount colour tier (section 10). Text only. Renders nothing without both prices or a discount. */
+/** "−30%" used vs SRP in its discount colour tier. Text only. Renders nothing without both prices or a discount. */
 export function PriceDelta({ price, size = 12, big = 15, suffix = '', style }: Props) {
   if (price.srpPhp === undefined || price.usedPhp === undefined) return null;
   const pct = usedDiscountPct(price.srpPhp, price.usedPhp);

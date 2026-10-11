@@ -7,7 +7,7 @@ interface Props {
   className?: string;
 }
 
-/** 44×26 track (--ink when on), --on-ink knob with an overshoot slide (6.6). */
+/** 44×26 track (--ink when on), --on-ink knob with an overshoot slide. */
 export function Switch({ checked, onChange, children, className }: Props) {
   return (
     <button

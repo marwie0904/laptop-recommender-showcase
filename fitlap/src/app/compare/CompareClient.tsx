@@ -46,7 +46,7 @@ const CODES = new Set(getLaptops().flatMap((l) => l.configs.map((c) => c.code)))
 /** Known config codes only, deduped, max 4. Slugs from old links or saved lists drop out here. */
 const clean = (list: string[]) => [...new Set(list)].filter((code) => CODES.has(code)).slice(0, 4);
 
-// Scramble decode (section 5): 20 ticks of 40ms, p += .05. Glyphs come from a hash instead of Math.random so render stays pure.
+// Scramble decode: 20 ticks of 40ms, p += .05. Glyphs come from a hash instead of Math.random so render stays pure.
 const GLYPHS = '0123456789#%/<>=+×';
 const TICKS = 20;
 function scramble(str: string, tick: number, offset: number, seed: number) {

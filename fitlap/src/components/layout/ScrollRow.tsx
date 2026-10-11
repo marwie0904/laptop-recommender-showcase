@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ComponentPropsWithoutRef } from 'react';
 
-/** Horizontal scroller that gets the right-edge fade (global .scrollRow) only while it overflows (6.13). */
+/** Horizontal scroller that gets the right-edge fade (global .scrollRow) only while it overflows. */
 export function ScrollRow({ className = '', children, ...rest }: ComponentPropsWithoutRef<'div'>) {
   const ref = useRef<HTMLDivElement>(null);
   const [over, setOver] = useState(false);

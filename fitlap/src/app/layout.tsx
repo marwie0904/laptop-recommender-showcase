@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: 'Your use case in. A ranked shortlist out, priced new and used.',
 };
 
-// Sets data-theme before paint so there is no flash (4.3).
+// Sets data-theme before paint so there is no flash.
 const themeScript = `try{document.documentElement.dataset.theme=localStorage.getItem('fitlap-theme')||'auto'}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

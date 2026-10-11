@@ -3,7 +3,7 @@ import { bayerAt } from '@/lib/bayer';
 
 const CELL: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' };
 
-// 15×15 "charging" diamond pulsing in Bayer order (section 5).
+// 15×15 "charging" diamond pulsing in Bayer order.
 const DOTS: CSSProperties[] = Array.from({ length: 225 }, (_, n) => {
   const i = Math.floor(n / 15), j = n % 15, dx = j - 7, dy = i - 7;
   const del = (bayerAt(i, j) * 0.06 + Math.sqrt(dx * dx + dy * dy) * 0.05).toFixed(2);

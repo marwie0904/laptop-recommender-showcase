@@ -109,7 +109,7 @@
 .iconBtns { display: flex; gap: 8px; }
 .iconBtn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-/* Phone (prototype @media max-width 640px, section 13) */
+/* Phone (prototype @media max-width 640px) */
 @media (max-width: 640px) {
   .wrap { padding: 12px 10px 24px; }
   .hideSm { display: none !important; }

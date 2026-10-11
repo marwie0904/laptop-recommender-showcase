@@ -32,7 +32,7 @@ export function usedDiscountPct(srp: number, used: number): number | null {
   return pct > 0 ? pct : null;
 }
 
-/** Discount colour tier (section 10). `big` is the font size used for the ≥50% tier. */
+/** Discount colour tier. `big` is the font size used for the ≥50% tier. */
 export function discountTierStyle(pct: number, big = 15): CSSProperties {
   if (pct >= 50) return { color: 'var(--d-r)', fontWeight: 700, fontSize: big };
   if (pct > 40) return { color: 'var(--d-o)', fontWeight: 600 };

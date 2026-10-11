@@ -16,7 +16,7 @@ interface Props {
   onPick: (id: string) => void;
 }
 
-/** Results match rail: cards arrive like braking cars over a scrolling sleeper track (section 5). */
+/** Results match rail: cards arrive like braking cars over a scrolling sleeper track. */
 export function Rail({ items, currentId, width, loading, replay, onPick }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>

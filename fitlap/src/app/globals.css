@@ -49,7 +49,7 @@ a:hover { color: #C2410C; }
 .marq { animation: marquee 38s linear infinite; }
 .marq:hover { animation-play-state: paused; }
 
-/* Rail: custom scrollbar (6.4) */
+/* Rail: custom scrollbar */
 .rail::-webkit-scrollbar { height: 16px; }
 .rail::-webkit-scrollbar-track { margin: 0 8px; background: linear-gradient(var(--track), var(--track)) center / 100% 1px no-repeat; }
 .rail::-webkit-scrollbar-thumb { background-color: var(--ink); border-radius: 999px; border: 6px solid transparent; background-clip: padding-box; transition: background-color .3s; }
@@ -61,7 +61,7 @@ a:hover { color: #C2410C; }
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* Edge fade on horizontal scrollers (6.13). ScrollRow toggles .scrollRow only when the row overflows. */
+/* Edge fade on horizontal scrollers. ScrollRow toggles .scrollRow only when the row overflows. */
 @property --sf { syntax: '<length>'; inherits: false; initial-value: 56px; }
 .scrollRow {
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--sf)), transparent);
@@ -71,11 +71,11 @@ a:hover { color: #C2410C; }
   .scrollRow { animation: sfade linear both; animation-timeline: scroll(self inline); }
 }
 
-/* ── Theme iris (4.3) ─────────────────────────────────────────────────────── */
+/* ── Theme iris ─────────────────────────────────────────────────────── */
 ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 ::view-transition-new(root) { animation: themeIris 700ms cubic-bezier(.4,0,.2,1); }
 
-/* ── Keyframes (section 7). One keyframe per effect; replay with a React key. ─ */
+/* ── Keyframes. One keyframe per effect; replay with a React key. ─ */
 @keyframes themeIris { from { clip-path: circle(0px at var(--tx,50%) var(--ty,40px)); } to { clip-path: circle(var(--tr,160vmax) at var(--tx,50%) var(--ty,40px)); } }
 @keyframes iconSpin { from { transform: rotate(-120deg) scale(.4); opacity: 0; } }
 @keyframes sfade { 0%, 80% { --sf: 56px; } 100% { --sf: 0px; } }
