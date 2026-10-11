@@ -102,8 +102,10 @@ function Field({ path, value, onChange }: { path: string; value: Leaf; onChange:
   const text = value === undefined ? '' : Array.isArray(value) ? value.join(', ') : String(value);
   if (kind === 'text' && text.length > 60)
     return <textarea className={s.input} rows={3} defaultValue={text} onChange={(e) => onChange(parseInput(e.target.value, 'text'))} />;
+  // setAt can refuse a code (taken, or has a dot), so the code input always shows the draft's code, not the typed text.
+  const shown = path.endsWith('.code') ? { value: text } : { defaultValue: text };
   return (
-    <input className={s.input} type={kind === 'number' ? 'number' : 'text'} step="any" defaultValue={text}
+    <input className={s.input} type={kind === 'number' ? 'number' : 'text'} step="any" {...shown}
       onChange={(e) => onChange(parseInput(e.target.value, kind))} />
   );
 }

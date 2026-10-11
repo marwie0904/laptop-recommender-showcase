@@ -30,7 +30,7 @@ backend design, records the decisions made so far, and lists what is still open.
 | Save button | **Dropped for v1.** |
 | Seller links | **None.** Prices and source names appear as plain text. |
 | Admin auth | **A secret admin key, local admin only** (2026-10-11): the admin runs on your machine against dev, unlocked by `ADMIN_KEY` (dev only, set by `npm run admin-key`). Prod ships without `/admin` and has no key, so admin functions refuse there. Replaces the course-site sign-in port. |
-| Abuse protection | Visitors only load static files, so there are **no public Convex queries** (changed 2026-10-09). **Per-IP + global rate limits** wrap every admin function. **No spending caps for now.** Recommended instead: warning-only usage alerts, which don't shut anything off. A Cloudflare front is deferred until it's needed. |
+| Abuse protection | Visitors only load static files, so there are **no public Convex queries** (changed 2026-10-09). No rate limits while the admin is local-only (data-pipeline spec §1). **No spending caps for now.** Recommended instead: warning-only usage alerts, which don't shut anything off. A Cloudflare front is deferred until it's needed. |
 | Used price | **Depreciation estimate** from the launch SRP (research guide retention curve), replaced by cited PH listings when found. See `fitlap/shared/usedPrice.ts`. |
 | Retail feeds | The skill checks SRPs against the PC Express, Octagon and Power Mac Center Shopify feeds. Shelf prices are evidence, never the SRP. |
 | Convex plan | **Starter (pay-as-you-go)**: S16 limits, overage billed (§9). |
@@ -123,7 +123,7 @@ Your machine (Claude Code session)
 
 Convex deployments: dev (drafts, review) and prod (approved data only, read by the build)
  ├─ catalog.ts   internal exportForBuild (no public queries)
- ├─ admin/       adminQuery / adminMutation / adminAction wrappers (admin key + rate limits)
+ ├─ admin/       adminQuery / adminMutation / adminAction wrappers (admin key, no rate limits while local-only)
  │               + internal drafts.submit and promote functions (CLI only, no public endpoint)
  ├─ prices/      price-source adapters (v2: Shopee affiliate, parked)
  ├─ crons.ts     none needed while the admin is local-only
@@ -188,8 +188,8 @@ configs: {                                         // one laptop → many config
            usedPhp, usedKind /* "estimate" | "avg30d" */, usedCount, usedSource, usedSeenAt },
 }
 priceObservations: {                               // append-only history, feeds the aggregates
-  configCode, kind: "srp" | "used", source /* "ai_draft" | "admin" | "shopee" */,
-  sourceName, amountPhp, condition, url /* stored, never shown */, observedAt, approvedBy?,
+  code, kind: "srp" | "used", source /* "ai_draft" | "admin" | "shopee" */,
+  sourceName, amountPhp, condition, url /* stored, never shown */, observedAt, approvedAt,
 }
 aiDrafts: {                                        // dev only, written by the skill via drafts.submit
   laptopId?, input: { modelName, urls[] },           // no row-level kind: the payload carries it (full | priceOnly)
@@ -302,7 +302,7 @@ Drafting runs in your Claude Code session on your existing Claude subscription, 
    - **Validation** runs in the mutation: Zod plus sanity ranges (weight, prices, battery hours). A draft with the wrong shape is rejected with the error, and the skill fixes it in the same session. Values outside the sanity ranges are flagged in review rather than dropped.
    - **Hardware families:** the skill fills each config's `hw` facets. `drafts.submit` rejects a CPU or GPU family that isn't in `shared/hardware.ts`. When a new family shows up (e.g. the next Apple chip), the skill adds it to that file in the same session.
    - **Scores and codes:** `cpu.score` (Geekbench 6 multi-core) and `gpu.score` (3DMark Steel Nomad Light) are required, and a score borrowed from another laptop with the same chip is flagged. Config codes must be unique across the catalog.
-4. **Review on dev.** Run the admin locally (`npm run dev`, pointed at dev). Approving needs the admin key. It shows a field-by-field diff against the published version, with source links and inline edits. Approving writes `laptops` / `configs` / `priceObservations` (source `ai_draft`, `approvedBy`).
+4. **Review on dev.** Run the admin locally (`npm run dev`, pointed at dev). Approving needs the admin key. It shows a field-by-field diff against the published version, with source links and inline edits. Approving writes `laptops` / `configs` / `priceObservations` (source `ai_draft`, `approvedAt`).
 5. **Promote to prod.** Push any `shared/hardware.ts` change first, because the rebuild builds `main`. `scripts/promote.mjs <slug…>` reads each laptop's current state from dev (published or archived, with its configs, price observations and photo) and upserts it into prod with `npx convex run --prod`, matching laptops by `slug` and configs by `code`. Prod copies the photo from its dev storage URL into its own storage. Prod only ever receives approved data. Last, it calls the Vercel deploy hook, and the rebuild pre-renders every laptop page from prod (§3).
 
 **v1 honesty in the UI.** In v1 the used price is an **AI-assisted estimate with citations**, not "a 30-day average of N listings". The copy needs to say so (see §10).
@@ -405,7 +405,7 @@ The frontend mock UI is still being iterated (desktop, then mobile). The phases 
 | Phase | Goal | Main deliverables | Exit criteria | Depends on |
 |---|---|---|---|---|
 | **0. Setup & spikes** | Accounts in place; the risky unknowns answered | Setup checklist (§12). **S1** (dropped, local-only admin) IP check: log the headers an HTTP action receives (`cf-connecting-ip`, `x-forwarded-for`) and try faking them. **S2** a first version of the `/draft-laptop` skill on 3 laptops, writing JSON to a local file (accuracy, source quality, time per laptop), including Geekbench 6 multi-core and 3DMark Steel Nomad Light scores with sources. If GPU coverage is poor (older chips, M1, RTX 30), pick another cross-platform GPU benchmark before Phase 2. The submit step comes in Phase 2. **S3** (dropped, local-only admin) port the course-site admin sign-in and run it end to end from the static site, with Resend from `otomatesystems.com`. **S4** static export + Convex on Vercel, including `/laptop/[id]` pre-rendered from Convex at build, a deploy-hook rebuild, whether the frontend's `cacheComponents` setting works with `output: "export"`, whether `npx convex run` can call an internal query with `CONVEX_DEPLOY_KEY` inside the Vercel build, and whether `generateStaticParams` can read the generated `details.json`. | A short written result per spike, added to this doc, with a go / adjust decision for each | Your accounts and keys |
-| **1. Backend foundation** | A secure, empty backend the local admin can use | Schema v1. `public/` / `admin/` wrappers. Rate limits. Admin key (`requireAdmin`), schema v2 instead of the sign-in port. `/legal` + static shell deployed on the Vercel domain. | The admin key unlocks the local admin against dev, and admin functions refuse on prod. Tests show rate limits rejecting excess calls. | Phase 0 (S4) |
+| **1. Backend foundation** | A secure, empty backend the local admin can use | Schema v1. `public/` / `admin/` wrappers. Admin key (`requireAdmin`), schema v2 instead of the sign-in port. `/legal` + static shell deployed on the Vercel domain. | The admin key unlocks the local admin against dev, and admin functions refuse on prod. No rate limits while the admin is local-only. | Phase 0 (S4) |
 | **2. Data pipeline & admin** | Laptops go from "model name" to published | `/draft-laptop` skill → `drafts.submit` on dev → review diff in the local admin → approve → `promote` to prod → rebuild. Configs + SRP + used estimates. `/draft-laptop recheck` (single and batch) and staleness flags. Archetype pick. Press-photo upload (in-browser resize to WebP). The `catalog:exportForBuild` query and `scripts/fetch-catalog.mjs`. | ~20 laptops drafted, approved on dev and promoted to prod. `catalog.json` under 150 KB raw. | Phase 1. S2 results. |
 | **3. Scoring engine** | Rankings that feel right | `shared/scoring`: filters, use-case weights, fit %, axes, verdicts, compare labels, config switching. Started on seed data by [the shared-scoring plan](superpowers/plans/2026-10-09-shared-scoring-and-data-swap.md). Unit tests against hand-made expected rankings. Admin "preview ranking for brief X" page. | Your sample briefs (Coding ≤ ₱60k, Gaming ≤ ₱90k, Student ≤ ₱40k, …) rank the way you'd recommend on a live | Phase 2 data (can start in parallel with seed data) |
 | **4. Public app** | Every screen wired to live data | Port Landing, Brief (simple + advanced mode), Results, Details, Compare (desktop + mobile) and the 10–20 mockup archetypes. Config switcher. Brief in the URL. Photo view. Empty / loading / busy states. | All screens work on phone and desktop against the baked catalog. Nothing loads a photo until the Photo view is opened. | **Design freeze** for desktop + mobile. Phases 2–3. |

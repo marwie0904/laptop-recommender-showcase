@@ -3,6 +3,12 @@
 // The deploy hook runs only for --to prod. Push any shared/hardware.ts change to main first: the rebuild builds main.
 import { execFileSync } from 'node:child_process';
 
+// `npm run promote x --to local` hands --from/--to to npm, not to this script, which would then default to dev → prod.
+if (process.env.npm_config_from || process.env.npm_config_to) {
+  console.error('use: npm run promote -- <slug…> [--from dev] [--to prod]');
+  process.exit(1);
+}
+
 const args = process.argv.slice(2);
 const opt = (name, dflt) => {
   const i = args.indexOf(name);

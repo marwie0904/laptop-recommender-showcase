@@ -85,6 +85,8 @@ A shape error or a rejection comes back as the error text. Fix the file and subm
 
 1. `npm run catalog`, then read the laptop's configs from `src/data/generated/catalog.json`.
 2. For each config, re-find the SRP (retail feeds first, step 4) and recompute the used price (step 5).
+   Take the launch SRP, release month and class from the title of the `configs.<CODE>.price.usedPhp` source in
+   `src/data/generated/details.json` (else from the research file). Never use the current SRP.
 3. Write `drafts/<slug>-recheck.json` as `{ input: { modelName, urls: [] }, draft: { kind: "priceOnly", slug, prices: [{ code, price }], sources, flags } }`
    with the complete new `price` object per config, and submit it.
 
