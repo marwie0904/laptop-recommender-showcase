@@ -8,9 +8,12 @@
  * @module
  */
 
+import type * as admin_drafts from "../admin/drafts.js";
 import type * as catalog from "../catalog.js";
 import type * as devSeed from "../devSeed.js";
 import type * as lib_admin from "../lib/admin.js";
+import type * as lib_catalogDb from "../lib/catalogDb.js";
+import type * as lib_draftChecks from "../lib/draftChecks.js";
 import type * as lib_export from "../lib/export.js";
 
 import type {
@@ -20,9 +23,12 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "admin/drafts": typeof admin_drafts;
   catalog: typeof catalog;
   devSeed: typeof devSeed;
   "lib/admin": typeof lib_admin;
+  "lib/catalogDb": typeof lib_catalogDb;
+  "lib/draftChecks": typeof lib_draftChecks;
   "lib/export": typeof lib_export;
 }>;
 
