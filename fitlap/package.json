@@ -10,7 +10,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "check": "node shared/shared.check.ts && node src/data/seed/seed.check.ts && node src/store/migrate.check.ts && node src/lib/price.check.ts",
+    "check": "node shared/shared.check.ts && node src/data/seed/seed.check.ts && node src/store/migrate.check.ts && node src/lib/price.check.ts && node src/lib/draftDiff.check.ts",
     "admin-key": "node scripts/admin-key.mjs",
     "promote": "node scripts/promote.mjs"
   },
