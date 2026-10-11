@@ -11,7 +11,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "check": "node shared/shared.check.ts && node src/data/seed/seed.check.ts && node src/store/migrate.check.ts && node src/lib/price.check.ts",
-    "admin-key": "node scripts/admin-key.mjs"
+    "admin-key": "node scripts/admin-key.mjs",
+    "promote": "node scripts/promote.mjs"
   },
   "dependencies": {
     "convex": "^1.46.0",
