@@ -9,6 +9,7 @@ import { displayRaw, mixHours, percentiles, staticDims } from './scoring/dimensi
 import { briefPrice, isSlim, passes, sizeBucket } from './scoring/filters.ts';
 import { axisWeights, defaultScore, idealAxes, rankForBrief, scoreCatalog, topPick, verdictFor } from './scoring/fit.ts';
 import { PERF_MIX, RAW_CEIL, USE_WEIGHTS } from './scoring/weights.ts';
+import { estimateUsedPhp } from './usedPrice.ts';
 
 const near = (a: number, b: number, msg: string) => assert.ok(Math.abs(a - b) < 1e-3, `${msg}: ${a} is not ≈ ${b}`);
 
@@ -246,5 +247,16 @@ assert.deepEqual(
 // A saved brief with a key the codec doesn't know (an old or renamed field) still matches its URL, so /results settles in one step.
 assert.ok(sameBrief({ ...SIMPLE, legacyField: 1 } as Brief, briefFromParams(qs(briefToParams(SIMPLE, BRIEF)), BRIEF)!, BRIEF), 'extra keys are ignored');
 assert.ok(!sameBrief(SIMPLE, ADV, BRIEF), 'a real difference still counts');
+
+// Used-price curve (research guide, Part 1): retention at years 1–4, straight-line between, rounded to ₱500.
+assert.equal(estimateUsedPhp(100_000, '2025-03', 'mac', '2025-03-20'), 100_000, 'age 0 keeps the full SRP');
+assert.equal(estimateUsedPhp(100_000, '2025-03', 'mac', '2026-03-01'), 70_000, 'mac year 1');
+assert.equal(estimateUsedPhp(100_000, '2025-03', 'mac', '2027-09-01'), 48_500, 'mac 2.5 years: halfway between 55% and 42%');
+assert.equal(estimateUsedPhp(100_000, '2019-03', 'mac', '2025-03-01'), 32_000, 'held at year 4 after that');
+assert.equal(estimateUsedPhp(100_000, '2025-03', 'gaming', '2026-09-01'), 43_000, 'gaming 1.5 years');
+assert.equal(estimateUsedPhp(100_000, '2025-03', 'premium', '2026-03-01'), 62_000);
+assert.equal(estimateUsedPhp(100_000, '2025-03', 'mainstream', '2027-03-01'), 40_000);
+assert.equal(estimateUsedPhp(64_990, '2025-03', 'mac', '2026-03-01'), 45_500, 'rounded to the nearest ₱500');
+assert.equal(estimateUsedPhp(100_000, '2026-12', 'mac', '2026-10-11'), 100_000, 'a future release month counts as age 0');
 
 console.log('shared ok');
