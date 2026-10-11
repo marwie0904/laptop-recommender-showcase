@@ -10,6 +10,7 @@
 
 import type * as catalog from "../catalog.js";
 import type * as devSeed from "../devSeed.js";
+import type * as lib_admin from "../lib/admin.js";
 import type * as lib_export from "../lib/export.js";
 
 import type {
@@ -21,6 +22,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   catalog: typeof catalog;
   devSeed: typeof devSeed;
+  "lib/admin": typeof lib_admin;
   "lib/export": typeof lib_export;
 }>;
 

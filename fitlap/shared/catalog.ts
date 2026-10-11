@@ -30,7 +30,7 @@ export interface Config {
   label: string;               // "16 · 512"
   color: string;
   cpu: { name: string; cores: number; score: number };     // score = Geekbench 6 multi-core
-  gpu: { name: string; vramGb?: number; score: number };   // score = 3DMark Steel Nomad Light
+  gpu: { name: string; vramGb?: number; tgpW?: number; score: number };   // score = 3DMark Steel Nomad Light; tgpW = max GPU watts
   hw: { cpuBrand: CpuBrand; cpuFamily: string; gpuBrand: GpuBrand; gpuFamily: string };
   ramGb: number;
   storageGb: number;

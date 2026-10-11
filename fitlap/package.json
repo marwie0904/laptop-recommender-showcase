@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
     "check": "node shared/shared.check.ts && node src/data/seed/seed.check.ts && node src/store/migrate.check.ts && node src/lib/price.check.ts"
   },
   "dependencies": {
@@ -19,11 +20,14 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@edge-runtime/vm": "5.0.0",
+    "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "convex-test": "0.0.60",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "5.0.1"
   }
 }
