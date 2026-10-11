@@ -13,7 +13,7 @@ import { ScrollRow } from '@/components/layout/ScrollRow';
 import { PriceDelta } from '@/components/price/PriceDelta';
 import { USE_CASES, fmtStorage } from '@/lib/brief';
 import { getLaptops, scoreForDisplay } from '@/lib/catalog';
-import { fmtPhp } from '@/lib/price';
+import { fmtDate, fmtPhp, priceCheckedAt } from '@/lib/price';
 import { displayLine, fastChargeLabel, specValues, warrantyLabel } from '@/lib/format';
 import { useFitlap, useHydrated } from '@/store/useFitlap';
 import s from './details.module.css';
@@ -94,6 +94,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
 
   const scored = scoreForDisplay(laptop, brief);
   const c = scored.config;
+  const checked = priceCheckedAt(c.price);
   const specs = specValues(laptop, c, details);
   const uses: UseCase[] = brief.uses.length ? brief.uses : ['work'];
   const matters = new Set(uses.flatMap((u) => MATTERS[u]));
@@ -168,15 +169,16 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
           </div>
           <div className={s.tiles}>
             <div className={`${s.tile} ${s.tileNew}`} style={{ animation: 'rise 600ms cubic-bezier(.2,.9,.2,1) 300ms backwards' }}>
-              <span className={s.meta12}>New</span>
+              <span className={s.meta12}>{'SRP · ' + (c.price.srpSource ?? '—')}</span>
               <span className={s.tileVal}>{scramble(c.price.srpPhp !== undefined ? fmtPhp(c.price.srpPhp) : 'Used only', tick, 0.2)}</span>
             </div>
             <div className={`${s.tile} ${s.tileUsed}`} style={{ animation: 'rise 600ms cubic-bezier(.2,.9,.2,1) 380ms backwards' }}>
-              <span className={s.meta12}>Used est. · {c.price.usedSource ?? '—'}</span>
+              <span className={s.meta12}>Used estimate · {c.price.usedSource ?? '—'}</span>
               <span className={s.tileVal}>{scramble(c.price.usedPhp !== undefined ? fmtPhp(c.price.usedPhp) : '—', tick, 0.3)}</span>
               <PriceDelta price={c.price} size={13} suffix=" vs new" />
             </div>
           </div>
+          {checked && <span className={s.meta12}>Price checked {fmtDate(checked)}</span>}
           <div className={s.pills} style={pending}>
             {USE_CASES.filter((c) => brief.uses.includes(c.key)).map((c) => (
               <span key={c.key} className={s.pill}>

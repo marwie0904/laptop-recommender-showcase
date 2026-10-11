@@ -139,13 +139,13 @@ export function LandingClient() {
                 </div>
                 <div className={s.tagL} style={{ animation: 'floatIn 600ms cubic-bezier(.2,1.2,.4,1) 1500ms backwards' }}>
                   <div className={s.priceTag} style={{ animation: 'bob 4s ease-in-out 2.2s infinite' }}>
-                    <span className={s.tagK}>Brand new</span>
+                    <span className={s.tagK}>SRP</span>
                     <span className={s.tagV}>{TOP_PRICE.srpPhp !== undefined ? fmtPhp(TOP_PRICE.srpPhp) : 'Used only'}</span>
                   </div>
                 </div>
                 <div className={s.tagR} style={{ animation: 'floatIn 600ms cubic-bezier(.2,1.2,.4,1) 1700ms backwards' }}>
                   <div className={`dark-scope ${s.priceTag} ${s.priceTagDark}`} style={{ animation: 'bob 4.6s ease-in-out 2.6s infinite' }}>
-                    <span className={`${s.tagK} ${s.tagKDark}`}>Used average</span>
+                    <span className={`${s.tagK} ${s.tagKDark}`}>Used estimate</span>
                     <span className={s.tagV}>
                       {TOP_PRICE.usedPhp !== undefined ? fmtPhp(TOP_PRICE.usedPhp) : '—'} <PriceDelta price={TOP_PRICE} size={14} />
                     </span>

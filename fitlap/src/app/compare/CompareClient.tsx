@@ -11,7 +11,8 @@ import { SLIM_KG, SLIM_MM } from '@shared/scoring/weights';
 import { getLaptops, rankForBrief, scoreForCode, scoreForDisplay } from '@/lib/catalog';
 import { budgetCap, fmtStorage, USE_CASES } from '@/lib/brief';
 import { displayShort, portSummary, wifiLabel } from '@/lib/format';
-import { fmtPhp, newPriceLabel } from '@/lib/price';
+import { fmtDate, fmtPhp, newPriceLabel } from '@/lib/price';
+import { CATALOG } from '@/data/catalog';
 import { useFitlap, useHydrated } from '@/store/useFitlap';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import { DotFitChart } from '@/components/charts/DotFitChart';
@@ -346,7 +347,7 @@ export default function CompareClient() {
           </ScrollRow>
 
           <div className={s.footer}>
-            <span className={s.footNote}>Sample data · prices from retail + marketplace listings, last 30 days</span>
+            <span className={s.footNote}>SRP and used estimates{CATALOG.stats.latestPriceCheck && ' · prices checked ' + fmtDate(CATALOG.stats.latestPriceCheck)}</span>
             <Link href={`/laptop/${cols[0].slug}`} className={`cta ${s.cta}`}>
               Open top pick <span className={`arw ${s.arw}`}>→</span>
             </Link>

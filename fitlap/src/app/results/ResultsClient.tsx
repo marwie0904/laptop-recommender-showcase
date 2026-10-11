@@ -15,7 +15,7 @@ import { rankTag } from '@/components/rail/MatchCard';
 import { Rail } from '@/components/rail/Rail';
 import { DEFAULT_BRIEF, briefSummary, fmtStorage, useLabel } from '@/lib/brief';
 import { goodFor, rankForBrief } from '@/lib/catalog';
-import { fmtPhp } from '@/lib/price';
+import { fmtDate, fmtPhp, usedEstimateLine } from '@/lib/price';
 import { briefFromParams, briefToParams } from '@shared/briefUrl';
 import { idealAxes } from '@shared/scoring/fit';
 import { useFitlap, useHydrated } from '@/store/useFitlap';
@@ -170,13 +170,13 @@ export function ResultsClient() {
   ];
   const prices = [
     {
-      meta: 'SRP · ' + (p.srpSource ?? '—'), dot: 'var(--lime)', label: 'New price', value: p.srpPhp !== undefined ? fmtPhp(p.srpPhp) : 'Used only', delay: 80, off: null,
+      meta: 'SRP · ' + (p.srpSource ?? '—'), dot: 'var(--lime)', label: 'SRP', value: p.srpPhp !== undefined ? fmtPhp(p.srpPhp) : 'Used only', delay: 80, off: null,
       block: 'var(--accent)', blockDelay: 120, pills: [['Source', p.srpSource ?? '—', 'var(--lime)'], ['Config', cfg, 'var(--blue)']],
     },
     {
-      meta: 'Used est. · ' + (p.usedSource ?? '—'), dot: 'var(--accent)', label: 'Used price', value: p.usedPhp !== undefined ? fmtPhp(p.usedPhp) : '—', delay: 160,
+      meta: usedEstimateLine(p), dot: 'var(--accent)', label: 'Used estimate', value: p.usedPhp !== undefined ? fmtPhp(p.usedPhp) : '—', delay: 160,
       off: <PriceDelta price={p} size={13} suffix=" vs new" />,
-      block: '#B8B8B8', blockDelay: 220, pills: [['Source', p.usedSource ?? '—', 'var(--accent)'], ['Checked', p.usedSeenAt ?? '—', 'var(--blue)']],
+      block: '#B8B8B8', blockDelay: 220, pills: [['Source', p.usedSource ?? '—', 'var(--accent)'], ['Checked', p.usedSeenAt ? fmtDate(p.usedSeenAt) : '—', 'var(--blue)']],
     },
   ];
 

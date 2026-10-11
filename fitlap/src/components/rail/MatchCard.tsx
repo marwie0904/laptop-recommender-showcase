@@ -41,6 +41,8 @@ export function MatchCard({ item, rank, selected, width, onPick }: Props) {
         <span className={s.priceText}>{priceLine(c.price)}</span>
         <PriceDelta price={c.price} style={{ flex: 'none' }} />
       </span>
+      {/* The brief ranked this card on its used price ("Including used"), so say so next to the SRP (spec §4.6). */}
+      {item.price?.used && c.price.srpPhp !== undefined && <span className={s.priceText}>Ranked on used price</span>}
       <span className={s.coupler} style={{ width: selected ? '44%' : '0%' }} />
     </button>
   );
