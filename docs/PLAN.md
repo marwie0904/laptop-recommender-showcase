@@ -342,7 +342,7 @@ Drafting runs in your Claude Code session on your existing Claude subscription, 
 ## 9. Environments, config, deployment
 
 - **Convex:** `dev` and `prod` deployments.
-- **Vercel:** the build command is `npx convex deploy --cmd 'npm run build'`, which deploys Convex functions and then builds the static site. `CONVEX_DEPLOY_KEY` goes in the Vercel environment variables.
+- **Vercel:** the build command is `npx convex deploy && npm run build`, which pushes Convex functions and then builds the static site, so the build's `exportForBuild` call always runs against the functions in the same commit. (`convex deploy --cmd` runs its command *before* pushing, which would deadlock the first deploy.) `CONVEX_DEPLOY_KEY` goes in the Vercel environment variables.
 - **Convex env vars** (on both deployments): `RESEND_API_KEY`, `ADMIN_EMAIL=marwie0904@gmail.com`, `ADMIN_PASSWORD_HASH` (from the `hash-password` script), `SITE_URL` (also used for CORS on `/admin-login`): `http://localhost:3000` on dev, where the admin runs, and the Vercel domain on prod. No `ANTHROPIC_API_KEY`.
 - **Resend:** verify `otomatesystems.com` in Resend by adding its DKIM/SPF DNS records. Resend sends from a `send.` subdomain by default, so it shouldn't clash with existing mail on the domain. Check that before going live.
 - **Vercel env vars:** `CONVEX_DEPLOY_KEY`, in the **Production** environment only. Preview builds are skipped with the Ignored Build Step `[ "$VERCEL_ENV" != "production" ]`, so a preview never deploys functions to prod. `NEXT_PUBLIC_CONVEX_URL` is only needed by the local admin (`.env.local`).

@@ -6,7 +6,8 @@ import { seedDocs } from './lib/export';
 
 /**
  * Dev only: loads the seed laptops so the build has data before drafting exists. Insert-only: laptops whose slug
- * is already there are skipped, and nothing is ever deleted, so a re-run (or a stray run on prod) changes nothing.
+ * is already there are skipped and nothing is deleted, so a re-run changes nothing. Never run it on prod: it would
+ * publish the sample laptops on the next build.
  */
 export const load = internalMutation({
   args: {},
