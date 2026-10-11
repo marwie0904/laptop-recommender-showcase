@@ -5,6 +5,8 @@ import type { Brief } from '../../../shared/brief.ts';
 import type { Catalog, LaptopDetails } from '../../../shared/catalog.ts';
 import { isKnownFamily } from '../../../shared/hardware.ts';
 import { rankForBrief } from '../../../shared/scoring/fit.ts';
+import type { Id } from '../../../convex/_generated/dataModel';
+import { catalogStats, exportLaptop, seedDocs } from '../../../convex/lib/export.ts';
 
 const read = (f: string) => JSON.parse(readFileSync(new URL(f, import.meta.url), 'utf8'));
 const catalog: Catalog = read('./catalog.json');
@@ -30,5 +32,15 @@ const open: Brief = {
 };
 assert.equal(rankForBrief(catalog.laptops, open).length, catalog.laptops.length, 'an open brief matches every seed laptop');
 assert.equal(rankForBrief(catalog.laptops, { ...open, forms: ['slim', 'metal'], budgetMax: 105_000, minRamGb: 16, minStorageGb: 512 }).length, 6, 'the default brief drops the 1.68 kg XPS 14');
+
+// The seed survives a trip through the Convex doc shapes, and the build never sees storage ids.
+const docs = seedDocs(catalog, details);
+const out = docs.map(({ laptop, configs }) => exportLaptop(laptop, configs, null));
+assert.deepEqual(out.map((o) => o.laptop), catalog.laptops, 'laptops round-trip');
+assert.deepEqual(Object.fromEntries(out.map((o) => [o.laptop.slug, o.details])), details, 'details round-trip');
+assert.deepEqual(catalogStats(out.map((o) => o.laptop), details), catalog.stats, 'stats match the seed');
+const photo = { storageId: 's1' as Id<'_storage'>, storageIdSmall: 's2' as Id<'_storage'>, width: 1200, height: 800, credit: 'Image: Apple press kit', sourceUrl: 'https://www.apple.com/newsroom/', license: 'press kit', uploadedAt: '2026-10-11' };
+const shot = exportLaptop({ ...docs[0].laptop, photo }, docs[0].configs, { url: 'https://x/big', urlSmall: 'https://x/small' }).details.photo;
+assert.deepEqual(shot, { url: 'https://x/big', urlSmall: 'https://x/small', width: 1200, height: 800, credit: 'Image: Apple press kit' });
 
 console.log('seed ok');
