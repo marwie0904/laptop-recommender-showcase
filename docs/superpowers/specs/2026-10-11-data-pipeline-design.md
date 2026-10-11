@@ -22,14 +22,14 @@ Out of scope: drafting the launch list (~20 laptops, your pick), rate limits, Re
 ## 2. Data model changes (`convex/schema.ts`)
 
 - The laptop and config field validators move into exported objects so `drafts:submit` and `promote:upsert` reuse them.
-- **`aiDrafts`** (new): `slug`, `kind: 'full' | 'priceOnly'`, `status: 'ready' | 'approved' | 'rejected'`, `input: { modelName, urls[], researchFile? }`, `draft` (the payload below), `flags: string[]`, `submittedAt` (ms), `decidedAt?`. Indexes `by_status`, `by_slug`.
+- **`aiDrafts`** (new): `slug`, `status: 'ready' | 'approved' | 'rejected'`, `input: { modelName, urls[], researchFile? }`, `draft` (the payload below), `flags: string[]`, `submittedAt` (ms), `decidedAt?`. Indexes `by_status`, `by_slug`.
 - **`priceObservations`** (new, append-only): `code` (config code, so promote can match across deployments), `kind: 'srp' | 'used'`, `source: 'ai_draft' | 'admin'`, `sourceName`, `amountPhp`, `observedAt` (ISO date), `approvedAt` (ms). Index `by_code`.
 - `configs.gpu` gains `tgpW?: number` (watts). `shared/catalog.ts` `Config.gpu` gains the same optional field.
 - `laptops.photo` is unchanged. A new upload always gets new storage IDs and deletes the old blobs.
 
-**Draft payloads.**
-- `full`: `{ laptop, configs, flags }`. `laptop` is every `laptops` field except `status`, `photo`, `approvedBy` and `approvedAt`. `configs` are config fields without `laptopId`.
-- `priceOnly`: `{ slug, prices: [{ code, price }], sources, flags }`.
+**Draft payloads** carry their kind (`draft.kind`), so the row has no separate `kind` field.
+- `full`: `{ kind: 'full', laptop, configs, flags }`. `laptop` is every `laptops` field except `status`, `photo`, `approvedBy` and `approvedAt`. `configs` are config fields without `laptopId`.
+- `priceOnly`: `{ kind: 'priceOnly', slug, prices: [{ code, price }], sources, flags }`.
 
 ## 3. Used-price estimate (`shared/usedPrice.ts`)
 
