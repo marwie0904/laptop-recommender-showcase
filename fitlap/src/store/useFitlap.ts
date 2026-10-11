@@ -4,8 +4,8 @@ import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Brief, FormPref, UseCase } from '@shared/brief';
-import { BUDGET_STEPS } from '@shared/brief';
-import { DEFAULT_BRIEF, RAM_STEPS, STORAGE_STEPS, step } from '@/lib/brief';
+import { BUDGET_STEPS, RAM_STEPS, STORAGE_STEPS } from '@shared/brief';
+import { DEFAULT_BRIEF, step } from '@/lib/brief';
 import { migratePersisted } from './migrate';
 
 export type Theme = 'auto' | 'light' | 'dark';

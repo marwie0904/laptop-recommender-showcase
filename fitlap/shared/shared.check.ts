@@ -1,6 +1,7 @@
 // Self-check for fitlap/shared. Run: npm run check
 import assert from 'node:assert/strict';
 import type { Brief } from './brief.ts';
+import { briefFromParams, briefToParams } from './briefUrl.ts';
 import type { Config, Laptop } from './catalog.ts';
 import { CPU_FAMILIES, GPU_FAMILIES, isKnownFamily } from './hardware.ts';
 import { compareLabels, goodFor, missesGpu, portCount, wifiRank } from './scoring/compare.ts';
@@ -223,5 +224,24 @@ assert.ok(gf.length <= 3);
 assert.ok(gf.includes('gaming'), 'a strong GPU is good for gaming');
 assert.ok(!gf.includes('coding'), 'a mid CPU is not good for coding here');
 assert.ok(gf.every((x) => scoreCatalog(CAT, { ...BRIEF, uses: [x] }).get('GPUBOX')!.fit >= 80), 'only use cases with fit ≥ 80');
+
+// ── brief URL ──
+const qs = (s: string) => new URLSearchParams(s);
+const SIMPLE: Brief = { ...BRIEF, uses: ['coding', 'editing'], forms: ['slim', 'metal'], budgetMax: 105_000, includeUsed: true, minRamGb: 16, minStorageGb: 512 };
+assert.equal(briefToParams(SIMPLE, BRIEF), 'u=coding,editing&f=slim,metal&b=105000&used=1&ram=16&ssd=512', 'PLAN §3 format, no advanced params at their defaults');
+assert.deepEqual(briefFromParams(qs(briefToParams(SIMPLE, BRIEF)), BRIEF), SIMPLE, 'a simple brief round-trips');
+const ADV: Brief = {
+  ...SIMPLE, mode: 'advanced',
+  advanced: { brands: ['Apple', 'ASUS'], cpu: { brand: 'Intel', range: [0, 2] }, gpu: { brand: 'NVIDIA', range: [1, 3] }, batteryH: [8, 24], screens: ['oled', 'ips'], sizes: [13, 14] },
+};
+assert.equal(briefToParams(ADV, BRIEF), 'u=coding,editing&f=slim,metal&b=105000&used=1&ram=16&ssd=512&m=adv&br=Apple,ASUS&cpu=Intel.0-2&gpu=NVIDIA.1-3&bat=8-24&scr=oled,ips&sz=13,14');
+assert.deepEqual(briefFromParams(qs(briefToParams(ADV, BRIEF)), BRIEF), ADV, 'an advanced brief round-trips');
+assert.equal(briefFromParams(qs('x=1'), BRIEF), null, 'no brief params, no brief');
+assert.deepEqual(briefFromParams(qs('b=60000'), BRIEF), { ...BRIEF, budgetMax: 60_000 }, 'missing keys take the defaults');
+assert.deepEqual(
+  briefFromParams(qs('u=coding,hack,coding&f=slim,round&b=99999&used=maybe&ram=12&ssd=abc&m=adv&cpu=toString.0-1&gpu=NVIDIA.3-99&bat=9-2&scr=crt,oled&sz=13,99'), BRIEF),
+  { ...BRIEF, mode: 'advanced', uses: ['coding'], forms: ['slim'], advanced: { ...BRIEF.advanced, screens: ['oled'], sizes: [13] } },
+  'every bad value falls back to its default',
+);
 
 console.log('shared ok');

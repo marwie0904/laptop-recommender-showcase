@@ -3,6 +3,11 @@ import type { CpuBrand, GpuBrand, Panel } from './catalog.ts';
 export type UseCase = 'coding' | 'gaming' | 'work' | '3d' | 'editing' | 'school';
 export const USES: UseCase[] = ['coding', 'gaming', 'work', '3d', 'editing', 'school'];
 export type FormPref = 'slim' | 'metal' | 'convertible' | 'bigScreen';
+export const FORM_PREFS: FormPref[] = ['slim', 'metal', 'convertible', 'bigScreen'];
+export const RAM_STEPS = [8, 16, 32, 64] as const;
+export const STORAGE_STEPS = [256, 512, 1024, 2048] as const;
+/** Advanced size buckets. 16 means 16"+. */
+export const SCREEN_SIZES = [13, 14, 15, 16] as const;
 
 export interface AdvancedFilters {
   brands: string[];                                          // empty = any
@@ -22,8 +27,8 @@ export interface Brief {
   /** Pesos. BUDGET_TOP means "₱175k+": no price filter. */
   budgetMax: number;
   includeUsed: boolean;
-  minRamGb: 8 | 16 | 32 | 64;
-  minStorageGb: 256 | 512 | 1024 | 2048;
+  minRamGb: (typeof RAM_STEPS)[number];
+  minStorageGb: (typeof STORAGE_STEPS)[number];
 }
 
 /** ₱30k → ₱175k in ₱5k steps (30 stops). */

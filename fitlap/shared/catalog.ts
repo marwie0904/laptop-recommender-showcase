@@ -3,6 +3,7 @@
 export type CpuBrand = 'Apple' | 'Intel' | 'AMD' | 'Qualcomm';
 export type GpuBrand = 'Apple' | 'Intel' | 'NVIDIA' | 'AMD' | 'Qualcomm';
 export type Panel = 'miniled' | 'oled' | 'ips';
+export const PANELS: Panel[] = ['miniled', 'oled', 'ips'];
 export type Wifi = '5' | '6' | '6E' | '7';
 /** Mockup drawing keys (components/laptop/shapes.ts). */
 export type Archetype =

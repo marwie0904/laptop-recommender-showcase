@@ -7,7 +7,6 @@ export const SCREEN_TYPES: { key: Panel; label: string }[] = [
   { key: 'oled', label: 'OLED' },
   { key: 'ips', label: 'IPS' },
 ];
-export const SCREEN_SIZES = [13, 14, 15, 16] as const; // 16 = 16"+
 
 export const DEFAULT_ADVANCED: AdvancedFilters = {
   brands: [],

@@ -3,9 +3,6 @@ import { BUDGET_TOP } from '@shared/brief';
 import { DEFAULT_ADVANCED } from './advanced.ts';
 import { fmtPhp } from './price.ts';
 
-export const RAM_STEPS = [8, 16, 32, 64] as const;
-export const STORAGE_STEPS = [256, 512, 1024, 2048] as const;
-
 /** label = brief circle, pill = details/compare pills, chip = landing chips. */
 export const USE_CASES: { key: UseCase; label: string; pill: string; chip: string; hint: string; icon: string }[] = [
   { key: 'coding', label: 'Coding', pill: 'Coding', chip: 'Coding', hint: 'CPU · RAM', icon: 'M8 8l-4 4 4 4M16 8l4 4-4 4M13 6l-2 12' },
