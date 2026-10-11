@@ -1,0 +1,23 @@
+/* /admin: functional, not designed. Built from the global tokens. */
+
+.page { max-width: 1100px; margin: 0 auto; padding: 24px 28px 64px; display: flex; flex-direction: column; gap: 16px; color: var(--ink); }
+.form { max-width: 420px; }
+.h1 { margin: 12px 0 0; font-size: 22px; font-weight: 500; }
+.muted { color: var(--sub); font-weight: 300; }
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table th { text-align: left; font-weight: 500; color: var(--sub); border-bottom: 1px solid var(--line); padding: 6px 8px; }
+.table td { border-bottom: 1px solid var(--line2); padding: 6px 8px; vertical-align: top; }
+.path { font-family: ui-monospace, monospace; font-size: 12px; color: var(--sub2); white-space: nowrap; }
+.changed td { background: var(--card); }
+.flags { margin: 0; padding: 10px 10px 10px 28px; background: var(--card); border-left: 3px solid var(--d-o); font-size: 14px; }
+.warn { color: var(--d-o); }
+.error { color: var(--d-r); white-space: pre-wrap; margin: 0; }
+.amber { color: var(--d-y); font-weight: 500; }
+.red { color: var(--d-r); font-weight: 500; }
+.actions { display: flex; gap: 10px; position: sticky; bottom: 0; padding: 12px 0; background: var(--bg); }
+.btn, .btnGhost { font: inherit; font-size: 14px; padding: 8px 16px; border-radius: 999px; cursor: pointer; border: 1px solid var(--ink); }
+.btn { background: var(--ink); color: var(--on-ink); }
+.btnGhost { background: transparent; color: var(--ink); }
+.btn:disabled, .btnGhost:disabled { opacity: 0.4; cursor: default; }
+.input { font: inherit; font-size: 14px; width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--raised); color: var(--ink); }
+.src { display: block; font-size: 12px; color: var(--blue); }

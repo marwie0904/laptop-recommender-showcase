@@ -39,3 +39,9 @@ export function discountTierStyle(pct: number, big = 15): CSSProperties {
   if (pct > 25) return { color: 'var(--d-y)', fontWeight: 600 };
   return { color: 'var(--sub)', fontWeight: 400 };
 }
+
+/** Admin staleness of a price check: amber after 30 days, red after 60. */
+export function priceAge(iso: string, today: string): 'ok' | 'amber' | 'red' {
+  const days = (Date.parse(today) - Date.parse(iso)) / 86_400_000;
+  return days > 60 ? 'red' : days > 30 ? 'amber' : 'ok';
+}
