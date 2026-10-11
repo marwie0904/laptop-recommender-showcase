@@ -12,6 +12,8 @@ PLAN.md is the parent design. This spec records where it departs from PLAN and p
 | Benchmarks | `cpu.score` = **Geekbench 6 multi-core**, `gpu.score` = **3DMark Steel Nomad Light**, each cited. Kept although the research guide flags Geekbench's EULA as non-commercial. | No |
 | Used prices | A **depreciation estimate** from the launch SRP (§3), replaced by cited PH listings when the skill finds them. `usedKind: 'estimate'` either way. | Yes: PLAN had search-only estimates. |
 | Research input | The skill reads the matching `laptop-specs/**/*.md` file first (configs, PH SRPs, sources) and web-searches only what it lacks. | Adds to §7 |
+| Retail price feeds | The skill checks SRPs, and re-checks prices, against the keyless Shopify `/products.json` feeds of PC Express, Octagon and Power Mac Center (research guide, Part 1). A shelf price is evidence, cited in `sources`. It never replaces the official SRP. | Adds to §7 |
+| GPU wattage | Configs gain an optional `gpu.tgpW`, because the research guide says GPU wattage and VRAM matter more than the GPU's name for gaming. The skill records it now. Scoring may use it later (Phase 3). | Adds to §4 |
 | Environment | **Local only.** Everything runs against the anonymous local Convex. `promote.mjs` and the deploy-hook call are written and tested local→local. A real prod promote waits for the setup checklist. | No (same as Plan 2) |
 | Tests | Convex functions: `convex-test` + `vitest` (dev dependencies). Pure modules: the existing `*.check.ts` style. | New tooling |
 
@@ -22,6 +24,7 @@ Out of scope: drafting the launch list (~20 laptops, your pick), rate limits, Re
 - The laptop and config field validators move into exported objects so `drafts:submit` and `promote:upsert` reuse them.
 - **`aiDrafts`** (new): `slug`, `kind: 'full' | 'priceOnly'`, `status: 'ready' | 'approved' | 'rejected'`, `input: { modelName, urls[], researchFile? }`, `draft` (the payload below), `flags: string[]`, `submittedAt` (ms), `decidedAt?`. Indexes `by_status`, `by_slug`.
 - **`priceObservations`** (new, append-only): `code` (config code, so promote can match across deployments), `kind: 'srp' | 'used'`, `source: 'ai_draft' | 'admin'`, `sourceName`, `amountPhp`, `observedAt` (ISO date), `approvedAt` (ms). Index `by_code`.
+- `configs.gpu` gains `tgpW?: number` (watts). `shared/catalog.ts` `Config.gpu` gains the same optional field.
 - `laptops.photo` is unchanged. A new upload always gets new storage IDs and deletes the old blobs.
 
 **Draft payloads.**
@@ -51,8 +54,9 @@ Out of scope: drafting the launch list (~20 laptops, your pick), rate limits, Re
    - a config code that is duplicated inside the draft or belongs to a different laptop
    - a `priceOnly` draft for an unknown slug or code
 3. **Flag (keep)**, added to the skill's own flags:
-   - out-of-range values: `weightKg` 0.8–4.5, `sizeIn` 11–18.5, `year` 2018–2027, SRP ₱15k–₱500k, used price above SRP, `hoursByUse` 0.5–30, `battery.wh` 30–100, build scores 0–10, `nits` 200–2000, `refreshHz` 60–360
+   - out-of-range values: `weightKg` 0.8–4.5, `sizeIn` 11–18.5, `year` 2018–2027, SRP ₱15k–₱500k, used price above SRP, `hoursByUse` 0.5–30, `battery.wh` 30–100, build scores 0–10, `nits` 200–2000, `refreshHz` 60–360, `gpu.tgpW` 15–175
    - missing SRP on a config that isn't `usedOnly`
+   - missing `gpu.tgpW` on an NVIDIA GPU
    - the skill's own flags, e.g. "gpu.score borrowed from <other laptop>"
 4. Insert an `aiDrafts` row with status `ready`. Return `{ id, flags }`.
 
@@ -63,17 +67,18 @@ Adding a family: the skill edits `shared/hardware.ts` and pushes functions (`npx
 - **`/draft-laptop <model> [urls…]`:**
   1. Find the research file by its `model:` frontmatter.
   2. Map its configs and PH SRPs, and keep its sources.
-  3. Web-search the gaps: Geekbench 6 multi-core per CPU, Steel Nomad Light per GPU, battery hours per use, build scores and notes, ports by side, nits and refresh rate, hardware families, and an archetype from `shared/catalog.ts`.
-  4. Compute used prices (§3).
+  3. Web-search the gaps: Geekbench 6 multi-core per CPU, Steel Nomad Light per GPU, GPU wattage (TGP) for discrete GPUs, battery hours per use, build scores and notes, ports by side, nits and refresh rate, hardware families, and an archetype from `shared/catalog.ts`.
+  4. Check each SRP against the retail feeds (below), then compute used prices (§3).
   5. Write `fitlap/drafts/<slug>.json` (gitignored).
   6. Run `node scripts/submit-draft.mjs drafts/<slug>.json`.
   7. Report the draft ID, flags and the fields left empty.
 - **`/draft-laptop recheck <slug…>`:**
   1. Run `npm run catalog` and read the current configs from `src/data/generated/catalog.json`.
-  2. Re-find the SRPs and recompute the used prices.
+  2. Re-find the SRPs (the retail feeds first) and recompute the used prices.
   3. Submit one `priceOnly` draft per laptop.
 - **Every fact gets a source** in `sources[]` (`field`, `url`, `title`, `seenAt`).
-- **Grey-market prices are excluded.** A missing PH SRP stays empty and is flagged.
+- **Retail feeds.** `https://pcx.com.ph/products.json`, `https://www.octagon.com.ph/products.json` and `https://powermaccenter.com/products.json`, paged with `?limit=250&page=N`. Match by title, and by Apple part number on Power Mac Center. The shelf price and `compare_at_price` go into `sources`. A shelf price that differs from the SRP by more than 10% is flagged.
+- **Grey-market prices are excluded.** A missing PH SRP stays empty and is flagged, with any shelf price quoted in the flag so you can fill the SRP in at review.
 
 ## 6. Spike S2
 
