@@ -76,4 +76,18 @@ assert.deepEqual(parsePrice('₱52,999'), { srpPhp: 52999, srpSource: 'Research'
 assert.equal(parsePrice('Used ₱53,999 (Carousell)'), null);
 assert.equal(parsePrice('₱384,900 (US $4,900)'), null);
 assert.equal(parsePrice('No PH listing found'), null);
+// fix round 1
+assert.equal(parseDisplay('16" WUXGA or WQXGA 165 Hz').refreshHz, 165);
+assert.equal(parseDisplay('16" QHD+ 165 or 240 Hz').refreshHz, 165);
+assert.equal(parseDisplay('16" 1920x1200 144 Hz or 2560x1600').refreshHz, 144);
+assert.equal(parseGb('2x8 GB DDR5'), 16);
+assert.equal(parseGb('16 GB (2x8)'), 16);
+assert.equal(parseGb('8 GB / 2x8 GB'), 8);
+assert.equal(parsePrice('₱109,990 (₱98,999 on sale) (PC Express)')?.srpSource, 'PC Express');
+assert.equal(parsePrice('₱89,990 (16 GB / 512 GB), ₱99,990 (16 GB / 1 TB) (Villman)')?.srpSource, 'Villman');
+assert.equal(parsePrice('₱155,900 (16 GB / 512 GB, ELN)')?.srpSource, 'ELN');
+assert.equal(parsePrice('₱171,920 (32 GB), ₱334,320 (64 GB)')?.srpSource, 'Research');
+assert.equal(parseGpu('8- or 10-core GPU', 'Apple M4')?.name, '8-core GPU');
+assert.equal(parseGpu('30- or 38-core GPU', 'Apple M4 Max')?.family, '30-core');
+assert.equal(parseGpu('10-core GPU', 'Apple M4')?.family, '10-core');
 console.log('research normalize ok');

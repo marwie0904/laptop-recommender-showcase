@@ -104,7 +104,7 @@ export function parseGpu(cell: string, cpuName: string): ParsedGpu | null {
   if (/^unverified/i.test(cell)) return null;
   const text = cell.replace(/[;,]?\s*optional\b.*$/i, '');
   if (cpuHw(cpuName)?.brand === 'Apple') {
-    const m = text.match(/(\d+)-core GPU/i);
+    const m = text.match(/(\d+)-(?: or \d+-)?core GPU/i);
     return m ? { name: `${m[1]}-core GPU`, brand: 'Apple', family: `${m[1]}-core`, discrete: false } : null;
   }
   const gpu = earliest(text, cpuName) ?? generic(text, cpuName);
@@ -118,6 +118,8 @@ export function parseGpu(cell: string, cpuName: string): ParsedGpu | null {
 export function parseGb(cell: string): number | null {
   const text = noParens(cell);
   if (/unverified|up to/i.test(text) || /\d\s*(?:–|-|to)\s*\d+\s*(?:GB|TB)/i.test(text)) return null;
+  const mul = text.match(/^\s*(\d+)\s?x\s?(\d+(?:\.\d+)?)\s*(GB|TB)/i);
+  if (mul) return Math.round(Number(mul[1]) * Number(mul[2]) * (mul[3].toUpperCase() === 'TB' ? 1024 : 1));
   const m = text.match(/(\d+(?:\.\d+)?)(?:\s*(?:or|\/)\s*\d+(?:\.\d+)?)*\s*(GB|TB)/i);
   if (!m) return null;
   return Math.round(Number(m[1]) * (m[2].toUpperCase() === 'TB' ? 1024 : 1));
@@ -147,7 +149,8 @@ const DEFAULT_NITS: Record<Panel, number> = { ips: 300, oled: 400, miniled: 1000
 export function parseDisplay(cell: string): ParsedDisplay {
   const text = cell.split(/\s+or\s+/)[0];
   const panel: Panel = /oled/i.test(text) ? 'oled' : /mini-?led|liquid retina xdr/i.test(text) ? 'miniled' : 'ips';
-  const hz = text.match(/(\d{2,3})\s?Hz/i);
+  // First option's rate; else the first rate the whole cell states ("A or B 165 Hz", "165 or 240 Hz").
+  const hz = text.match(/(\d{2,3})\s?Hz/i) ?? cell.match(/(\d{2,3})(?:\s*(?:or|\/)\s*\d{2,3})*\s?Hz/i);
   const nits = text.match(/(\d{3,4})\s?nits/i);
   return {
     refreshHz: hz ? Number(hz[1]) : 60,
@@ -165,8 +168,8 @@ export function parsePrice(cell: string): { srpPhp: number; srpSource: string } 
   if (/^used\b/i.test(cell) || /US\s?\$/i.test(cell)) return null;
   const m = cell.match(/₱\s?([\d,]+)/);
   if (!m) return null;
-  const paren = cell.match(/\(([^)]*)\)/)?.[1] ?? '';
-  const source = paren.split(/[,;]/).map((s) => s.replace(MONTH_YEAR, '').trim())
-    .find((s) => s && !/^-?[A-Z0-9-]*\d[A-Z0-9-]*$/.test(s) && !/₱|^(starting|out of stock|in stock|sale|regular)\b/i.test(s));
+  const parens = [...cell.matchAll(/\(([^)]*)\)/g)].map((g) => g[1]).join(';');
+  const source = parens.split(/;|,(?!\d{3})/).map((s) => s.replace(MONTH_YEAR, '').trim())
+    .find((s) => s && !/^-?[A-Z0-9-]*\d[A-Z0-9-]*$/.test(s) && !/\d\s?(GB|TB)\b/i.test(s) && !/₱|^(starting|out of stock|in stock|sale|regular)\b/i.test(s));
   return { srpPhp: Number(m[1].replace(/,/g, '')), srpSource: source ?? 'Research' };
 }
