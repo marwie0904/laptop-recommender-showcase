@@ -52,4 +52,6 @@ const x1 = spec('thinkpad-x1-carbon-gen-13-aura-edition-2025');
 assert.deepEqual(parsePorts(x1.Ports), ['USB-A', 'USB-A', '2x USB-C', 'HDMI 2.1', 'Headphone / microphone combo jack']);
 assert.equal(repairability(x1.Upgradeability), 'Medium · SSD swappable');
 assert.deepEqual(parsePorts(spec('legion-slim-5-gen-8-2023').Ports), ['2x USB-A 10Gbps', '2x USB-C 10Gbps', 'HDMI 2.1', '4-in-1 card reader', '3.5 mm combo', 'power connector']);
+assert.equal(parseChargerW('90 Wh, 330 W adapter'), 330);
+assert.equal(parseChargerW('Raider A8W 99.9 Wh, 280 W'), 280);
 console.log('research specs ok');

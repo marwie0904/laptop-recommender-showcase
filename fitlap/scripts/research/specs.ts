@@ -25,7 +25,7 @@ export function parseWh(cell: string | undefined): number | null {
 
 /** The first watt figure that isn't Wh: the adapter. */
 export function parseChargerW(cell: string | undefined): number | null {
-  const m = unverified(cell) ? null : cell!.match(/(\d+)\s?W(?!h)\b/);
+  const m = unverified(cell) ? null : cell!.match(/\b(\d+)\s?W(?!h)\b/);
   return m ? Number(m[1]) : null;
 }
 
