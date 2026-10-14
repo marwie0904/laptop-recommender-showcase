@@ -29,8 +29,8 @@ export interface Config {
   code: string;                // globally unique, e.g. "MBP14-M"
   label: string;               // "16 · 512"
   color: string;
-  cpu: { name: string; cores: number; score: number };     // score = Geekbench 6 multi-core
-  gpu: { name: string; vramGb?: number; tgpW?: number; score: number };   // score = 3DMark Steel Nomad Light; tgpW = max GPU watts
+  cpu: { name: string; cores: number; score: number };     // score = Blender Open Data CPU render, median samples/min
+  gpu: { name: string; vramGb?: number; tgpW?: number; score: number };   // score = Blender GPU render (an iGPU without data takes the CPU score); tgpW = max GPU watts
   hw: { cpuBrand: CpuBrand; cpuFamily: string; gpuBrand: GpuBrand; gpuFamily: string };
   ramGb: number;
   storageGb: number;

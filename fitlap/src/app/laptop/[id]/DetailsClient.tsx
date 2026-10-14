@@ -261,9 +261,9 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
               )}
               {view === 2 && (
                 <div className={s.portsView}>
-                  {[laptop.ports.left, laptop.ports.right].map((ports, side) => (
+                  {(laptop.ports.right.length ? [laptop.ports.left, laptop.ports.right] : [laptop.ports.left]).map((ports, side, rails) => (
                     <div key={side} className={s.portSide}>
-                      <span className={s.meta12}>{side ? 'Right side' : 'Left side'}</span>
+                      <span className={s.meta12}>{rails.length === 1 ? 'Ports' : side ? 'Right side' : 'Left side'}</span>
                       <div className={s.portRail}>
                         {ports.map((p, i) => (
                           <span key={i} className={s.port} style={{ animation: `keyIn 450ms cubic-bezier(.2,1.2,.4,1) ${250 + side * 200 + i * 90}ms backwards` }}>

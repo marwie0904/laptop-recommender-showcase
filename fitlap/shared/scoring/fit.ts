@@ -55,8 +55,8 @@ const SIMPLE_ROWS: Record<Axis, [label: string, hint: (b: Brief) => string]> = {
   value: ['Value', () => 'specs per peso'],
 };
 const ADVANCED_ROWS: Record<Dim, [label: string, hint: string]> = {
-  cpu: ['Processor', 'Geekbench 6 vs the catalog'],
-  gpu: ['Graphics', '3DMark vs the catalog'],
+  cpu: ['Processor', 'Blender CPU render vs the catalog'],
+  gpu: ['Graphics', 'Blender GPU render vs the catalog'],
   ram: ['Memory', 'RAM vs the catalog'],
   display: ['Display', 'panel, brightness, refresh, sharpness'],
   battery: ['Battery', 'web browsing hours'],
