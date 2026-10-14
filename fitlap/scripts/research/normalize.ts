@@ -50,6 +50,8 @@ export function cpuHw(name: string): { brand: CpuBrand; family: string } | null 
 /** "10C (4P+6E) / 10T" → 10. */
 export function parseCores(cell: string): number | null {
   if (/^unverified/i.test(cell)) return null;
+  const pe = cell.match(/^\s*(\d+)\s*P\s*\+\s*(\d+)\s*E/);
+  if (pe) return Number(pe[1]) + Number(pe[2]);
   const m = cell.match(/\d+/);
   return m ? Number(m[0]) : null;
 }

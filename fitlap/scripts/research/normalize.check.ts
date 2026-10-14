@@ -93,4 +93,6 @@ assert.equal(parseGpu('10-core GPU', 'Apple M4')?.family, '10-core');
 assert.equal(parseDisplay('16" 2560x1600 Mini LED 240 Hz').panel, 'miniled');
 assert.deepEqual(parseDisplay('16" QHD+ Mini-LED 1,100 nits 240 Hz'), { refreshHz: 240, nits: 1100, nitsEstimated: false, panel: 'miniled', touch: false });
 assert.equal(parseDisplay('14" OLED 500 nits').nits, 500);
+assert.equal(parseCores('4P+4E / 12T'), 8);
+assert.equal(parseCores('8C / 16T'), 8);
 console.log('research normalize ok');
