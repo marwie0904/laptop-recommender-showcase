@@ -56,4 +56,9 @@ assert.deepEqual(scores(table, 'Core i5-1235U', gpu('RTX 4060', 'NVIDIA', 'RTX 4
 assert.deepEqual(scores(table, 'Core i5-1235U', gpu('Iris Xe', 'Intel', 'Iris Xe', false)), { cpu: 34, gpu: 34, gpuEstimated: true }, 'iGPU fallback');
 assert.deepEqual(scores(table, 'Core i5-1235U', gpu('RTX 9999', 'NVIDIA', 'RTX 9999', true)), { cpu: 34, gpu: undefined, gpuEstimated: false }, 'no fallback for a discrete GPU');
 assert.deepEqual(scores(table, 'Core i9-99999H', gpu('Iris Xe', 'Intel', 'Iris Xe', false)), { cpu: undefined, gpu: undefined, gpuEstimated: false });
+const at = { source: '', cpu: { 'm5 max': 294, 'a18 pro': 50 }, gpu: { 'm5 max gpucores40': 3361, 'm5 max gpucores32': 2000 } };
+const t40 = { source: '', cpu: { 'm5 max': 294, 'a18 pro': 50 }, gpu: { 'm5 max gpucores40': 3361 } };
+assert.deepEqual(scores(at, 'Apple M5 Max', gpu('32-core GPU', 'Apple', '32-core', false)), { cpu: 294, gpu: 2000, gpuEstimated: false }, 'exact key unchanged');
+assert.deepEqual(scores(t40, 'Apple M5 Max', gpu('32-core GPU', 'Apple', '32-core', false)), { cpu: 294, gpu: 2689, gpuEstimated: true }, 'scaled from nearest cores');
+assert.deepEqual(scores(t40, 'Apple A18 Pro', gpu('6-core GPU', 'Apple', '6-core', false)), { cpu: 50, gpu: 50, gpuEstimated: true }, 'no gpucores entry: CPU score');
 console.log('research chips ok');

@@ -46,8 +46,8 @@ A shape error or a rejection comes back as the error text. Fix the file and subm
    - `cpu.score` and `gpu.score`: Blender Open Data render speed, the scale every catalog laptop uses. From `fitlap/`, run
      `node scripts/research/score.ts "<CPU>" "<GPU>"` for each config and copy `cpuScore` and `gpuScore`. Cite
      `https://opendata.blender.org/` with the title "Blender Open Data 4.5.0, monster scene, median samples/min" for both.
-   - When it prints `"gpuEstimated": true` (an integrated GPU Blender has no data for), the GPU score is the CPU score:
-     add the flag `"configs.<CODE>.gpu.score is the CPU score (no Blender GPU data)"` to `draft.flags`.
+   - When it prints `"gpuEstimated": true` (Blender has no data for this exact GPU), the GPU score is estimated (Apple: scaled from the nearest GPU core count; others: the CPU score):
+     add the flag `"configs.<CODE>.gpu.score is estimated (no Blender data for this exact GPU)"` to `draft.flags`.
    - When `cpuScore` is null, or `gpuScore` is null for a discrete GPU, Blender has no runs for that chip. Leave the
      config out and add the flag `"<chip> has no Blender score; config left out"` to `draft.flags`.
    - `gpu.tgpW`: max GPU wattage for discrete GPUs (NVIDIA always). Leave it out for integrated GPUs.

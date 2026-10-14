@@ -190,6 +190,6 @@ const RULES: Record<string, string> = {
   build: 'chassis material, category, chip class and thickness',
   'wireless.wifi': 'Wi-Fi 6 assumed',
   'wireless.bt': 'Bluetooth 5.3 assumed',
-  'configs.*.gpu.score': 'no Blender GPU data, so the CPU render score',
+  'configs.*.gpu.score': 'no Blender GPU data for this exact GPU: Apple scaled from the nearest GPU core count, others the CPU render score',
   'configs.*.display.nits': 'typical brightness for the panel type',
 };

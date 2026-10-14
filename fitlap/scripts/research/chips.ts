@@ -87,5 +87,12 @@ export function scores(chips: Chips, cpuName: string, gpu: { name: string; brand
   const cpu: number | undefined = chips.cpu[chipKey(cpuName)];
   const g: number | undefined = chips.gpu[gpu.brand === 'Apple' ? appleGpuKey(cpuName, parseInt(gpu.family)) : chipKey(gpu.name)];
   if (g !== undefined || gpu.discrete || cpu === undefined) return { cpu, gpu: g, gpuEstimated: false };
+  if (gpu.brand === 'Apple') {
+    // No exact core count: scale the same chip's nearest core count.
+    const cores = parseInt(gpu.family), prefix = `${chipKey(cpuName)} gpucores`;
+    const near = Object.keys(chips.gpu).filter((k) => k.startsWith(prefix))
+      .map((k) => ({ n: Number(k.slice(prefix.length)), s: chips.gpu[k] })).sort((a, b) => Math.abs(a.n - cores) - Math.abs(b.n - cores))[0];
+    if (near && cores) return { cpu, gpu: Math.round(near.s * cores / near.n), gpuEstimated: true };
+  }
   return { cpu, gpu: cpu, gpuEstimated: true };
 }
