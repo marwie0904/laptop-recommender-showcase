@@ -1,7 +1,7 @@
 // Run: npm run check
 import assert from 'node:assert/strict';
-import type { Config } from '@shared/catalog';
-import { chipFields } from './configs.ts';
+import type { Config, Laptop } from '@shared/catalog';
+import { chipFields, compareCodes } from './configs.ts';
 
 const base = {
   code: 'A', label: '16 · 512', color: 'Grey',
@@ -34,4 +34,9 @@ assert.deepEqual(chipFields([
 assert.deepEqual(chipFields([cfg('C1', { ramGb: 16 }), cfg('C2', { ramGb: 32 })]), ['ram'], 'fields that never differ are skipped');
 assert.deepEqual(chipFields([cfg('E1', { ramGb: 16, storageGb: 512 }), cfg('E2', { ramGb: 24, storageGb: 1024 })]), ['ram', 'storage'], 'RAM and storage both show when both differ, even if RAM alone tells them apart');
 assert.deepEqual(chipFields([cfg('D1', { color: 'Grey' }), cfg('D2', { color: 'Silver' })]), [], 'nothing on a chip tells them apart');
+const lap = (slug: string, ...codes: string[]) => ({ slug, configs: codes.map((code) => cfg(code, {})) }) as unknown as Laptop;
+const CAT = [lap('a', 'A-16', 'A-32'), lap('b', 'B'), lap('c', 'C'), lap('d', 'D'), lap('e', 'E')];
+assert.deepEqual(compareCodes(['A-32', 'A-16', 'B'], CAT), ['A-32', 'B'], 'one column per model: the first config listed wins');
+assert.deepEqual(compareCodes(['B', 'nope', 'B', 'C'], CAT), ['B', 'C'], 'unknown and repeated codes drop out');
+assert.deepEqual(compareCodes(['A-16', 'B', 'C', 'D', 'E'], CAT), ['A-16', 'B', 'C', 'D'], 'max 4');
 console.log('configs ok');

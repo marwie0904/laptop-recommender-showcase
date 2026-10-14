@@ -10,6 +10,7 @@ import type { Scored } from '@shared/scoring/fit';
 import { SLIM_KG, SLIM_MM } from '@shared/scoring/weights';
 import { getLaptops, rankForBrief, scoreForCode, scoreForDisplay } from '@/lib/catalog';
 import { budgetCap, fmtStorage, USE_CASES } from '@/lib/brief';
+import { compareCodes } from '@/lib/configs';
 import { displayShort, portSummary, wifiLabel } from '@/lib/format';
 import { fmtDate, fmtPhp, newPriceLabel } from '@/lib/price';
 import { CATALOG } from '@/data/catalog';
@@ -43,9 +44,8 @@ const SPEC_ROWS: SpecRow[] = [
   ['OS', (s) => [s.laptop.os, null]],
 ];
 
-const CODES = new Set(getLaptops().flatMap((l) => l.configs.map((c) => c.code)));
-/** Known config codes only, deduped, max 4. Slugs from old links or saved lists drop out here. */
-const clean = (list: string[]) => [...new Set(list)].filter((code) => CODES.has(code)).slice(0, 4);
+/** Known config codes only, one per model, max 4. Slugs from old links or saved lists drop out here. */
+const clean = (list: string[]) => compareCodes(list, getLaptops());
 
 // Scramble decode: 20 ticks of 40ms, p += .05. Glyphs come from a hash instead of Math.random so render stays pure.
 const GLYPHS = '0123456789#%/<>=+×';
@@ -259,7 +259,7 @@ export default function CompareClient() {
                           <span>{rankOf(l)}{i === 0 && ' · Top pick'}</span>
                           <button aria-label={`Remove ${l.model} from compare`} className={`ring ${s.x}`} onClick={() => remove(ids[i])}>×</button>
                         </div>
-                        <Link href={`/laptop/${l.slug}`} aria-label={`${l.model} details`} className={s.pic}>
+                        <Link href={`/laptop/${l.slug}?cfg=${ids[i]}`} aria-label={`${l.model} details`} className={s.pic}>
                           <div className={s.cpic}><LaptopDrawing shape={l.archetype} hot={sc.hot} /></div>
                         </Link>
                         <div className={s.names}>

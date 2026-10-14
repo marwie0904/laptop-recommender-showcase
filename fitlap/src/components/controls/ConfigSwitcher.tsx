@@ -19,14 +19,14 @@ export function ConfigSwitcher({ laptop, brief, value, onChange, style }: Props)
   const fits = (code: string) => scoreForDisplay(laptop, brief, code).passes;
   return (
     <div className={s.wrap} style={style}>
-      <div role="group" aria-label="Configuration" className={s.chips}>
+      <div role="group" aria-label={laptop.model + ' configuration'} className={s.chips}>
         {configChips(laptop.configs).map(([code, text]) => (
           <button
             key={code}
             aria-pressed={code === value}
             title={fits(code) ? undefined : 'Outside your brief'}
             aria-label={fits(code) ? undefined : text + ', outside your brief'}
-            onClick={() => onChange(code)}
+            onClick={() => code !== value && onChange(code)}
             className={code === value ? `${s.chip} ${s.on}` : s.chip}
           >
             <span className={`${s.dot} ${fits(code) ? s.fits : s.out}`} />

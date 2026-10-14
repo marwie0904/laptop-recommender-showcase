@@ -1,4 +1,4 @@
-import type { Config } from '@shared/catalog';
+import type { Config, Laptop } from '@shared/catalog';
 
 export type ChipField = 'ram' | 'storage' | 'gpu' | 'cpu' | 'display';
 
@@ -24,4 +24,18 @@ export function chipFields(configs: Config[]): ChipField[] {
     used.push(f);
   }
   return used.length && unique() ? used.map(([k]) => k) : [];
+}
+
+/** Compare's columns (?c=): known codes only, one per model (the first listed wins), max 4. */
+export function compareCodes(list: string[], laptops: Laptop[]): string[] {
+  const model = new Map(laptops.flatMap((l) => l.configs.map((c) => [c.code, l.slug] as const)));
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const code of list) {
+    const slug = model.get(code);
+    if (!slug || seen.has(slug)) continue;
+    seen.add(slug);
+    out.push(code);
+  }
+  return out.slice(0, 4);
 }
