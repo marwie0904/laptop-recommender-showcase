@@ -1,13 +1,13 @@
 # Research Import Design
 
-Date: 2026-10-15. Status: draft for review.
+Date: 2026-10-15. Status: approved; refined on 2026-10-15 after prototyping the parsers against all in-scope files (see "Refinements" at the end).
 
 ## Goal
 
 Replace the 7 sample laptops with the research in `laptop-specs/`. The catalog will hold every 2022–2026 model that has a Philippine new price, and only its priced configs. Fields the research lacks are estimated by importer rules. CPU and GPU scores come from Blender Open Data.
 
 **User decisions this design builds on:**
-- **Scope:** all PH-priced models from 2022–26. That is 333 files today.
+- **Scope:** all PH-priced models from 2022–26. That is 336 files today.
 - **Gaps:** estimated in the importer.
 - **Scores:** Blender Open Data, Blender 4.5.0 (CC0). The snapshot has already been downloaded once.
 
@@ -21,10 +21,10 @@ Replace the 7 sample laptops with the research in `laptop-specs/`. The catalog w
 ## 1. Flow
 
 ```
-laptop-specs/**/*.md ──parse──▶ normalize ──▶ { laptop, configs } per model ──▶ admin/importResearch:check (query, batches of 25)
+laptop-specs/**/*.md ──parse──▶ normalize ──▶ { laptop, configs } per model ──▶ admin/importResearch:check (query, batches of 10)
        │                                                                          │ errors → laptop skipped, flags → report
        └── scripts/research/blender-chips.json (scores)                            ▼
-                                             --dry-run: report only    real run: admin/importResearch:upsertMany (batches of 25)
+                                             --dry-run: report only    real run: admin/importResearch:upsertMany (batches of 10)
                                                                                     then admin/importResearch:archive (published slugs not imported)
                                                                                     then npm run catalog (unchanged)
 ```
@@ -83,12 +83,12 @@ Every skip is per config row. Each one is listed in the report with its file and
 | Cell | Parsed to | Skip when |
 |---|---|---|
 | CPU | `name`: parentheses and vendor words (Intel, AMD, Apple, Qualcomm, ®, ™, "Processor") removed. `hw.cpuBrand` and `hw.cpuFamily` come from the name by pattern, e.g. "Core Ultra 7 155H" → Intel / Core Ultra 7 | family not in `CPU_FAMILIES` after §7 |
-| Cores / Threads | `cpu.cores` = the first integer | no integer |
+| Cores / Threads | `cpu.cores` = the first integer. "Unverified" takes the cores another research row gives the same CPU | no integer anywhere |
 | GPU | `name`, `vramGb` ("8 GB"), `tgpW` ("115W"). "N-core GPU" → Apple / "N-core". Brand and family by pattern, e.g. "RTX 5060" → NVIDIA / RTX 5060, "Iris Xe" → Intel / Iris Xe | "Unverified", or family unknown after §7 |
 | RAM | `ramGb`: the first "N GB" | a range ("8–48 GB"), "Unverified", or no number |
 | Storage | `storageGb`: "512 GB" → 512, "1 TB" → 1024 | a range, "Unverified", or no number |
-| Display | see the rules below this table | no resolution found |
-| PH price | `srpPhp`: the first "₱N,NNN". `srpSource`: the text inside the cell's parentheses before the first comma, else "Research" | no ₱ amount, or the cell contains "US $" (a currency conversion) |
+| Display | see the rules below this table | no resolution in the cell or in Specs "Display options" |
+| PH price | `srpPhp`: the first "₱N,NNN". `srpSource`: the first part of the cell's parentheses that isn't a model code, a date or "starting", else "Research" | no ₱ amount, a "Used ₱" listing, or the cell contains "US $" (a currency conversion) |
 
 **Display rules.**
 - The resolution is the explicit "W x H" in the cell when there is one. Otherwise it comes from a token lookup, longest token first:
@@ -107,20 +107,20 @@ Every skip is per config row. Each one is listed in the report with its file and
 - **Refresh rate:** "NHz", else 60.
 - **Panel:** "OLED" → `oled`. "mini-LED" or "Liquid Retina XDR" → `miniled`. Anything else → `ips`.
 - **Touch:** the word "touch" appears in the cell.
-- **Nits:** "N nits", else 300 for ips, 400 for oled, 1000 for miniled. A defaulted nits value is recorded as estimated.
+- **Nits:** "N nits" in the cell, else in Specs "Display options", else 300 for ips, 400 for oled, 1000 for miniled. A defaulted nits value is recorded as estimated.
 
 ## 4. Scores
 
 **Chip table.** `scripts/research/blender-chips.json` is committed, about 70 KB.
-- It is built once by `scripts/research/build-chips.ts <snapshot.jsonl>`. The 1.9 GB snapshot is not committed.
+- It is built once by `unzip -p opendata-latest.zip | node scripts/research/build-chips.ts`. The 1.9 GB snapshot is not committed.
 - **Records used:**
   - Blender version 4.5.0
   - scene `monster`
   - the median `samples_per_minute` per device name
-  - only devices with at least 5 runs
+  - only chip keys with at least 3 runs (5 would drop the Snapdragon X1P-42 and X1E-78, the Core Ultra 9 386H and 228V, and the A18 Pro)
 - **CPU entries** come from `device_type: CPU`.
 - **GPU entries** take, per device, the highest median across OPTIX, CUDA, METAL, HIP and ONEAPI.
-- **NVIDIA:** only names containing "Laptop GPU" are kept, so laptop chips never match desktop cards.
+- **NVIDIA:** names containing "Laptop GPU" win, so laptop chips never match desktop cards. Desktop runs count only for chips with no laptop runs (RTX 2050, MX).
 - **File header:** the snapshot name, version, scene, the CC0 licence and the attribution URL `https://opendata.blender.org/`.
 
 **Matching.**
@@ -133,6 +133,7 @@ Every skip is per config row. Each one is listed in the report with its file and
 - `cpu.score` is the CPU's median. `gpu.score` is the GPU's median. Both are on the same samples/min scale.
 - **Fallback:** an integrated GPU with no Blender GPU entry takes `gpu.score = cpu.score`. This covers Iris Xe, UHD, Adreno, Radeon 610M/660M and generic "Radeon Graphics". Blender renders on the CPU when no GPU backend exists, so the fallback measures what Blender would actually do. These scores are recorded as estimated.
 - A CPU with no entry, or a discrete GPU with no entry, skips the config.
+- `scores()` in `scripts/research/chips.ts` applies these rules. `scripts/research/score.ts` prints them for one config, for the skill.
 
 **Sources.** Each config gets `configs.<CODE>.cpu.score` and `configs.<CODE>.gpu.score` sources:
 - `url: https://opendata.blender.org/`
@@ -148,14 +149,14 @@ Rows marked **est.** are estimates, recorded as described under "Estimate proven
 | slug | file basename | none |
 | brand, model, family, year, os | frontmatter | none |
 | weightKg | `weight_kg` (first value) → Specs "Weight" (first kg number) | est.: 1.3 / 1.6 / 2.0 / 2.4 kg for <14" / 14–15" / 16" / ≥17" |
-| sizeIn | `screen_sizes_in` (first) → the first display cell's inch value | laptop skipped |
+| sizeIn | the first imported config's display inches → `screen_sizes_in` (first). A file can cover a 14.5" and a 16" model | laptop skipped |
 | dims | Specs "Dimensions", first "W x D x H mm" | est.: W and D from `sizeIn` for a 16:10 panel plus a 10 mm bezel; H 16 mm (ultrabook), 18 mm (mainstream, business, budget, 2-in-1), 22 mm (creator, workstation), 24 mm (gaming) |
 | metal | any `chassis_material` term names aluminium, aluminum, magnesium, ceraluminum, carbon or metal and does not contain "lid" | none |
 | twoInOne | `category` includes 2-in-1 | none |
 | ports | Specs "Ports", split on commas and semicolons, all into `left`, `right: []` | `[]` |
 | wireless.wifi | Specs "Wireless": "Wi-Fi 7/6E/6/5" | est.: '6' |
 | wireless.bt | "Bluetooth N.N" | est.: '5.3' |
-| webcam | Specs "Webcam / biometrics" | "Not listed" |
+| webcam | Specs "Webcam / biometrics", first sentence, at most 80 characters | "Not listed" |
 | battery.wh | Specs "Battery", first "N Wh" | est.: budget 42, mainstream, business or 2-in-1 55, ultrabook or creator 65, gaming or workstation 80 |
 | battery.chargerW | Specs "Battery", first "N W" that is not Wh | est.: by chip class (below): 65 / 65 / 100, or 200 with a discrete GPU |
 | battery.fastChargeMin | always est. | 30 for arm, 35 for low, 40 for high |
@@ -163,9 +164,9 @@ Rows marked **est.** are estimates, recorded as described under "Estimate proven
 | battery.hoursByUse | always est. | rule below |
 | build scores, overall | always est. | rule below |
 | build.chassis | `chassis_material` joined | "Not listed" |
-| build.repairability | Specs "Upgradeability" | "Not listed" |
+| build.repairability | Specs "Upgradeability" as the seed's label: "High · RAM and SSD swappable", "Medium · SSD swappable", "Medium · RAM swappable" or "Low · soldered RAM and SSD" | "Not listed" |
 | build.warrantyYears | always est. | 1 |
-| specNotes | Specs rows: cpu ← "CPU options", gpu ← "GPU options", ram ← RAM, storage ← Storage, display ← "Display options", ports ← Ports, wireless ← Wireless, webcam ← "Webcam / biometrics", os ← OS, size ← Dimensions + " · " + Weight | "Not listed" |
+| specNotes | Specs rows: cpu ← "CPU options", gpu ← "GPU options", ram ← RAM, storage ← Storage, display ← "Display options", ports ← Ports, wireless ← Wireless, webcam ← "Webcam / biometrics", os ← OS, each the first sentence at most 120 characters. size ← "W × D × H mm, N kg" from the parsed or estimated values, "(estimated)" when either is | "Not listed" |
 | summary | first paragraph after the H1 | "" (reported) |
 | weakness | "Dealbreakers" bullet | "" (reported) |
 | visual.archetype | rule below | none |
@@ -240,7 +241,7 @@ The report lists them too.
 - **color:** "Default".
 - **usedOnly:** false.
 - **price.srpPhp, srpSource:** as in §3. **srpSeenAt:** `last_verified`.
-- **price.usedPhp:** `estimateUsedPhp(srpPhp, "<year>-06", cls, today)`.
+- **price.usedPhp:** `estimateUsedPhp(srpPhp, released, cls, today)`, where `released` is `release_date` when it is YYYY-MM, else "<year>-06".
   - cls is `mac` for Apple, `gaming` for gaming, `premium` for business, creator, ultrabook or workstation, else `mainstream`.
   - usedKind `'estimate'`, usedSource "Estimate from SRP and age", usedSeenAt today.
 
@@ -261,7 +262,7 @@ The exact list comes from the dry-run report's "unknown family" lines. Unknown f
 
 - **Details Ports view:** when `ports.right` is empty, one rail labelled "Ports" replaces the two side rails.
 - **Score labels:** the `shared/catalog.ts` comments and the Advanced breakdown hints in `shared/scoring/fit.ts` change from Geekbench 6 / 3DMark to "Blender CPU render vs the catalog" and "Blender GPU render vs the catalog".
-- **Skill:** `.claude/skills/draft-laptop/SKILL.md` scores from `blender-chips.json` with the same `chipKey` rules and fallback, and flags fallbacks.
+- **Skill:** `.claude/skills/draft-laptop/SKILL.md` scores each config with `node scripts/research/score.ts`, which applies the importer's rules and fallback, and flags fallbacks.
 - **PLAN.md:** the score lines in the data model (lines 181–182) and the draft rules (line 304) say Blender.
 
 ## 9. Report
@@ -280,6 +281,8 @@ The first dry-run report is reviewed with the user before the first real run.
 
 - **Catalog size:** `catalog.json` grows to an estimated 400–500 KB raw, about 60–80 KB compressed, against PLAN's 150 KB raw budget. The user accepted this with the scope.
 - **Coarse rankings:** estimated battery hours and build scores make those dimensions coarse. Many laptops share values.
+- **Skipped configs:** the prototype imports 235 laptops and 477 of 666 priced configs. 131 skip because Blender has no run for the CPU, mostly 2026 chips (Core Ultra 3xx, 290HX Plus, Ryzen AI 400) and rows without a SKU. A nearest-chip estimate was tried and rejected: it mapped the 15 W Core Ultra 7 355 to the desktop 265.
+- **Chassis gaps:** 136 in-scope files list no chassis material, in frontmatter or Specs. Those laptops get materials 5.5 and `metal: false`, so the "metal" form filter misses them.
 - **Used prices:** they are estimated from today's research price as if it were the launch SRP, so older models come out low.
   - `ponytail:` fixed curve. Replace with real used listings when they exist.
 - **Code stability:** codes follow table row order. Reordering or inserting rows in a research file changes codes on the next import, which breaks saved `?cfg=` and `?c=` links to that model.
@@ -321,3 +324,15 @@ The first dry-run report is reviewed with the user before the first real run.
 - A real run leaves Convex dev with the imported laptops `published` and the 7 old ones `archived`.
 - `npm run catalog` and `npm run build` succeed, and the suite above is green.
 - Results, Details and Compare render imported laptops with Blender-based scores in the browser.
+
+## Refinements (2026-10-15)
+
+Prototyping the importer against all 336 in-scope files changed these details. The sections above already include them.
+- Batches of 10, not 25: one laptop is up to 15 KB of JSON, and `npx convex run` takes its arguments as one argv string.
+- Chip keys need 3 runs, not 5. NVIDIA desktop runs count only for laptop-only chips.
+- Cores, resolution and nits fall back to other research text before skipping or defaulting.
+- "Used ₱" price cells skip the config.
+- `sizeIn` comes from the sold config first.
+- `released` uses `release_date` when present.
+- `repairability`, `webcam` and the `specNotes` values are short labels, not raw rows.
+- `scores()` and `score.ts` give the skill the importer's scoring.
