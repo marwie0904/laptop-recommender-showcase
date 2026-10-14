@@ -28,8 +28,8 @@ ASUS sold several 16-inch Vivobook S models in 2025: the slim S5606CA (Core Ultr
 |---|---|---|---|---|---|---|
 | Snapdragon X X1-26-100 (S3607QA-PL003WSM) | 8C / 8T | Qualcomm Adreno | 16 GB LPDDR5X | 512 GB PCIe 4.0 SSD | 16" 2560x1600 IPS 144Hz | ₱50,995 |
 | AMD Ryzen 7 260 (M3607HA-RP005WSM) | 8C / 16T | AMD Radeon | 16 GB DDR5 | 512 GB SSD | 16" WUXGA IPS 144Hz | ₱55,995 |
-| Intel Core 5 210H / i5-13420H (S3607VA) | 8C / 12T | Intel UHD | 16 GB DDR5 (8+8 SO-DIMM) | 512 GB SSD | 16" WUXGA IPS 144Hz | Unverified |
-| Intel Core Ultra 5 225H / Ultra 7 255H (S3607CA) | 14C/14T / 16C/16T | Intel Arc | 16 GB DDR5 | 512 GB / 1 TB SSD | 16" WUXGA IPS 144Hz | Unverified |
+| Intel Core 5 210H / i5-13420H (S3607VA) | 8C / 12T | Intel UHD | 16 GB DDR5 | 512 GB SSD | 16" WUXGA IPS 144Hz | ₱55,995 (PC Express, Oct 2026) |
+| Intel Core Ultra 5 225H / Ultra 7 255H (S3607CA) | 14C/14T / 16C/16T | Intel Arc | 16 GB DDR5 | 512 GB SSD | 16" WUXGA IPS 144Hz | ₱59,995 (PC Express, Oct 2026) |
 | Snapdragon X X1-26-101 (S5608QA) | 8C / 8T | Qualcomm Adreno | 16 GB LPDDR5X | 512 GB PCIe 4.0 SSD | 16" WUXGA IPS 60Hz | ₱69,995 |
 | Intel Core Ultra 9 285H (S5606CA) | 16C / 16T | Intel Arc | 16 / 32 GB LPDDR5X | 1 TB SSD | 16" 2880x1800 OLED 120Hz | Unverified |
 
@@ -68,3 +68,5 @@ ASUS sold several 16-inch Vivobook S models in 2025: the slim S5606CA (Core Ultr
 - [ASUS PH Vivobook S16 (S5608) product page](https://www.asus.com/ph/laptops/for-home/vivobook/asus-vivobook-s16-s5608-qualcomm/)
 - [ASUS PH Vivobook S16 (S3607) tech specs](https://www.asus.com/ph/laptops/for-home/vivobook/asus-vivobook-s16-s3607/techspec/)
 - [ASUS US Vivobook S16 (S5606) tech specs](https://www.asus.com/us/laptops/for-home/vivobook/asus-vivobook-s-16-oled-s5606/techspec/)
+- [PC Express listing, ₱55,995 (seen 2026-10-15)](https://pcx.com.ph/products/asus-vivobook-s16-s3607va-rp181wsm-90nb1672-m00dd0-intel-core-5-laptop-matte-gray)
+- [PC Express listing, ₱59,995 (seen 2026-10-15)](https://pcx.com.ph/products/asus-vivobook-s16-s3607ca-rp014wsm-90nb16i2-m000h0-intel-core-ultra-5-laptop-matte-gray)

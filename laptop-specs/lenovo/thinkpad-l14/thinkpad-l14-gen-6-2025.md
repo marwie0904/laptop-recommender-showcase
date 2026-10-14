@@ -32,7 +32,7 @@ The ThinkPad L14 Gen 6 is Lenovo's 2025 value-oriented 14-inch fleet laptop, bui
 | Core Ultra 5 235H | 14C (4P+8E+2LPE) / 14T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200 | No PH listing found |
 | Core Ultra 5 235U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | up to 64 GB | see Specs | 1920x1200 | No PH listing found |
 | Core Ultra 7 255H | 16C (6P+8E+2LPE) / 16T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200 | No PH listing found |
-| Core Ultra 7 255U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | up to 64 GB | see Specs | 1920x1200 | No PH listing found |
+| Core Ultra 7 255U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | 16 GB DDR5-5600 | 1 TB SSD | 1920x1200 | ₱112,995 (PC Express, Oct 2026) |
 | Core Ultra 7 265U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | up to 64 GB | see Specs | 1920x1200 | No PH listing found |
 | Ryzen 3 PRO 210 | 4C / 8T | Integrated (AMD Radeon 740M / AMD Radeon 760M / AMD Radeon 780M / AMD Radeon 820M / AMD Radeon 840M / AMD Radeon 860M) | up to 64 GB | see Specs | 1920x1200 | No PH listing found |
 | Ryzen 5 PRO 215 | 6C / 12T | Integrated (AMD Radeon 740M / AMD Radeon 760M / AMD Radeon 780M / AMD Radeon 820M / AMD Radeon 840M / AMD Radeon 860M) | up to 64 GB | see Specs | 1920x1200 | No PH listing found |
@@ -79,3 +79,4 @@ The ThinkPad L14 Gen 6 is Lenovo's 2025 value-oriented 14-inch fleet laptop, bui
 - [Lenovo PH store](https://www.lenovo.com/ph/en/p/laptops/thinkpad/thinkpadl/lenovo-thinkpad-l14-gen-6-14-inch-intel/21s6003vph)
 - [Lenovo PH store](https://www.lenovo.com/ph/en/p/laptops/thinkpad/thinkpadl/lenovo-thinkpad-l14-gen-6-14-inch-intel/len101t0129)
 - [TipidPC marketplace search: thinkpad l14](https://tipidpc.com/search?q=thinkpad+l14&type=items)
+- [PC Express listing, ₱112,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-thinkpad-l14-gen6-21s60067ph-intel-core-ultra-7-laptop-black)

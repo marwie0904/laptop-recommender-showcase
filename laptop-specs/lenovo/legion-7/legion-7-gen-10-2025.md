@@ -27,7 +27,7 @@ Slimmer 16" OLED gaming laptop (PSREF machine Legion 7 16IAX10) with Core Ultra 
 | CPU | Cores / Threads | GPU (TGP) | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
 | Core Ultra 7 255HX | 20C (8P+12E) / 20T | RTX 5060 8GB GDDR7 (115W) | 32 GB DDR5-5600 | 1 TB SSD | 16" 2560x1600 OLED (refresh rate per SKU) | ₱158,995 (83KY001DPH, Glacier White) |
-| Core Ultra 9 275HX | 24C (8P+16E) / 24T | RTX 5070 12GB or 8GB GDDR7 (115W) | up to 32 GB DDR5-5600 / 6400 | 1 TB SSD | 16" 2560x1600 OLED 165 Hz or 240 Hz | Unverified |
+| Core Ultra 9 275HX | 24C (8P+16E) / 24T | RTX 5070 12GB or 8GB GDDR7 (115W) | 32 GB DDR5-5600 | 1 TB SSD | 16" 2560x1600 OLED 165 Hz or 240 Hz | ₱212,995 (PC Express, Oct 2026) |
 | Core Ultra 9 290HX Plus | 24C (8P+16E) / 24T | RTX 5070 (115W) | up to 32 GB DDR5-6400 (CSODIMM) | 1 TB SSD | 16" 2560x1600 OLED | Unverified |
 
 PSREF does not pair CPU, GPU and display per SKU. Only the first row is a verified PH SKU.
@@ -64,3 +64,4 @@ PSREF does not pair CPU, GPU and display per SKU. Only the first row is a verifi
 ## Sources
 - [Lenovo PSREF Legion 7 16IAX10](https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_7_16IAX10/Legion_7_16IAX10_Spec.pdf)
 - [PC Express, Legion 7 16IAX10 (83KY001DPH), Oct 2026](https://pcx.com.ph/search?q=legion+pro+7)
+- [PC Express listing, ₱212,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-legion-7-16iax10-83ky006sph-geforce-rtx-5070-intel-core-ultra-9-laptop-glacier-white)

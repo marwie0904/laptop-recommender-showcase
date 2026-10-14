@@ -27,7 +27,7 @@ last_verified: 2026-10-08
 | CPU | Cores / Threads | GPU (TGP per PSREF) | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
 | Intel Core i5-12450H (15IAH7) | 8C (4P+4E) / 12T | RTX 3050 4GB, 95W / RTX 3050 Ti 4GB, 95W | up to 16 GB DDR5-4800 SODIMM | up to 2x M.2 (512 GB / 1 TB options) | 15.6" FHD IPS 144/165 Hz or 60 Hz | Unverified |
-| Intel Core i5-12500H (15IAH7, 15IAH7H) | 12C (4P+8E) / 16T | RTX 3050 / 3050 Ti 95W (15IAH7); RTX 3060 6GB 140W (15IAH7H) | up to 16 GB (15IAH7) / 32 GB (15IAH7H) DDR5-4800 | as above | as above, or 15.6" WQHD 165 Hz on H | Unverified |
+| Intel Core i5-12500H (15IAH7, 15IAH7H) | 12C (4P+8E) / 16T | RTX 3050 / 3050 Ti 95W (15IAH7); RTX 3060 6GB 140W (15IAH7H) | 16 GB DDR5 | 512 GB SSD | as above, or 15.6" WQHD 165 Hz on H | ₱84,995 (Datablitz, Oct 2026) |
 | Intel Core i7-12700H (15IAH7, 15IAH7H) | 14C (6P+8E) / 20T | RTX 3050 Ti 95W; RTX 3060 / 3070 8GB / 3070 Ti 8GB, 140W (H) | up to 32 GB (H) | as above | 15.6" FHD 165 Hz or WQHD 165 Hz | ₱89,995 (Legion 5i, 15" QHD, RTX 3060, i7-12700H, launch price) |
 | AMD Ryzen 5 6600H (15ARH7, 15ARH7H) | 6C / 12T | RTX 3050 / 3050 Ti 95W; RTX 3060 / 3070 / 3070 Ti 140W (H) | up to 16 GB / 32 GB (H) DDR5-4800 | as above | 15.6" FHD 144/165 Hz or WQHD 165 Hz | Unverified |
 | AMD Ryzen 7 6800H (15ARH7, 15ARH7H) | 8C / 16T | as above | as above | as above | as above | Unverified |
@@ -68,3 +68,4 @@ last_verified: 2026-10-08
 - [Lenovo PSREF Legion 5 15ARH7](https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_5_15ARH7/Legion_5_15ARH7_Spec.pdf)
 - [YugaTech: Lenovo Legion 5i, 5i Pro, 7i, Slim 7i now official (PH launch prices, May 2022)](https://www.yugatech.com/news/lenovo-legion-5i-pro-7i-slim/)
 - [YugaTech: Legion 5i Pro, 5 Pro, 5i, 5 specs now official (Jan 2022)](https://www.yugatech.com/news/lenovo-legion-5i-pro-5-pro-5i-5-specs-now-official/)
+- [Datablitz listing, ₱84,995 (seen 2026-10-15)](https://ecommerce.datablitz.com.ph/products/lenovo-legion-5-15iah7h-82rb005wph-gaming-laptop-storm-grey-15-6-wqhd-i5-12500h-16-gb-ddr5-512-gb-ssd-rtx-3060-windows-11-home-ms-office-h-s-2021-m300-rgb-gaming-mouse-active-gaming-backpack)

@@ -27,7 +27,7 @@ ASUS's cheapest 14-inch Windows laptop line: AMD Ryzen 7020 (E1404FA) or Intel C
 | CPU | Cores / Threads | GPU | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
 | Intel Core i3-N305 (E1404GA) | 8C / 8T | Intel UHD | 8 GB | up to 512 GB PCIe 3.0 SSD | 14" FHD 60Hz | ₱27,995 (starting) |
-| AMD Ryzen 3 7320U (E1404FA) | 4C / 8T | AMD Radeon 610M | 8 GB LPDDR5 | 256 / 512 GB SSD | 14" FHD 60Hz | Unverified |
+| AMD Ryzen 3 7320U (E1404FA) | 4C / 8T | AMD Radeon 610M | 8 GB LPDDR5 | 512 GB SSD | 14" FHD 60Hz | ₱37,999 (Octagon, Oct 2026) |
 | AMD Ryzen 5 7520U (E1404FA) | 4C / 8T | AMD Radeon 610M | 8 / 16 GB LPDDR5 | 512 GB PCIe 3.0 SSD | 14" FHD 60Hz | ₱34,995 (starting) |
 
 ## Specs
@@ -62,3 +62,4 @@ ASUS's cheapest 14-inch Windows laptop line: AMD Ryzen 7020 (E1404FA) or Intel C
 - [ASUS PH Vivobook Go 14 (E1404F) product page](https://www.asus.com/ph/laptops/for-home/vivobook/vivobook-go-14-e1404f/)
 - [ASUS PH Vivobook Go 14 (E1404G) product page](https://www.asus.com/ph/laptops/for-home/vivobook/asus-vivobook-go-14-e1404g/)
 - [ASUS PH Vivobook Go 14 (E1404F) tech specs](https://www.asus.com/ph/laptops/for-home/vivobook/vivobook-go-14-e1404f/techspec/)
+- [Octagon listing, ₱37,999 (seen 2026-10-15)](https://www.octagon.com.ph/products/asus-vivobook-go-14-e1404fa-eb821w-ryzen-3-7320u-8gb-512gb-ssd-14-fhd-win-11-black)

@@ -27,7 +27,7 @@ Flagship 16" gaming laptop with RTX 5070 Ti/5080/5090, a 240 Hz OLED panel, and 
 | CPU | Cores / Threads | GPU (TGP) | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
 | Core Ultra 9 275HX (16IAX10H) | 24C (8P+16E) / 24T | RTX 5080 16GB GDDR7 (175W) | 64 GB DDR5 (SKU 83F5008GPH) | 1 TB SSD | 16" 2560x1600 OLED 240 Hz | ₱265,995 (Villman, 83F5008GPH) |
-| Core Ultra 7 255HX / Ultra 9 275HX / Ultra 9 290HX Plus | 20C or 24C | RTX 5070 Ti 12GB (140W), RTX 5080 (175W) or RTX 5090 24GB (175W) | up to 64 GB DDR5-6400 | 1 TB / 2 TB | 16" 2560x1600 OLED 240 Hz | Unverified |
+| Core Ultra 7 255HX / Ultra 9 275HX / Ultra 9 290HX Plus | 20C or 24C | RTX 5070 Ti 12GB (140W), RTX 5080 (175W) or RTX 5090 24GB (175W) | 64 GB DDR5 | 1 TB SSD | 16" 2560x1600 OLED 240 Hz | ₱264,995 (PC Express, Oct 2026) |
 | Ryzen 9 9955HX / 9955HX3D (16AFR10H) | 16C / 32T | RTX 5070 Ti 12GB (140W) or RTX 5080 16GB (175W) | up to 64 GB DDR5-5600 | 1 TB / 2 TB | 16" 2560x1600 OLED 240 Hz | Unverified |
 
 PSREF does not pair CPU, GPU and storage per SKU; only the first row is a verified PH SKU.
@@ -65,3 +65,4 @@ PSREF does not pair CPU, GPU and storage per SKU; only the first row is a verifi
 - [Lenovo PSREF Legion Pro 7 16IAX10H (6 Jul 2026)](https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_Pro_7_16IAX10H/Legion_Pro_7_16IAX10H_Spec.pdf)
 - [Lenovo PSREF Legion Pro 7 16AFR10H](https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_Pro_7_16AFR10H/Legion_Pro_7_16AFR10H_Spec.pdf)
 - [Villman Lenovo Legion listings (Oct 2026)](https://villman.com/Category-Brand/Notebook-PCs/Lenovo_Legion)
+- [PC Express listing, ₱264,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-legion-pro-7-16iax10h-83f5008gph-geforce-rtx-5080-intel-core-ultra-9-laptop-eclipse-black)

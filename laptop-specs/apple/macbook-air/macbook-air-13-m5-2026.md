@@ -29,7 +29,7 @@ March 2026 fanless 13.6-inch Air with M5, 512 GB base storage, Wi-Fi 7 via Apple
 | Apple M5 | 10C (4P+6E) / 10T | 8-core GPU | 16 GB unified | 512 GB SSD | 13.6" 2560x1664 IPS | ₱89,990 (Apple PH, Oct 2026; launch ₱72,990) |
 | Apple M5 | 10C (4P+6E) / 10T | 10-core GPU | from 16 GB | from 512 GB | 13.6" 2560x1664 IPS | from ₱96,490 (Apple PH from-price for 10-core GPU, Oct 2026) |
 | Apple M5 | 10C (4P+6E) / 10T | 10-core GPU | 16 or 24 GB (listing does not say) | 1 TB SSD | 13.6" 2560x1664 IPS | ₱120,990 and ₱134,990 at Power Mac Center |
-| Apple M5 (build-to-order) | 10C (4P+6E) / 10T | 10-core GPU | up to 32 GB | up to 4 TB | 13.6" 2560x1664 IPS | Unverified |
+| Apple M5 (build-to-order) | 10C (4P+6E) / 10T | 10-core GPU | 16 GB unified | 1 TB SSD | 13.6" 2560x1664 IPS | ₱120,990 (Power Mac Center, Oct 2026) |
 
 ## Specs
 | Spec | Value |
@@ -67,3 +67,4 @@ March 2026 fanless 13.6-inch Air with M5, 512 GB base storage, Wi-Fi 7 via Apple
 - [Gadget Pilipinas: Apple unveils MacBook Air with M5, starts at PHP 72,990](https://www.gadgetpilipinas.net/2026/03/apple-macbook-air-m5-philippines/)
 - [Gadget Pilipinas: Apple raises prices on its MacBook and iPad lineup](https://www.gadgetpilipinas.net/2026/06/apple-price-increase-ph-2026/)
 - [Power Mac Center: MacBook Air catalog](https://powermaccenter.com/collections/macbook-air)
+- [Power Mac Center listing, ₱120,990 (seen 2026-10-15)](https://powermaccenter.com/products/13-inch-macbook-air-mdhj4pp-a)

@@ -29,7 +29,7 @@ Predecessor of the IdeaPad Slim 3 line (marketed as "IdeaPad 3" / "IdeaPad 3i" i
 | Intel Core i3-1215U | 6C (2P+4E) / 8T | Intel UHD | 8 GB DDR4 | 256 GB SSD | 15.6" 1920x1080 | ₱20,995 - ₱29,995 (EasyPC "IdeaPad 3i 15.6"", two listings) |
 | Intel Core i3-1215U | 6C (2P+4E) / 8T | Intel UHD | 8 GB DDR4 | 256 GB SSD | 17.3" HD+ | ₱17,995, was ₱21,000 (EasyPC, 17IAU7) |
 | Intel Core i3-1215U | 6C (2P+4E) / 8T | Intel UHD | 8 GB DDR4 | 512 GB SSD | 15.6" | ₱29,648 (EasyPC, 82RK011XPH) |
-| Intel Core i5-1235U / i7-1255U | 10C (2P+8E) / 12T | Intel Iris Xe | up to 16 GB DDR4-3200 | up to 1 TB | 14" / 15.6" / 17.3" | Unverified |
+| Intel Core i5-1235U / i7-1255U | 10C (2P+8E) / 12T | Intel Iris Xe | 8 GB DDR4 | 512 GB SSD | 14" / 15.6" / 17.3" | ₱47,495 (Datablitz, Oct 2026) |
 | AMD Ryzen 3 5425U / 5 5625U / 7 5825U (15ABA7) | 4C/8T, 6C/12T, 8C/16T | Radeon Graphics | up to 16 GB DDR4-3200 | up to 1 TB | 15.6" 1920x1080 | Unverified |
 
 ## Specs
@@ -67,3 +67,4 @@ Predecessor of the IdeaPad Slim 3 line (marketed as "IdeaPad 3" / "IdeaPad 3i" i
 - [PSREF IdeaPad 3 15ABA7](https://psref.lenovo.com/syspool/Sys/PDF/IdeaPad/IdeaPad_3_15ABA7/IdeaPad_3_15ABA7_Spec.pdf)
 - [EasyPC search "ideapad 3i"](https://easypc.com.ph/search?q=ideapad+3i) (Oct 2026)
 - [EasyPC search "ideapad 3 15iau7"](https://easypc.com.ph/search?q=ideapad+3+15iau7) (Oct 2026)
+- [Datablitz listing, ₱47,495 (seen 2026-10-15)](https://ecommerce.datablitz.com.ph/products/lenovo-ideapad-3-14iau7-82rj003jph-fhd-laptop-arctic-grey-14-fhd-i5-1235u-8gb-ddr4-512gb-ssd-iris-xe-graphics-windows-11-home-ms-office-home-student-2021-lenovo-casual-backpack-b210)

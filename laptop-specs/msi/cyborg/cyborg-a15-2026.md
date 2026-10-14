@@ -27,7 +27,7 @@ AMD Ryzen 100-series version of the 2026 Cyborg 15 with RTX 5050/5060 at 70 W an
 | CPU | Cores / Threads | GPU | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
 | AMD Ryzen 7 (exact SKU Unverified) | Unverified | RTX 5050 8GB 70 W (C1WE-075PH) | Unverified | Unverified | 15.6" FHD 144Hz 100% sRGB IPS-level | ₱103,995 (PC Express, out of stock) |
-| Up to AMD Ryzen 100 series | Unverified | RTX 5060 8GB 70 W (C1WF) | DDR5-4800 | Unverified | 15.6" FHD 144Hz 100% sRGB IPS-level | Unverified |
+| Up to AMD Ryzen 100 series | Unverified | RTX 5060 8GB 70 W (C1WF) | 16 GB DDR5-4800 | 512 GB M.2 NVMe SSD | 15.6" FHD 144Hz 100% sRGB IPS-level | ₱112,995 (PC Express, Oct 2026) |
 
 ## Specs
 | Spec | Value |
@@ -60,3 +60,4 @@ AMD Ryzen 100-series version of the 2026 Cyborg 15 with RTX 5050/5060 at 70 W an
 ## Sources
 - [MSI Cyborg A15 C1W specification](https://www.msi.com/Laptop/Cyborg-A15-C1WX/Specification)
 - [PC Express](https://pcx.com.ph/)
+- [PC Express listing, ₱112,995 (seen 2026-10-15)](https://pcx.com.ph/products/msi-cyborg-a15-max-c1w-c1wf-074ph-geforce-rtx-5060-amd-ryzen-7-laptop-platinum-gray)

@@ -30,7 +30,7 @@ last_verified: 2026-10-08
 | Ryzen AI 7 450 (15AGP11) | 8C / 16T | RTX 5070 12GB GDDR7, 115W | 16 GB DDR5-5600 | 512 GB PCIe 4.0 | 15.3" WQXGA OLED 165 Hz | ₱167,995 (PC Express, Oct 2026) |
 | Ryzen AI 9 465 (15AGP11) | 10C / 20T | RTX 5060 8GB GDDR7, 115W | 32 GB DDR5-5600 | 1 TB PCIe 4.0 | 15.3" WQXGA OLED 165 Hz | ₱169,995 (PC Express, Oct 2026, Windows 11 Pro) |
 | Core Ultra 7 356H (Intel, 5i) | 16C / 16T | RTX 5060 8GB GDDR7 | 32 GB DDR5-5600 | 1 TB PCIe 4.0 | 15.3" WQXGA OLED 165 Hz | ₱138,995 SRP (Gadget Pilipinas, May 2026). PSREF sheet not found |
-| Core 7 245HX / Core Ultra 7 251HX / Core Ultra 9 290HX Plus (15IAX11) | 14C (6P+8E) / 14T, 18C / 18T, 24C / 24T | RTX 5060 8GB or RTX 5070 12GB GDDR7, 115W | up to 32 GB DDR5-5600 | 512 GB - 2 TB | as above | Unverified |
+| Core 7 245HX / Core Ultra 7 251HX / Core Ultra 9 290HX Plus (15IAX11) | 14C (6P+8E) / 14T, 18C / 18T, 24C / 24T | RTX 5060 8GB or RTX 5070 12GB GDDR7, 115W | 16 GB DDR5-5600 | 512 GB SSD | as above | ₱142,995 (PC Express, Oct 2026) |
 
 ## Specs
 | Spec | Value |
@@ -67,3 +67,4 @@ last_verified: 2026-10-08
 - [Lenovo PSREF Legion 5 15IAX11](https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_5_15IAX11/Legion_5_15IAX11_Spec.pdf)
 - [Gadget Pilipinas: Lenovo Legion 5i Gen 11 (May 2026)](https://www.gadgetpilipinas.net/2026/05/lenovo-legion-5i-gen-11/)
 - [PC Express PH Legion search (Oct 2026)](https://pcx.com.ph/search?q=legion+5)
+- [PC Express listing, ₱142,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-legion-5-15iax11-83vk000qph-geforce-rtx-5060-intel-core-ultra-7-laptop-eclipse-black)

@@ -32,8 +32,8 @@ Entry-level plastic thin-and-light with soldered RAM, sold in Intel U-series, In
 | AMD Ryzen 3 7320U / Ryzen 3 30 (15AMN8) | 4C / 8T | Radeon 610M | 8 GB | 512 GB NVMe | 15.6" 1920x1080 | ₱36,995 - ₱43,995 (PC Express 82XQ00P0PH, 82XQ01MJPH) |
 | Intel Core i3-1315U (15IRU8) | 6C (2P+4E) / 8T | Intel UHD | 8 GB | 512 GB | 15.6" 1920x1080 | ₱36,995 (PC Express 82X700FYPH) |
 | AMD Ryzen 5 7520U (15AMN8, sold as "IdeaPad 3", no backlight) | 4C / 8T | Radeon 610M | 16 GB | 512 GB SSD | 15.6" 1920x1080 | ₱29,995, was ₱30,995 (82XQ00EKPS, EasyPC) |
-| Intel Core i5-12450H (15IAH8) | 8C (4P+4E) / 12T | Intel UHD | 8 / 16 GB LPDDR5-4800 | 256 GB - 1 TB | 15.6" 1920x1080 | Unverified |
-| Intel Core i3-1305U / i5-1335U / i7-1355U etc. (14/15/16IRU8) | up to 10C (2P+8E) / 12T | UHD or Iris Xe (16 GB dual-channel only) | 4 / 8 / 16 GB LPDDR5-4800 | 128 GB UFS or 256 GB - 1 TB | 14" / 15.6" 1080p, 16" 1920x1200 | Unverified |
+| Intel Core i5-12450H (15IAH8) | 8C (4P+4E) / 12T | Intel UHD | 16 GB LPDDR5-4800 | 512 GB SSD | 15.6" 1920x1080 | ₱33,995 (Datablitz, Oct 2026) |
+| Intel Core i3-1305U / i5-1335U / i7-1355U etc. (14/15/16IRU8) | up to 10C (2P+8E) / 12T | UHD or Iris Xe (16 GB dual-channel only) | 8 GB DDR5-4800 | 512 GB SSD | 14" / 15.6" 1080p, 16" 1920x1200 | ₱36,995 (PC Express, Oct 2026) |
 
 ## Specs
 | Spec | Value |
@@ -75,3 +75,5 @@ Entry-level plastic thin-and-light with soldered RAM, sold in Intel U-series, In
 - [PSREF IdeaPad Slim 3 16ABR8](https://psref.lenovo.com/syspool/Sys/PDF/IdeaPad/IdeaPad_Slim_3_16ABR8/IdeaPad_Slim_3_16ABR8_Spec.pdf)
 - [PC Express listings via pcx.com.ph search](https://pcx.com.ph/search?q=lenovo+ideapad+slim+3) (Oct 2026)
 - [EasyPC search "ideapad slim 3"](https://easypc.com.ph/search?q=ideapad+slim+3) (Oct 2026)
+- [Datablitz listing, ₱33,995 (seen 2026-10-15)](https://ecommerce.datablitz.com.ph/collections/computer-non-gaming-laptops/products/lenovo-ideapad-slim-3-15iah8-83er00kvph-laptop-arctic-grey-15-6-fhd-1920x1080-ips-i5-12450h-16gb-ram-512gb-ssd-intel-uhd-graphics-windows-11-home-ms-office-home-student-2021-lenovo-casual-backpack-b210)
+- [PC Express listing, ₱36,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-ideapad-3-15iru8-slim-3-82x700fyph-intel-core-i3-laptop-arctic-grey)

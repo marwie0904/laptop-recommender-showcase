@@ -27,7 +27,7 @@ Redesigned 2026 Crosshair 16 with 14th-gen Intel HX (up to Core i9), 115 W RTX 5
 | CPU | Cores / Threads | GPU | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
 | Intel Core i9-14900HX | 24C (8P+16E) / 32T | RTX 5070 8GB 115 W (E14WGK-055PH) | 16 GB DDR5 | 1 TB NVMe | 16" QHD+ 240Hz IPS-level | ₱156,495 (Villman) |
-| Up to Intel Core i9 14th Gen HX | Unverified | RTX 5060 8GB / RTX 5050 8GB 115 W (E14WFK / E14WEK) | DDR5-5600 | Unverified | 16" QHD+ 240Hz IPS-level | Unverified |
+| Up to Intel Core i9 14th Gen HX | Unverified | RTX 5060 8GB / RTX 5050 8GB 115 W (E14WFK / E14WEK) | 16 GB DDR5 | 512 GB M.2 NVMe SSD | 16" QHD+ 240Hz IPS-level | ₱141,995 (PC Express, Oct 2026) |
 
 ## Specs
 | Spec | Value |
@@ -60,3 +60,4 @@ Redesigned 2026 Crosshair 16 with 14th-gen Intel HX (up to Core i9), 115 W RTX 5
 ## Sources
 - [MSI Crosshair 16 HX E14W specification](https://www.msi.com/Laptop/Crosshair-16-HX-E14WX/Specification)
 - [Villman MSI Gaming notebooks](https://villman.com/Category-Brand/Notebook-PCs/MSI_GAMING)
+- [PC Express listing, ₱141,995 (seen 2026-10-15)](https://pcx.com.ph/products/msi-crosshair-16-hx-e14w-e14wfk-207ph-geforce-rtx-5060-intel-core-i7-laptop-core-black)

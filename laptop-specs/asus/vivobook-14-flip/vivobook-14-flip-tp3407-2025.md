@@ -26,7 +26,7 @@ last_verified: 2026-10-08
 ## Configurations
 | CPU | Cores / Threads | GPU | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
-| Intel Core Ultra 5 226V (TP3407SA) | 8C / 8T | Intel Arc | 16 GB LPDDR5X (on package) | 512 GB PCIe 4.0 SSD | 14" WUXGA OLED touch | Unverified |
+| Intel Core Ultra 5 226V (TP3407SA) | 8C / 8T | Intel Arc | 16 GB LPDDR5X (on package) | 512 GB PCIe 4.0 SSD | 14" WUXGA OLED touch | ₱82,995 (Villman, Oct 2026) |
 | Intel Core Ultra 7 256V (TP3407SA) | 8C / 8T | Intel Arc 140V | 16 GB LPDDR5X (on package) | 512 GB / 1 TB PCIe 4.0 SSD | 14" WUXGA OLED touch | ₱62,995 (starting) |
 
 ## Specs
@@ -60,3 +60,4 @@ last_verified: 2026-10-08
 ## Sources
 - [ASUS PH Vivobook 14 Flip (TP3407) product page](https://www.asus.com/ph/laptops/for-home/vivobook/asus-vivobook-14-flip-tp3407/)
 - [ASUS PH Vivobook 14 Flip (TP3407) tech specs](https://www.asus.com/ph/laptops/for-home/vivobook/asus-vivobook-14-flip-tp3407/techspec/)
+- [Villman listing, ₱82,995 (seen 2026-10-15)](https://villman.com/Product-Detail/asus_vivobook-14-flip-tp3407sa-sg275wsm-14in-wuxga-oled-touch--core-ultra-5-226v--16gb-ram--512gb-ssd--intel-arc--win11)

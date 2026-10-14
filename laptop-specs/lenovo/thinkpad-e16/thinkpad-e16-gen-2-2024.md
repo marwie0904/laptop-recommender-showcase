@@ -30,7 +30,7 @@ The ThinkPad E16 Gen 2 is Lenovo's 2024 entry-level 16-inch small-business Think
 | Core Ultra 5 125H | 14C (4P+8E+2LPE) / 18T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200, 2560x1600 | No PH listing found |
 | Core Ultra 5 125U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | up to 64 GB | see Specs | 1920x1200, 2560x1600 | No PH listing found |
 | Core Ultra 5 135U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | up to 64 GB | see Specs | 1920x1200, 2560x1600 | No PH listing found |
-| Core Ultra 7 155H | 16C (6P+8E+2LPE) / 22T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200, 2560x1600 | No PH listing found |
+| Core Ultra 7 155H | 16C (6P+8E+2LPE) / 22T | Intel Arc Graphics | 16 GB DDR5 | 1 TB SSD | 1920x1200, 2560x1600 | ₱119,995 (PC Express, Oct 2026) |
 | Core Ultra 7 155U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | up to 64 GB | see Specs | 1920x1200, 2560x1600 | No PH listing found |
 | Core Ultra 7 165U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | up to 64 GB | see Specs | 1920x1200, 2560x1600 | No PH listing found |
 | Ryzen 3 7335U | 4C / 8T | AMD Radeon 660M | up to 64 GB | see Specs | 1920x1200, 2560x1600 | No PH listing found |
@@ -78,3 +78,4 @@ The ThinkPad E16 Gen 2 is Lenovo's 2024 entry-level 16-inch small-business Think
 - [Lenovo PH store](https://www.lenovo.com/ph/en/p/laptops/thinkpad/thinkpade/lenovo-thinkpad-e16-gen-2-16-inch-amd/21m5cto1wwph1)
 - [Lenovo PH store](https://www.lenovo.com/ph/en/p/laptops/thinkpad/thinkpade/lenovo-thinkpad-e16-gen-2-16-inch-amd/len101t0098)
 - [TipidPC marketplace search: thinkpad e16](https://tipidpc.com/search?q=thinkpad+e16&type=items)
+- [PC Express listing, ₱119,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-thinkpad-e16-gen-2-21mas00700-intel-core-ultra-7-laptop-black)

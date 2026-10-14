@@ -28,7 +28,7 @@ Fanless 13.6-inch ultraportable that introduced the flat-edge Air design with Ma
 |---|---|---|---|---|---|---|
 | Apple M2 | 8C (4P+4E) / 8T | 8-core GPU | 8 GB unified | 256 GB SSD | 13.6" 2560x1664 IPS | ₱69,990 (launch SRP) |
 | Apple M2 | 8C (4P+4E) / 8T | 10-core GPU | 8 GB unified | 512 GB SSD | 13.6" 2560x1664 IPS | ₱87,990 (launch SRP) |
-| Apple M2 (build-to-order) | 8C (4P+4E) / 8T | 8- or 10-core GPU | up to 24 GB | up to 2 TB | 13.6" 2560x1664 IPS | Unverified |
+| Apple M2 (build-to-order) | 8C (4P+4E) / 8T | 8- or 10-core GPU | 16 GB unified | 256 GB SSD | 13.6" 2560x1664 IPS | ₱48,312 (Octagon, Oct 2026) |
 
 ## Specs
 | Spec | Value |
@@ -65,3 +65,4 @@ Fanless 13.6-inch ultraportable that introduced the flat-edge Air design with Ma
 - [Spin.ph: New MacBook Air PH price and release](https://www.spin.ph/life/cars-and-tech/new-macbook-air-ph-price-release-a1017-20220607)
 - [Beyond the Box: MacBook Air 13-inch M2 8GB/512GB](https://beyondthebox.ph/products/apple-macbook-air-m2-chip-8-core-cpu-10-core-gpu-8gb-512gb)
 - [Philstar Life: ₱18,600 discount on MacBook Air](https://philstarlife.com/geeky/984140-p18600-discount-macbook-air-limited-time)
+- [Octagon listing, ₱48,312 (seen 2026-10-15)](https://www.octagon.com.ph/products/apple-mb-air-13-m2-8c8c-16gb-256gb-stl-mc7w4pp-a)

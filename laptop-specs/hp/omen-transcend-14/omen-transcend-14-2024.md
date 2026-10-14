@@ -28,7 +28,7 @@ HP's first 14" Omen: an aluminum ~1.64 kg gaming/creator laptop with Intel Core 
 |---|---|---|---|---|---|---|
 | Intel Core Ultra 7 155H (14-FB0121TX) | 16C (6P+8E+2LPE) / 22T | GeForce RTX 4060 8 GB | 16 GB LPDDR5X | 1 TB SSD | 14" 2880x1800 OLED 120 Hz | ₱124,990 (PC Express) |
 | Intel Core Ultra 9 185H (14-FB0142TX / 14-FB0143TX white) | 16C / 22T | GeForce RTX 4060 8 GB | 32 GB LPDDR5X | 1 TB SSD | 14" 2880x1800 OLED 120 Hz | ₱125,099 (was ₱138,990) (PC Express) |
-| Intel Core Ultra 7 155H (14-fb0014 review) | 16C / 22T | GeForce RTX 4060 8 GB, 65 W | 16 GB LPDDR5x-7467 | 1 TB SSD | 14" 2880x1800 OLED 120 Hz | Not sold in PH (US SKU) |
+| Intel Core Ultra 7 155H (14-fb0014 review) | 16C / 22T | GeForce RTX 4060 8 GB, 65 W | 16 GB LPDDR5x-7467 | 1 TB SSD | 14" 2880x1800 OLED 120 Hz | ₱124,990 (PC Express, Oct 2026) |
 | Intel Core Ultra 7 155H (14-fb) | 16C / 22T | GeForce RTX 4070 8 GB | 32 GB | M.2 SSD | 14" 2880x1800 OLED 120 Hz | Unverified |
 
 ## Specs
@@ -66,3 +66,4 @@ HP's first 14" Omen: an aluminum ~1.64 kg gaming/creator laptop with Intel Core 
 - [Notebookcheck: HP Omen Transcend 14-fb](https://www.notebookcheck.org/HP-Omen-Transcend-14-fb.903562.0.html)
 - [HP Omen Transcend 14 product page (EMEA)](https://www.hp.com/emea_middle_east-en/gaming-pc/laptops/2024-omen-transcend14-intel.html)
 - [PC Express: HP laptops](https://pcx.com.ph/collections/hp-laptops)
+- [PC Express listing, ₱124,990 (seen 2026-10-15)](https://pcx.com.ph/products/hp-omen-transcend-14-fb0121tx-ay2t2pa-geforce-rtx-4060-intel-core-ultra-7-laptop-shadow-black)

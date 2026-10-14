@@ -40,12 +40,12 @@ The ThinkPad E14 Gen 7 is Lenovo's 2025 entry-level 14-inch small-business Think
 | Core 7 250U | 10C (2P+8E) / 12T | Integrated (Intel Graphics / Intel Arc 130T GPU / Intel Arc 140T GPU / Intel Arc Graphics / Intel Arc Graphics 130V / Intel Arc Graphics 140V) | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
 | Core Ultra 5 135H | 14C (4P+8E+2LPE) / 18T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
 | Core Ultra 5 225H | 14C (4P+8E+2LPE) / 14T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
-| Core Ultra 5 225U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
+| Core Ultra 5 225U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | 16 GB DDR5-5600 | 512 GB SSD | 1920x1200, 2880x1800 | ₱117,995 (PC Express, Oct 2026) |
 | Core Ultra 5 228V | 8C (4P+4LPE) / 8T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
 | Core Ultra 5 235U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
 | Core Ultra 5 236V | 8C (4P+4LPE) / 8T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
 | Core Ultra 5 238V | 8C (4P+4LPE) / 8T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
-| Core Ultra 7 255H | 16C (6P+8E+2LPE) / 16T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
+| Core Ultra 7 255H | 16C (6P+8E+2LPE) / 16T | Intel Arc Graphics | 16 GB DDR5-5600 | 1 TB SSD | 1920x1200, 2880x1800 | ₱122,995 (PC Express, Oct 2026) |
 | Core Ultra 7 256V | 8C (4P+4LPE) / 8T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
 | Core Ultra 7 258V | 8C (4P+4LPE) / 8T | Intel Arc Graphics | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
 | Core Ultra 7 265U | 12C (2P+8E+2LPE) / 14T | Intel Graphics | up to 64 GB | see Specs | 1920x1200, 2880x1800 | No PH listing found |
@@ -103,3 +103,5 @@ The ThinkPad E14 Gen 7 is Lenovo's 2025 entry-level 14-inch small-business Think
 - [Lenovo PH store](https://www.lenovo.com/ph/en/p/laptops/thinkpad/thinkpade/lenovo-thinkpad-e14-gen-7-14-inch-amd-laptop/21t0cto1wwph2)
 - [Lenovo PH store](https://www.lenovo.com/ph/en/p/laptops/thinkpad/thinkpade/lenovo-thinkpad-e14-gen-7-14-inch-amd-laptop/21t0cto1wwph3)
 - [TipidPC marketplace search: thinkpad e14](https://tipidpc.com/search?q=thinkpad+e14&type=items)
+- [PC Express listing, ₱117,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-thinkpad-e14-gen-7-21sx004kph-intel-core-ultra-5-laptop-black)
+- [PC Express listing, ₱122,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-thinkpad-e14-gen-7-21sx004qph-intel-core-ultra-7-laptop-black)

@@ -31,7 +31,7 @@ Second-generation 15.6" LOQ entry gaming laptop. Covers PSREF machines LOQ 15IRX
 | AMD Ryzen 5 7235HS (15ARP9, 83JC00JEPH) | 4C / 8T | RTX 4050 6 GB | 12 GB DDR5-4800 | 512 GB SSD | 15.6" 1920x1080 IPS 144Hz | ₱69,995 (PC Express) |
 | AMD Ryzen 5 7235HS (15ARP9) | 4C / 8T | RTX 3050 | 12 GB DDR5 | 512 GB SSD | 15.6" FHD 144Hz | ₱46,875 (EasyPC "SE" listing) |
 | Intel Core i5-12450HX (15IAX9I, 83FQ000BPH) | 8C (4P+4E) / 12T | Intel Arc A530M 4 GB | 8 GB DDR5-4800 | 512 GB SSD | 15.6" FHD 144Hz | ₱41,500 (EasyPC) |
-| Intel Core i5-12450HX / i5-12600HX (15IAX9) | 8C/12T, 12C/16T | RTX 2050 / 3050 / 4050 / 4060 | up to 32 GB DDR5-4800 | 512 GB / 1 TB | 15.6" FHD 144Hz | Unverified |
+| Intel Core i5-12450HX / i5-12600HX (15IAX9) | 8C/12T, 12C/16T | RTX 2050 / 3050 / 4050 / 4060 | 16 GB DDR5 | 512 GB SSD | 15.6" FHD 144Hz | ₱54,995 (PC Express, Oct 2026) |
 | AMD Ryzen 5 8645HS / Ryzen 7 8845HS / 7445HS / Ryzen 5 125 / Ryzen 7 155 (15AHP9) | see Specs | RTX 3050 / 4050 / 4060 | up to 32 GB DDR5-5600 | 512 GB / 1 TB | 15.6" FHD 144Hz or QHD 165Hz | Unverified |
 
 ## Specs
@@ -73,3 +73,4 @@ Second-generation 15.6" LOQ entry gaming laptop. Covers PSREF machines LOQ 15IRX
 - [PC Express search: Lenovo LOQ](https://pcx.com.ph/search?q=lenovo+loq)
 - [DynaQuest search: Lenovo LOQ](https://dynaquestpc.com/search?q=lenovo+loq)
 - [EasyPC search: Lenovo LOQ](https://easypc.com.ph/search?q=lenovo+loq)
+- [PC Express listing, ₱54,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-loq-15iax9e-83lk00bbph-geforce-rtx-3050-intel-core-i5-laptop-luna-grey)

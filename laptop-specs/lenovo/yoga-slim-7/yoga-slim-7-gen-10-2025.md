@@ -28,9 +28,9 @@ last_verified: 2026-10-08
 |---|---|---|---|---|---|---|
 | Intel Core Ultra 5 226V | 8C (4P+4LPE) / 8T | Intel Arc 130V | 16 GB LPDDR5X-8533 | 1 TB SSD | 14" 1920x1200 OLED | ₱77,995 (Villman) / ₱81,995 (PC Express), 83JX00CPPH |
 | Intel Core Ultra 5 228V | 8C (4P+4LPE) / 8T | Intel Arc 130V | 16 / 32 GB LPDDR5X-8533 | 512 GB / 1 TB SSD | 14" 1920x1200 or 2880x1800 OLED | Unverified |
-| Intel Core Ultra 7 256V / 258V | 8C (4P+4LPE) / 8T | Intel Arc 140V | 16 / 32 GB LPDDR5X-8533 | 512 GB / 1 TB SSD | 14" 1920x1200 or 2880x1800 OLED | Unverified |
+| Intel Core Ultra 7 256V / 258V | 8C (4P+4LPE) / 8T | Intel Arc 140V | 32 GB LPDDR5X-8533 | 1 TB SSD | 14" 1920x1200 or 2880x1800 OLED | ₱92,980 (NetCodex Computer Center, Oct 2026) |
 | AMD Ryzen AI 5 330 | 4C / 8T | Radeon 820M | 16 / 32 GB LPDDR5 / LPDDR5X | 512 GB / 1 TB SSD | 14" OLED (as above) | Unverified |
-| AMD Ryzen AI 5 340 / AI 7 345 | 6C / 12T | Radeon 840M | 16 / 32 GB | 512 GB / 1 TB SSD | 14" OLED | Unverified |
+| AMD Ryzen AI 5 340 / AI 7 345 | 6C / 12T | Radeon 840M | 16 GB LPDDR5X-7500 | 512 GB SSD | 14" OLED | ₱107,995 (PC Express, Oct 2026) |
 | AMD Ryzen AI 7 350 | 8C / 16T | Radeon 860M | 16 / 32 GB | 512 GB / 1 TB SSD | 14" OLED | Unverified |
 
 ## Specs
@@ -67,3 +67,5 @@ last_verified: 2026-10-08
 - [Lenovo PSREF Yoga Slim 7 14ILL10 spec PDF](https://psref.lenovo.com/syspool/Sys/PDF/Yoga/Yoga_Slim_7_14ILL10/Yoga_Slim_7_14ILL10_Spec.pdf)
 - [PC Express search: yoga slim](https://pcx.com.ph/search?q=yoga+slim)
 - [Villman Lenovo Yoga listing (PH)](https://villman.com/Category-Brand/Notebook-PCs/Lenovo_Yoga)
+- [NetCodex Computer Center listing, ₱92,980 (seen 2026-10-15)](https://netcodex.ph/product/lenovo-yoga-slim-7-14ill10-14-wuxga-oled-intel-core-ultra-7-258v-32gb-ram-1tb-ssd-wi-fi-7-win-11-83jx00cqph/)
+- [PC Express listing, ₱107,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-yoga-slim-7-14akp10-83jy00b5ph-amd-ryzen-ai-7-laptop-luna-grey)

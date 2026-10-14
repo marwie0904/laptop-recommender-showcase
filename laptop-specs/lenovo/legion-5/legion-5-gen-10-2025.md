@@ -29,9 +29,9 @@ Redesigned 15-inch 16:10 Legion 5 with RTX 50-series GPUs. PSREF machine names: 
 | Core i7-13650HX (15IRX10) | 14C (6P+8E) / 20T | RTX 5050 8GB GDDR7, 115W | 16 GB DDR5-4800 | 512 GB PCIe 4.0 | 15.3" WUXGA IPS 165 Hz | ₱115,995 (PC Express, Oct 2026) |
 | Core i7-14700HX (15IRX10) | 20C (8P+12E) / 28T | RTX 5070 8GB GDDR7, 115W | 16 GB DDR5-5600 | 512 GB PCIe 4.0 | 15.1" WQXGA OLED 165 Hz | ₱131,995 (PC Express, Oct 2026) |
 | Core Ultra 7 255HX (15IAX10) | 20C (8P+12E) / 20T | RTX 5070 8GB GDDR7, 115W | 32 GB DDR5-5600 | 512 GB PCIe 4.0 | 15.1" WQXGA OLED 165 Hz | ₱152,995 (PC Express, Oct 2026) |
-| Core Ultra 9 275HX (15IAX10) | 24C (8P+16E) / 24T | RTX 5050 / 5060 / 5070 (PSREF options) | up to 32 GB | 512 GB / 1 TB | 15.1" WQXGA OLED | Unverified |
+| Core Ultra 9 275HX (15IAX10) | 24C (8P+16E) / 24T | RTX 5050 / 5060 / 5070 (PSREF options) | 32 GB DDR5-5600 | 1 TB SSD | 15.1" WQXGA OLED | ₱162,995 (PC Express, Oct 2026) |
 | Core i7-13645HX / i9-14900HX (15IRX10) | 14C / 20T, 24C / 32T | RTX 5050 / 5060 / 5070 (PSREF options) | up to 32 GB | 512 GB / 1 TB | as above | Unverified |
-| AMD Ryzen 7 260 (15AHP10) | 8C / 16T | RTX 5050 / 5060 8GB GDDR7, 115W | up to 32 GB DDR5-5600 | 512 GB / 1 TB | 15.1" WQXGA OLED or 15.3" WUXGA IPS | Unverified |
+| AMD Ryzen 7 260 (15AHP10) | 8C / 16T | RTX 5050 / 5060 8GB GDDR7, 115W | 16 GB DDR5-5600 | 512 GB SSD | 15.1" WQXGA OLED or 15.3" WUXGA IPS | ₱116,995 (PC Express, Oct 2026) |
 
 ## Specs
 | Spec | Value |
@@ -67,3 +67,5 @@ Redesigned 15-inch 16:10 Legion 5 with RTX 50-series GPUs. PSREF machine names: 
 - [Lenovo PSREF Legion 5 15IAX10](https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_5_15IAX10/Legion_5_15IAX10_Spec.pdf)
 - [Lenovo PSREF Legion 5 15AHP10](https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_5_15AHP10/Legion_5_15AHP10_Spec.pdf)
 - [PC Express PH Legion search (Oct 2026)](https://pcx.com.ph/search?q=legion+5)
+- [PC Express listing, ₱162,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-legion-5-15iax10-83f0007xph-geforce-rtx-5070-intel-core-ultra-9-laptop-eclipse-black)
+- [PC Express listing, ₱116,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-legion-5-15ahp10-83m00051ph-geforce-rtx-5050-amd-ryzen-7-laptop-eclipse-black)

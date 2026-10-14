@@ -27,7 +27,7 @@ AMD Cyborg with 100 W RTX 5050/5060/5070, two M.2 slots and a 180 W adapter.
 | CPU | Cores / Threads | GPU | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
 | AMD Ryzen 7 170 | 8C / 16T | RTX 5060 8GB 100 W (C1WF-074PH) | 16 GB DDR5 | 512 GB NVMe | 15.6" FHD 144Hz 100% sRGB IPS-level | ₱106,995 (Villman) – ₱112,995 (PC Express) |
-| Up to AMD Ryzen 100 series | Unverified | RTX 5070 8GB 100 W (C1WG) / RTX 5050 8GB 100 W (C1WE) | DDR5-4800 | Unverified | 15.6" FHD 144Hz 100% sRGB | Unverified |
+| Up to AMD Ryzen 100 series | Unverified | RTX 5070 8GB 100 W (C1WG) / RTX 5050 8GB 100 W (C1WE) | 16 GB DDR5-4800 | 512 GB M.2 NVMe SSD | 15.6" FHD 144Hz 100% sRGB | ₱103,995 (PC Express, Oct 2026) |
 
 ## Specs
 | Spec | Value |
@@ -61,3 +61,4 @@ AMD Cyborg with 100 W RTX 5050/5060/5070, two M.2 slots and a 180 W adapter.
 - [MSI Cyborg A15 Max C1W specification](https://www.msi.com/Laptop/Cyborg-A15-MAX-C1WX/Specification)
 - [Villman MSI Gaming notebooks](https://villman.com/Category-Brand/Notebook-PCs/MSI_GAMING)
 - [PC Express](https://pcx.com.ph/)
+- [PC Express listing, ₱103,995 (seen 2026-10-15)](https://pcx.com.ph/products/msi-cyborg-a15-c1w-c1we-075ph-geforce-rtx-5050-amd-ryzen-7-laptop-platinum-gray)

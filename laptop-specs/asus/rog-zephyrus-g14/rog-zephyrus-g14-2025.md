@@ -28,7 +28,7 @@ last_verified: 2026-10-08
 |---|---|---|---|---|---|---|
 | AMD Ryzen 9 270 (GA403UH-QS045WSM / QS046WSM) | 8C / 16T | RTX 5050 8 GB, 90W | 16 GB LPDDR5X-7500 | 1 TB PCIe 4.0 SSD | 14" 2880x1800 OLED 120Hz | ₱129,995 (ASUS PH, Oct 2026) |
 | AMD Ryzen AI 9 HX 370 (GA403WM-QS020WSM / QS021WSM / QS059X) | 12C / 24T | RTX 5060 8 GB, 90W | 32 GB LPDDR5X-7500 | 1 TB PCIe 4.0 SSD | 14" 2880x1800 OLED 120Hz | ₱159,995 (launch SRP) |
-| AMD Ryzen AI 9 HX 370 (GA403WP-QS023WSM / QS024WSM) | 12C / 24T | RTX 5070 8 GB, 90W | 32 GB LPDDR5X-7500 | 1 TB PCIe 4.0 SSD | 14" 2880x1800 OLED 120Hz | Unverified |
+| AMD Ryzen AI 9 HX 370 (GA403WP-QS023WSM / QS024WSM) | 12C / 24T | RTX 5070 8 GB, 90W | 32 GB LPDDR5X-7500 | 1 TB PCIe 4.0 SSD | 14" 2880x1800 OLED 120Hz | ₱189,995 (PC Express, Oct 2026) |
 | AMD Ryzen AI 9 HX 370 (GA403WR, other regions) | 12C / 24T | RTX 5070 Ti 12 GB | Unverified | Unverified | 14" 2880x1800 OLED 120Hz | Not listed on ASUS PH |
 
 ## Specs
@@ -66,3 +66,4 @@ last_verified: 2026-10-08
 - [ROG Zephyrus G14 (2025) product page with PH price, ASUS PH](https://rog.asus.com/ph/laptops/rog-zephyrus/rog-zephyrus-g14-2025/)
 - [ASUS ROG 2025 laptops Philippines pricing, Unbox PH](https://unbox.ph/gadget/asus-rog-2025-laptops-philippines/)
 - [TipidPC catalog search](https://tipidpc.com/catalog.php?sec=s&namekeys=zephyrus)
+- [PC Express listing, ₱189,995 (seen 2026-10-15)](https://pcx.com.ph/products/asus-rog-zephyrus-g14-ga403wp-qs023wsm-geforce-rtx-5070-amd-ryzen-ai-9-hx-laptop-eclipse-gray)

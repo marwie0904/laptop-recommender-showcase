@@ -27,7 +27,7 @@ last_verified: 2026-10-08
 | CPU | Cores / Threads | GPU | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
 | Intel Core Ultra 9 200HX (exact SKU Unverified) | Unverified | RTX 5070 8GB 115 W (D2XWGKG-034PH) | Unverified | Unverified | 17" QHD+ 240Hz IPS-level | ₱139,995 (PC Express, out of stock) |
-| Up to Intel Core Ultra 200HX | Unverified | RTX 5060 8GB 115 W (D2XWFKG) | DDR5-6400 | Unverified | 17" QHD+ 240Hz IPS-level | Unverified |
+| Up to Intel Core Ultra 200HX | Unverified | RTX 5060 8GB 115 W (D2XWFKG) | 16 GB DDR5 | 1 TB SSD | 17" QHD+ 240Hz IPS-level | ₱149,490 (NetCodex Computer Center, Oct 2026) |
 
 ## Specs
 | Spec | Value |
@@ -60,3 +60,4 @@ last_verified: 2026-10-08
 ## Sources
 - [MSI Crosshair 17 HX AI D2XW specification](https://www.msi.com/Laptop/Crosshair-17-HX-AI-D2XWX/Specification)
 - [PC Express](https://pcx.com.ph/)
+- [NetCodex Computer Center listing, ₱149,490 (seen 2026-10-15)](https://netcodex.ph/product/msi-crosshair-17-hx-ai-gaming-laptop-17-qhd-240hz-ips-intel-core-ultra-9-275hx-rtx-5060-16gb-1tb-crosshair-17-hx-ai-d2xwfkg-048ph/)

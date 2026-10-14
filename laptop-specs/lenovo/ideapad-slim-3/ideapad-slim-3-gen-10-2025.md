@@ -27,7 +27,7 @@ Budget thin-and-light using 13th-gen Intel H-series chips (Core i5-13420H, i7-13
 | CPU | Cores / Threads | GPU | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
 | Intel Core i5-13420H | 8C (4P+4E) / 12T | Intel UHD Graphics | 8 GB DDR5 | 512 GB NVMe SSD | 15.3" 1920x1200 | ₱44,995 (83K100H5PH, PC Express), ₱47,995 cash / ₱53,795 SRP (DynaQuest, listed Unavailable). 14IRH10 8 GB: ₱45,995 (83K000F0PH, PC Express) |
-| Intel Core i7-13620H | 10C (6P+4E) / 16T | Intel UHD Graphics | Unverified | Unverified | Unverified | Unverified |
+| Intel Core i7-13620H | 10C (6P+4E) / 16T | Intel UHD Graphics | 16 GB LPDDR5-4800 | 512 GB SSD | Unverified | ₱64,995 (PC Express, Oct 2026) |
 | AMD Ryzen 5 7535HS (15ARP10) | 6C / 12T | Radeon 660M | 8 GB DDR5 | 512 GB NVMe | 15.3" | ₱43,995 (83K700KBPH, PC Express) |
 | AMD Ryzen 7 7735HS (15ARP10) | 8C / 16T | Radeon 680M | 8 GB DDR5 | 512 GB NVMe | 15.3" | ₱53,995 (83K700EGPH, PC Express) |
 | AMD Ryzen 7 7735HS / Ryzen 7 170 (15ARP10) | 8C / 16T | Radeon 680M | 16 GB DDR5 | 512 GB NVMe | 15.3" | ₱59,995 - ₱67,995 (83K700HXPH, 83K700RSPH, 83K700V8PH, PC Express) |
@@ -68,3 +68,4 @@ Budget thin-and-light using 13th-gen Intel H-series chips (Core i5-13420H, i7-13
 - [PSREF IdeaPad Slim 3 15ARP10 spec PDF](https://psref.lenovo.com/syspool/Sys/PDF/IdeaPad/IdeaPad_Slim_3_15ARP10/IdeaPad_Slim_3_15ARP10_Spec.pdf) (dated Sep 22 2026)
 - [PC Express listings via pcx.com.ph search](https://pcx.com.ph/search?q=lenovo+ideapad+slim+3) (Oct 2026)
 - [DynaQuest PC search "ideapad slim 3"](https://dynaquestpc.com/search?q=ideapad+slim+3) (Oct 2026)
+- [PC Express listing, ₱64,995 (seen 2026-10-15)](https://pcx.com.ph/products/lenovo-ideapad-3-15irh10-slim-3-83k100a5ph-intel-core-i7-laptop-luna-grey)
