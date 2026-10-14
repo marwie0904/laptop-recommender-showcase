@@ -265,6 +265,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
                     <div key={side} className={s.portSide}>
                       <span className={s.meta12}>{rails.length === 1 ? 'Ports' : side ? 'Right side' : 'Left side'}</span>
                       <div className={s.portRail}>
+                        {!ports.length && <span className={s.meta12}>Not listed</span>}
                         {ports.map((p, i) => (
                           <span key={i} className={s.port} style={{ animation: `keyIn 450ms cubic-bezier(.2,1.2,.4,1) ${250 + side * 200 + i * 90}ms backwards` }}>
                             {p}
