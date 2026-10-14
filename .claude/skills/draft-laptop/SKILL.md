@@ -50,6 +50,7 @@ A shape error or a rejection comes back as the error text. Fix the file and subm
      add the flag `"configs.<CODE>.gpu.score is the CPU score (no Blender GPU data)"` to `draft.flags`.
    - When `cpuScore` is null, or `gpuScore` is null for a discrete GPU, Blender has no runs for that chip. Leave the
      config out and add the flag `"<chip> has no Blender score; config left out"` to `draft.flags`.
+   - `gpu.tgpW`: max GPU wattage for discrete GPUs (NVIDIA always). Leave it out for integrated GPUs.
    - `battery.hoursByUse` (video, web, coding, office, editing, gaming): official claims for video/web, reviews
      for the rest. Mark estimates in the source title ("estimate from <review>").
    - `build` scores 0–10 with a one-line note each, plus `build.overall` (0–10), `chassis`, `repairability`,
