@@ -16,16 +16,21 @@ const reject = (errs: string[]) => {
   if (errs.length) throw new Error('Draft rejected:\n- ' + errs.join('\n- '));
 };
 
+/** Codes that a laptop with another slug already owns, published or archived. */
+export async function codeOwnerErrors(ctx: QueryCtx, slug: string, codes: string[]): Promise<string[]> {
+  const errs: string[] = [];
+  for (const code of codes) {
+    const owner = await ctx.db.query('configs').withIndex('by_code', (q) => q.eq('code', code)).first();
+    const l = owner && (await ctx.db.get(owner.laptopId));
+    if (l && l.slug !== slug) errs.push(`config code ${code} belongs to ${l.slug}`);
+  }
+  return errs;
+}
+
 /** Throws on problems that block a draft. Returns the review flags (the skill's own first). */
 export async function checkDraft(ctx: MutationCtx, d: DraftPayload): Promise<string[]> {
   if (d.kind === 'full') {
-    const errs = fullDraftErrors(d);
-    for (const c of d.configs) {
-      const owner = await ctx.db.query('configs').withIndex('by_code', (q) => q.eq('code', c.code)).first();
-      const l = owner && (await ctx.db.get(owner.laptopId));
-      if (l && l.slug !== d.laptop.slug) errs.push(`config code ${c.code} belongs to ${l.slug}`);
-    }
-    reject(errs);
+    reject([...fullDraftErrors(d), ...(await codeOwnerErrors(ctx, d.laptop.slug, d.configs.map((c) => c.code)))]);
     return [...d.flags, ...fullDraftFlags(d)];
   }
   const laptop = await bySlug(ctx, d.slug);
