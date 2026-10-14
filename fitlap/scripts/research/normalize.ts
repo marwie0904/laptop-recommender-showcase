@@ -148,13 +148,13 @@ const DEFAULT_NITS: Record<Panel, number> = { ips: 300, oled: 400, miniled: 1000
 /** Everything but the resolution, which parseResolution reads (and the importer may take from the Specs row). */
 export function parseDisplay(cell: string): ParsedDisplay {
   const text = cell.split(/\s+or\s+/)[0];
-  const panel: Panel = /oled/i.test(text) ? 'oled' : /mini-?led|liquid retina xdr/i.test(text) ? 'miniled' : 'ips';
+  const panel: Panel = /oled/i.test(text) ? 'oled' : /mini[\s-]?led|liquid retina xdr/i.test(text) ? 'miniled' : 'ips';
   // First option's rate; else the first rate the whole cell states ("A or B 165 Hz", "165 or 240 Hz").
   const hz = text.match(/(\d{2,3})\s?Hz/i) ?? cell.match(/(\d{2,3})(?:\s*(?:or|\/)\s*\d{2,3})*\s?Hz/i);
-  const nits = text.match(/(\d{3,4})\s?nits/i);
+  const nits = text.match(/(\d{1,2},\d{3}|\d{3,4})\s?nits/i);
   return {
     refreshHz: hz ? Number(hz[1]) : 60,
-    nits: nits ? Number(nits[1]) : DEFAULT_NITS[panel],
+    nits: nits ? Number(nits[1].replace(',', '')) : DEFAULT_NITS[panel],
     nitsEstimated: !nits,
     panel,
     touch: /\btouch/i.test(text) && !/non-touch|no touch/i.test(text),

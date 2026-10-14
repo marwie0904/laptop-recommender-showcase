@@ -90,4 +90,7 @@ assert.equal(parsePrice('₱171,920 (32 GB), ₱334,320 (64 GB)')?.srpSource, 'R
 assert.equal(parseGpu('8- or 10-core GPU', 'Apple M4')?.name, '8-core GPU');
 assert.equal(parseGpu('30- or 38-core GPU', 'Apple M4 Max')?.family, '30-core');
 assert.equal(parseGpu('10-core GPU', 'Apple M4')?.family, '10-core');
+assert.equal(parseDisplay('16" 2560x1600 Mini LED 240 Hz').panel, 'miniled');
+assert.deepEqual(parseDisplay('16" QHD+ Mini-LED 1,100 nits 240 Hz'), { refreshHz: 240, nits: 1100, nitsEstimated: false, panel: 'miniled', touch: false });
+assert.equal(parseDisplay('14" OLED 500 nits').nits, 500);
 console.log('research normalize ok');
