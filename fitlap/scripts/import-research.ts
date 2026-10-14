@@ -13,6 +13,10 @@ if (process.env.npm_config_dry_run) {
   console.error('use: npm run import-research -- --dry-run');
   process.exit(1);
 }
+if (process.env.CONVEX_DEPLOY_KEY) {
+  console.error('import-research: CONVEX_DEPLOY_KEY is set; this script only writes the local dev deployment. Unset it and rerun.');
+  process.exit(1);
+}
 
 const DRY = process.argv.includes('--dry-run');
 const BATCH = 10;   // a laptop is up to ~15 KB of JSON, and `npx convex run` takes its args as one argv string
