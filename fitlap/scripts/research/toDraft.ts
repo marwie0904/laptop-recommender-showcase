@@ -53,6 +53,7 @@ export function buildDraft(f: ResearchFile, { chips, today, prefix, coresByChip:
   const skips: Skip[] = [];
   const estimated: string[] = [];
   const configs: DraftConfig[] = [];
+  let anyPrice = false;
   const gpuEstimated = new Set<string>();
   const nitsEstimated = new Set<string>();
   const discrete: boolean[] = [];
@@ -64,6 +65,7 @@ export function buildDraft(f: ResearchFile, { chips, today, prefix, coresByChip:
     const r = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, /^(same|as above)$/i.test(v) ? prev[k] ?? v : v]));
     prev = r;
     if (!/₱\s?[\d,]+/.test(r.price ?? '')) return;   // not a priced config
+    anyPrice = true;
     const skip = (reason: string, cell: string) => void skips.push({ row: row + 1, reason, cell });
     const price = n.parsePrice(r.price);
     if (!price) return skip('price is a used listing or a US$ conversion', r.price);
@@ -112,6 +114,7 @@ export function buildDraft(f: ResearchFile, { chips, today, prefix, coresByChip:
     cpuNames.push(cpuName);
   });
 
+  if (!anyPrice) skips.push({ row: 0, reason: 'no config row has a PH price', cell: f.fm.ph_price_new_php ?? '' });
   if (!configs.length) return { item: null, skips, estimated };
   const cats = fmList(f.fm.category);
   const materials = fmList(f.fm.chassis_material);

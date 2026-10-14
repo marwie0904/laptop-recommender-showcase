@@ -106,7 +106,10 @@ assert.equal(rows({ ...row, ram: 'same', price: '₱1,000' }).item!.configs[1].r
 assert.equal(rows({ ...row, cores: 'Unverified', price: '₱1,000' }).item!.configs[1].cpu.cores, 8);
 assert.deepEqual(rows({ ...row, price: 'Used ₱53,999 (Carousell)' }, { ...row, price: '₱384,900 (US $4,900)' }).skips.map((s) => s.reason),
   ['price is a used listing or a US$ conversion', 'price is a used listing or a US$ conversion']);
-assert.equal(build({ ...x1, configs: [{ ...row, price: 'No PH listing found' }] }).item, null, 'no priced row, no laptop');
+const none = build({ ...x1, configs: [{ ...row, price: 'No PH listing found' }] });
+assert.equal(none.item, null, 'no priced row, no laptop');
+assert.deepEqual(none.skips, [{ row: 0, reason: 'no config row has a PH price', cell: x1.fm.ph_price_new_php ?? '' }]);
+assert.ok(!rows({ ...row, price: 'No PH listing found' }).skips.some((s) => s.reason === 'no config row has a PH price'), 'an unpriced row beside a priced one is not a skip');
 
 // Every built config passes the checks drafts:submit runs.
 for (const b of [t, build(air), build(legion), r]) for (const cfg of b.item!.configs) {
