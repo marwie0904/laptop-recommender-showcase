@@ -27,7 +27,7 @@ last_verified: 2026-10-08
 | CPU | Cores / Threads | GPU | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
 | Intel Core Ultra 9 200HX (exact SKU Unverified) | Unverified | RTX 5070 8GB 115 W (D2XWGKG-034PH) | Unverified | Unverified | 17" QHD+ 240Hz IPS-level | ₱139,995 (PC Express, out of stock) |
-| Up to Intel Core Ultra 200HX | Unverified | RTX 5060 8GB 115 W (D2XWFKG) | 16 GB DDR5 | 1 TB SSD | 17" QHD+ 240Hz IPS-level | ₱149,490 (NetCodex Computer Center, Oct 2026) |
+| Intel Core Ultra 9 275HX | Unverified | RTX 5060 8GB 115 W (D2XWFKG) | 16 GB DDR5 | 1 TB SSD | 17" QHD+ 240Hz IPS-level | ₱149,490 (NetCodex Computer Center, Oct 2026) |
 
 ## Specs
 | Spec | Value |

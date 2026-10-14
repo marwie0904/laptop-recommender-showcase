@@ -27,7 +27,7 @@ Higher-power Cyborg 15: RTX 5050/5060/5070 at 100 W, two M.2 slots and a 180 W a
 | CPU | Cores / Threads | GPU | RAM | Storage | Display | PH price (PHP) |
 |---|---|---|---|---|---|---|
 | Intel Core 7 240H | 10C / 16T | RTX 5070 8GB 100 W (C2WG-251PH) | 16 GB DDR5 | 512 GB NVMe | 15.6" FHD 144Hz 100% sRGB IPS-level | ₱119,995 (Villman) |
-| Intel Core 200H / 13th Gen Core i7 | Unverified | RTX 5060 8GB 100 W (C2WF / C13WF) | 16 GB DDR5 | 512 GB M.2 NVMe SSD | 15.6" FHD 144Hz 100% sRGB | ₱130,995 (PC Express, Oct 2026) |
+| Intel Core 7 240H | Unverified | RTX 5060 8GB 100 W (C2WF / C13WF) | 16 GB DDR5 | 512 GB M.2 NVMe SSD | 15.6" FHD 144Hz 100% sRGB | ₱130,995 (PC Express, Oct 2026) |
 | Intel Core 200H / 13th Gen Core i7 | Unverified | RTX 5050 8GB 100 W (C2WE / C13WE) | 16 GB DDR4 | 512 GB M.2 NVMe SSD | 15.6" FHD 144Hz 100% sRGB | ₱101,995 (PC Express, Oct 2026) |
 
 ## Specs
