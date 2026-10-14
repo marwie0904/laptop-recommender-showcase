@@ -29,7 +29,7 @@ Redesigned, slimmer 2026 Raider 16 (2.45 kg, 21.95–25.85 mm) with Intel Core U
 | Intel Core Ultra 7 251HX | Unverified | Listed by Villman as RTX 5070 Ti 12GB (B2WI-062PH; MSI maps B2WI to RTX 5080, Unverified) | 16 GB DDR5 | 512 GB NVMe | 16" QHD+ 240Hz IPS-level | ₱146,995 (Villman) |
 | Intel Core Ultra 7 251HX | Unverified | RTX 5080 16GB 175 W (B2WI-061PH) | 16 GB DDR5 | 512 GB NVMe | 16" QHD+ 240Hz IPS-level | ₱183,995 (Villman) |
 | Intel Core Ultra 9 275HX | 24C (8P+16E) / 24T | RTX 5080 16GB 175 W (B2WI-054PH) | 16 GB DDR5 | 1 TB NVMe | 16" QHD+ 240Hz | ₱193,995 (Villman) |
-| Intel Core Ultra 7 251HX | Unverified | RTX 5090 24GB 175 W (B2WJ) / RTX 5070 Ti 12GB 140 W (B2WH) | 16 GB DDR5-6400 | 512 GB SSD | 16" QHD+ 240Hz IPS or QHD+ 240Hz OLED | ₱146,995 (Villman, Oct 2026) |
+| Intel Core Ultra 7 251HX | Unverified | RTX 5070 Ti 12GB 140 W (B2WH) | 16 GB DDR5-6400 | 512 GB SSD | 16" QHD+ 240Hz IPS or QHD+ 240Hz OLED | ₱146,995 (Villman, Oct 2026) |
 
 ## Specs
 | Spec | Value |
