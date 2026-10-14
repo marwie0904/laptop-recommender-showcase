@@ -178,8 +178,8 @@ laptops: {
 }
 configs: {                                         // one laptop → many configs; anything that varies by SKU lives here
   laptopId, code /* globally unique, e.g. "MBP14-M" */, label /* "16 · 512" */, color,
-  cpu: { name, cores, score },                     // score = Geekbench 6 multi-core, cited in sources
-  gpu: { name, vramGb?, tgpW?, score },                   // score = 3DMark Steel Nomad Light, cited in sources
+  cpu: { name, cores, score },                     // score = Blender Open Data CPU render speed (samples/min), cited in sources
+  gpu: { name, vramGb?, tgpW?, score },                   // score = Blender Open Data GPU render speed; an iGPU without data takes the CPU score
   ramGb, storageGb,
   display: { resolution: { w, h }, refreshHz, nits, panel: "miniled" | "oled" | "ips", touch },
   hw: { cpuBrand, cpuFamily, gpuBrand, gpuFamily },  // advanced-mode facets; families from shared/hardware.ts
@@ -301,7 +301,7 @@ Drafting runs in your Claude Code session on your existing Claude subscription, 
 3. **Submit to dev.** The skill writes the draft JSON, with `sources[]` on every field, and calls `npx convex run admin/drafts:submit '<json>'` on the **dev** deployment. `drafts.submit` is an internal mutation, so it has no public endpoint.
    - **Validation** runs in the mutation: Zod plus sanity ranges (weight, prices, battery hours). A draft with the wrong shape is rejected with the error, and the skill fixes it in the same session. Values outside the sanity ranges are flagged in review rather than dropped.
    - **Hardware families:** the skill fills each config's `hw` facets. `drafts.submit` rejects a CPU or GPU family that isn't in `shared/hardware.ts`. When a new family shows up (e.g. the next Apple chip), the skill adds it to that file in the same session.
-   - **Scores and codes:** `cpu.score` (Geekbench 6 multi-core) and `gpu.score` (3DMark Steel Nomad Light) are required, and a score borrowed from another laptop with the same chip is flagged. Config codes must be unique across the catalog.
+   - **Scores and codes:** `cpu.score` and `gpu.score` (Blender Open Data render speed, from `scripts/research/score.ts`) are required, and a GPU score that falls back to the CPU score is flagged. Config codes must be unique across the catalog.
 4. **Review on dev.** Run the admin locally (`npm run dev`, pointed at dev). Approving needs the admin key. It shows a field-by-field diff against the published version, with source links and inline edits. Approving writes `laptops` / `configs` / `priceObservations` (source `ai_draft`, `approvedAt`).
 5. **Promote to prod.** Push any `shared/hardware.ts` change first, because the rebuild builds `main`. `scripts/promote.mjs <slug…>` reads each laptop's current state from dev (published or archived, with its configs, price observations and photo) and upserts it into prod with `npx convex run --prod`, matching laptops by `slug` and configs by `code`. Prod copies the photo from its dev storage URL into its own storage. Prod only ever receives approved data. Last, it calls the Vercel deploy hook, and the rebuild pre-renders every laptop page from prod (§3).
 

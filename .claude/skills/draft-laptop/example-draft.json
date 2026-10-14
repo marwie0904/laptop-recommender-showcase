@@ -100,8 +100,8 @@
         },
         {
           "field": "configs.MBP14-M.cpu.score",
-          "url": "https://browser.geekbench.com/",
-          "title": "Geekbench 6 · Apple M4 multi-core (example)",
+          "url": "https://opendata.blender.org/",
+          "title": "Blender Open Data 4.5.0, monster scene, median samples/min (example)",
           "seenAt": "2026-10-11"
         }
       ]
@@ -114,11 +114,11 @@
         "cpu": {
           "name": "Apple M4",
           "cores": 10,
-          "score": 14800
+          "score": 109
         },
         "gpu": {
           "name": "10-core GPU",
-          "score": 3200
+          "score": 536
         },
         "hw": {
           "cpuBrand": "Apple",
