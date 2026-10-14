@@ -17,6 +17,7 @@ import { useFitlap, useHydrated } from '@/store/useFitlap';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import { DotFitChart } from '@/components/charts/DotFitChart';
 import { PriceDelta } from '@/components/price/PriceDelta';
+import { ConfigSwitcher } from '@/components/controls/ConfigSwitcher';
 import { ThemeToggle } from '@/components/controls/ThemeToggle';
 import { Switch } from '@/components/controls/Switch';
 import { Logo } from '@/components/layout/Logo';
@@ -124,6 +125,10 @@ export default function CompareClient() {
     setLeaving(id);
     setPicker(false);
     out.current = setTimeout(() => commit(ids.filter((x) => x !== id)), 420);
+  };
+  const swap = (i: number, code: string) => {
+    if (leaving || code === ids[i]) return;
+    commit(ids.map((x, j) => (j === i ? code : x)));
   };
   const add = (id: string) => {
     if (leaving || ids.length >= 4) return;
@@ -261,6 +266,7 @@ export default function CompareClient() {
                           <span className={s.cname}>{l.model}</span>
                           <span className={s.cfg}>{sc.config.cpu.name} · {sc.config.ramGb} GB · {fmtStorage(sc.config.storageGb)}</span>
                         </div>
+                        <ConfigSwitcher laptop={l} brief={brief} value={ids[i]} onChange={(code) => swap(i, code)} />
                         <div className={s.priceRow}>
                           <div className={s.prices}>
                             <span>{newPriceLabel(sc.config.price)}</span>

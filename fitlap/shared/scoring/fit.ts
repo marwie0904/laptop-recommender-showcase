@@ -144,6 +144,11 @@ export function defaultScore(scores: Map<string, Scored>, l: Laptop): Scored {
   return all.filter((s) => s.price).sort(cheaper)[0] ?? all[0];
 }
 
+/** The config switcher's choice: `code` when it is one of this model's configs, else the model's default. */
+export function pickScore(scores: Map<string, Scored>, l: Laptop, code?: string | null): Scored {
+  return l.configs.some((c) => c.code === code) ? scores.get(code!)! : defaultScore(scores, l);
+}
+
 /** One entry per model with a passing config, best fit first (ties: lower price). */
 export function rankForBrief(catalog: Laptop[], b: Brief): Scored[] {
   const scores = scoreCatalog(catalog, b);

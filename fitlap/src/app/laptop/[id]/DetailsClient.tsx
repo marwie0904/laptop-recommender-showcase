@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import type { UseCase } from '@shared/brief';
 import type { BuildKey, HourKey, Laptop, LaptopDetails, SpecKey } from '@shared/catalog';
 import { USE_HOURS } from '@shared/scoring/weights';
 import { FitBreakdown } from '@/components/charts/FitBreakdown';
+import { ConfigSwitcher } from '@/components/controls/ConfigSwitcher';
 import { ThemeToggle } from '@/components/controls/ThemeToggle';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import { Logo } from '@/components/layout/Logo';
@@ -20,8 +21,8 @@ import s from './details.module.css';
 
 
 const TABS = [['Specs', '#specs'], ['Battery life', '#battery'], ['Build quality', '#build'], ['Prices', '#prices']] as const;
-const VIEWS = ['Front', 'Side', 'Ports', 'Keyboard'];
-const VIEW_TITLES = ['Overview · front', 'Profile · side', 'Ports · left and right', 'Keyboard & trackpad'];
+const VIEWS = ['Front', 'Side', 'Ports', 'Keyboard', 'Photo'];
+const VIEW_TITLES = ['Overview · front', 'Profile · side', 'Ports · left and right', 'Keyboard & trackpad', 'Press photo'];
 const SPECS: [SpecKey, string][] = [
   ['cpu', 'Processor'], ['gpu', 'Graphics'], ['ram', 'Memory'], ['storage', 'Storage'], ['display', 'Display'],
   ['ports', 'Ports'], ['wireless', 'Wireless'], ['webcam', 'Webcam'], ['os', 'OS'], ['size', 'Size'],
@@ -62,6 +63,10 @@ function scramble(str: string, tick: number, offset: number) {
   return out;
 }
 
+// ?cfg= is read on the client only: this static page has no Suspense boundary for useSearchParams (see page.tsx).
+const noSubscribe = () => () => {};
+const cfgParam = () => new URLSearchParams(location.search).get('cfg');
+
 const scrollLinked = (animation: string, range: string): CSSProperties => ({ animation, animationTimeline: 'view()', animationRange: range });
 const lowerFirst = (t: string) => t[0].toLowerCase() + t.slice(1);
 
@@ -78,6 +83,8 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
   const [specsOpen, setSpecsOpen] = useState(false);
   const [view, setView] = useState(0);
   const [vt, setVt] = useState(0);
+  const [picked, setPicked] = useState<string | null>(null);
+  const urlCfg = useSyncExternalStore(noSubscribe, cfgParam, () => null);
 
   // /results returns to this laptop. Wait for rehydration so the persisted value doesn't overwrite it.
   useEffect(() => {
@@ -91,7 +98,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
     return () => clearTimeout(t);
   }, [tick]);
 
-  const scored = scoreForDisplay(laptop, brief);
+  const scored = scoreForDisplay(laptop, brief, picked ?? urlCfg);
   const c = scored.config;
   const checked = priceCheckedAt(c.price);
   const specs = specValues(laptop, c, details);
@@ -108,6 +115,14 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
   const { w, d, h } = laptop.dims;
   const kg = laptop.weightKg.toFixed(2) + ' kg';
   const mm = (n: number) => n.toFixed(1) + ' mm';
+
+  const views = details.photo ? VIEWS : VIEWS.slice(0, -1);
+  const photo = details.photo;
+  const switchConfig = (code: string) => {
+    setPicked(code);
+    history.replaceState(null, '', '?cfg=' + code + location.hash);
+    setTick(0);
+  };
 
   const pickView = (i: number) => {
     if (i === view) return;
@@ -152,6 +167,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
               {c.cpu.name} · {c.ramGb} GB · {fmtStorage(c.storageGb)} · {c.color}
             </span>
           </div>
+          <ConfigSwitcher laptop={laptop} brief={brief} value={c.code} onChange={switchConfig} style={pending} />
           <div className={s.tiles}>
             <div className={`${s.tile} ${s.tileNew}`} style={{ animation: 'rise 600ms cubic-bezier(.2,.9,.2,1) 300ms backwards' }}>
               <span className={s.meta12}>{'SRP · ' + (c.price.srpSource ?? '—')}</span>
@@ -269,10 +285,26 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
                   <span className={s.pad} style={{ animation: 'keyIn 500ms cubic-bezier(.2,.9,.2,1) 700ms backwards' }} />
                 </div>
               )}
+              {/* PLAN §7a: the only place a real photo loads, and only once this view is opened. */}
+              {view === 4 && photo && (
+                <figure className={s.photoView}>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- static export, unoptimized images: a plain img with srcSet does the same */}
+                  <img
+                    src={photo.urlSmall}
+                    srcSet={`${photo.urlSmall} ${Math.min(480, photo.width)}w, ${photo.url} ${photo.width}w`}
+                    sizes="(max-width: 700px) 92vw, 560px"
+                    width={photo.width}
+                    height={photo.height}
+                    alt={`${laptop.model}, press photo`}
+                    className={s.photo}
+                  />
+                  <figcaption className={s.meta12}>Image: {photo.credit}</figcaption>
+                </figure>
+              )}
             </div>
           </div>
           <ScrollRow className={`${s.views} no-scrollbar`}>
-            {VIEWS.map((label, i) => (
+            {views.map((label, i) => (
               <button key={label} aria-pressed={i === view} onClick={() => pickView(i)} className={`${s.view}${i === view ? ' ' + s.viewOn : ''}`}>
                 {label}
               </button>

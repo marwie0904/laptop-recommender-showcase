@@ -7,7 +7,7 @@ import { CPU_FAMILIES, GPU_FAMILIES, isKnownFamily } from './hardware.ts';
 import { compareLabels, goodFor, missesGpu, portCount, wifiRank } from './scoring/compare.ts';
 import { displayRaw, mixHours, percentiles, staticDims } from './scoring/dimensions.ts';
 import { briefPrice, isSlim, passes, sizeBucket } from './scoring/filters.ts';
-import { axisWeights, defaultScore, idealAxes, rankForBrief, scoreCatalog, topPick, verdictFor } from './scoring/fit.ts';
+import { axisWeights, defaultScore, idealAxes, pickScore, rankForBrief, scoreCatalog, topPick, verdictFor } from './scoring/fit.ts';
 import { PERF_MIX, RAW_CEIL, USE_WEIGHTS } from './scoring/weights.ts';
 import { estimateUsedPhp } from './usedPrice.ts';
 
@@ -175,6 +175,12 @@ assert.equal(pick({}), 'M-8', 'the card opens on the cheapest passing config');
 assert.equal(pick({ minRamGb: 16 }), 'M-16', 'skips configs that fail the brief');
 assert.equal(pick({ minRamGb: 64 }), undefined, 'no passing config: the model drops out');
 assert.equal(defaultScore(scoreCatalog([multi, weak], { ...BRIEF, minRamGb: 64 }), multi).config.code, 'M-8', 'opened directly: cheapest priced config');
+const ms = scoreCatalog([multi, weak], { ...BRIEF, minRamGb: 16 });
+assert.equal(pickScore(ms, multi, 'M-32').config.code, 'M-32', 'a picked config is shown');
+assert.equal(pickScore(ms, multi, 'M-8').config.code, 'M-8', 'a pick outside the brief is still shown');
+assert.equal(pickScore(ms, multi, 'WEAK').config.code, 'M-16', "another model's code falls back to the default");
+assert.equal(pickScore(ms, multi, 'NOPE').config.code, 'M-16', 'an unknown code falls back to the default');
+assert.equal(pickScore(ms, multi, null).config.code, 'M-16', 'no pick: the default');
 
 const stranded = mk('stranded', {}, { usedOnly: true, price: { usedPhp: 30_000 } });
 const st = defaultScore(scoreCatalog([stranded, mk('other')], BRIEF), stranded);

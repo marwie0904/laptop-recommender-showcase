@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { DotFitChart } from '@/components/charts/DotFitChart';
 import { FitBreakdown } from '@/components/charts/FitBreakdown';
 import { CompareModal } from '@/components/compare/CompareModal';
+import { ConfigSwitcher } from '@/components/controls/ConfigSwitcher';
 import { ThemeToggle } from '@/components/controls/ThemeToggle';
 import { Loader } from '@/components/feedback/Loader';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
@@ -14,7 +15,7 @@ import { PriceDelta } from '@/components/price/PriceDelta';
 import { rankTag } from '@/components/rail/MatchCard';
 import { Rail } from '@/components/rail/Rail';
 import { DEFAULT_BRIEF, briefSummary, fmtStorage, useLabel } from '@/lib/brief';
-import { goodFor, rankForBrief } from '@/lib/catalog';
+import { goodFor, rankForBrief, scoreForDisplay } from '@/lib/catalog';
 import { fmtDate, fmtPhp, usedEstimateLine } from '@/lib/price';
 import { briefFromParams, briefToParams, sameBrief } from '@shared/briefUrl';
 import { idealAxes } from '@shared/scoring/fit';
@@ -97,6 +98,7 @@ export function ResultsClient() {
   const [whyT, setWhyT] = useState(0);
   const [dens, setDens] = useState(1);
   const [cmpOpen, setCmpOpen] = useState(false);
+  const [picks, setPicks] = useState<Record<string, string>>({}); // slug → config code from the switcher
 
   useEffect(() => {
     if (!loading) return;
@@ -115,7 +117,8 @@ export function ResultsClient() {
     else if (!sameBrief(fromUrl, stored, DEFAULT_BRIEF)) useFitlap.setState({ brief: fromUrl });
   }, [hydrated, fromUrl, stored, router]);
 
-  const ranked = rankForBrief(brief);
+  // Ranked on each model's default config; a switched config changes its card, not its place.
+  const ranked = rankForBrief(brief).map((r) => scoreForDisplay(r.laptop, brief, picks[r.laptop.slug]));
   const idx = Math.max(0, ranked.findIndex((r) => r.laptop.slug === selectedId));
   const cur = ranked[idx];
   // ponytail: advanced mode draws the 4 work-mix axes with no ideal outline until the 8-axis chart is designed (spec §4.6).
@@ -140,7 +143,7 @@ export function ResultsClient() {
   const l = cur.laptop;
   const c = cur.config;
   const p = c.price;
-  const detailsHref = `/laptop/${l.slug}`;
+  const detailsHref = `/laptop/${l.slug}` + (picks[l.slug] ? '?cfg=' + picks[l.slug] : '');
   const next = [...ranked.slice(idx + 1), ...ranked.slice(0, idx)].slice(0, 2);
   const compareHref = '/compare?c=' + [cur, ...next].map((r) => r.config.code).join(',');
   const cfg = c.label;
@@ -160,6 +163,10 @@ export function ResultsClient() {
     setRun((n) => n + 1);
   };
   const openCmp = () => setCmpOpen(true);
+  const switchConfig = (code: string) => {
+    setPicks((p) => ({ ...p, [l.slug]: code }));
+    setTick((n) => n + 1);
+  };
 
   const facts: [string, string][] = [
     ['Model', l.model],
@@ -196,6 +203,7 @@ export function ResultsClient() {
             <span className={s.light}>Match ID</span>
             <span className={s.idLine}><span key={tick} style={tk(0)}><span className={s.idVal}>{c.code}</span></span></span>
           </div>
+          <ConfigSwitcher laptop={l} brief={brief} value={c.code} onChange={switchConfig} />
           <div className={s.facts}>
             {facts.map(([k, v], i) => (
               <div key={k} className={i === 4 ? `${s.fact} ${s.wide}` : s.fact}>

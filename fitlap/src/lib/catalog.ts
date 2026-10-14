@@ -2,7 +2,7 @@ import type { Brief, UseCase } from '@shared/brief';
 import type { Config, Laptop } from '@shared/catalog';
 import { goodFor as goodForIn } from '@shared/scoring/compare';
 import type { Scored } from '@shared/scoring/fit';
-import { defaultScore, rankForBrief as rankIn, scoreCatalog, topPick as topPickIn } from '@shared/scoring/fit';
+import { pickScore, rankForBrief as rankIn, scoreCatalog, topPick as topPickIn } from '@shared/scoring/fit';
 import { LAPTOPS } from '@/data/catalog';
 
 // Data layer: the app reads the catalog only through these.
@@ -25,9 +25,9 @@ export function topPick(brief: Brief): Scored {
   return topPickIn(LAPTOPS, brief);
 }
 
-/** Score for a laptop opened directly (details, compare): its default config, even when the brief excludes it. */
-export function scoreForDisplay(l: Laptop, brief: Brief): Scored {
-  return defaultScore(scoreCatalog(LAPTOPS, brief), l);
+/** Score for a laptop opened directly (details, compare): the picked config if it is this laptop's, else its default, even when the brief excludes it. */
+export function scoreForDisplay(l: Laptop, brief: Brief, code?: string | null): Scored {
+  return pickScore(scoreCatalog(LAPTOPS, brief), l, code);
 }
 
 /** A config's score by its code (compare URLs), even when the brief filters its laptop out. Undefined for an unknown code. */
