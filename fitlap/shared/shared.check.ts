@@ -51,6 +51,22 @@ assert.equal(isKnownFamily('cpu', 'Apple', 'M9'), false, 'unknown family');
 assert.equal(isKnownFamily('gpu', 'Apple', 'RTX 4070'), false, 'family under the wrong brand');
 for (const [brand, list] of [...Object.entries(CPU_FAMILIES), ...Object.entries(GPU_FAMILIES)])
   assert.equal(new Set(list).size, list.length, `${brand}: no duplicate families`);
+// Families the research import needs (spec §7), each at its tier position.
+for (const [kind, brand, family] of [
+  ['cpu', 'Intel', 'N-series'], ['cpu', 'Intel', 'Core i3'], ['cpu', 'Intel', 'Core 3'], ['cpu', 'Intel', 'Core 5'], ['cpu', 'Intel', 'Core 7'],
+  ['cpu', 'Intel', 'Core 9'], ['cpu', 'Intel', 'Core Ultra X7'], ['cpu', 'AMD', 'Athlon'], ['cpu', 'AMD', 'Ryzen 3'], ['cpu', 'Apple', 'A18 Pro'],
+  ['gpu', 'Apple', '5-core'], ['gpu', 'Intel', 'UHD'], ['gpu', 'Intel', 'Graphics'], ['gpu', 'Intel', 'Arc 140T'], ['gpu', 'Intel', 'Arc A370M'],
+  ['gpu', 'Intel', 'Arc A530M'], ['gpu', 'Intel', 'Arc B390'], ['gpu', 'NVIDIA', 'MX'], ['gpu', 'NVIDIA', 'GTX 1650'], ['gpu', 'NVIDIA', 'RTX 2050'],
+  ['gpu', 'NVIDIA', 'RTX 3050 Ti'], ['gpu', 'NVIDIA', 'RTX 3070 Ti'], ['gpu', 'NVIDIA', 'RTX 3080 Ti'], ['gpu', 'NVIDIA', 'RTX A1000'],
+  ['gpu', 'NVIDIA', 'RTX PRO 1000'], ['gpu', 'NVIDIA', 'RTX PRO 2000'], ['gpu', 'AMD', 'Radeon Graphics'], ['gpu', 'AMD', 'Radeon 610M'],
+  ['gpu', 'AMD', 'Radeon 660M'], ['gpu', 'AMD', 'Radeon 740M'], ['gpu', 'AMD', 'Radeon 760M'], ['gpu', 'AMD', 'Radeon 820M'], ['gpu', 'AMD', 'Radeon 840M'],
+  ['gpu', 'AMD', 'Radeon 860M'], ['gpu', 'AMD', 'Radeon 8050S'], ['gpu', 'AMD', 'Radeon RX 6700S'], ['gpu', 'AMD', 'Radeon RX 7600S'], ['gpu', 'AMD', 'Radeon RX 6800S'],
+] as const) assert.equal(isKnownFamily(kind, brand, family), true, `${kind} ${brand} ${family}`);
+const familyBefore = (list: string[], a: string, b: string) => assert.ok(list.indexOf(a) < list.indexOf(b), `${a} before ${b}`);
+familyBefore(CPU_FAMILIES.Intel, 'Core i3', 'Core i5');
+familyBefore(CPU_FAMILIES.Intel, 'Core 5', 'Core i7');
+familyBefore(GPU_FAMILIES.NVIDIA, 'RTX 2050', 'RTX 3050');
+familyBefore(GPU_FAMILIES.AMD, 'Radeon 610M', 'Radeon 680M');
 
 // ── weights ──
 for (const [u, row] of Object.entries(PERF_MIX)) near(Object.values(row).reduce((a, b) => a + b, 0), 1, `PERF_MIX.${u} sums to 1`);
