@@ -1,6 +1,8 @@
 // Run: npm run check
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { parseBt, parseChargerW, parseDims, parseKg, parsePorts, parseWh, parseWifi, repairability, shortNote } from './specs.ts';
+import { parseResearch } from './parse.ts';
 
 assert.equal(parseKg('from 0.986 kg (up to 1.006 kg depending on config)'), 0.986);
 assert.equal(parseKg('Unverified'), null);
@@ -33,4 +35,21 @@ assert.equal(repairability('RAM (SODIMM), SSD (2 slots), Wi-Fi M.2 card'), 'High
 assert.equal(repairability('16": 2 SO-DIMM, 2x SSD, Wi-Fi card. 14.5": 2x SSD, Wi-Fi card, RAM soldered'), 'High · RAM and SSD swappable');
 assert.equal(repairability('RAM: Unverified; SSD: one M.2 slot'), 'Medium · SSD swappable');
 assert.equal(repairability('Unverified'), null);
+assert.equal(parseBt('Wi-Fi 6E, BT 5.1'), '5.1');
+assert.deepEqual(parsePorts('Intel: 2x Thunderbolt 4, HDMI 2.1'), ['2x Thunderbolt 4', 'HDMI 2.1']);
+assert.deepEqual(parsePorts('Right: USB-C 10 Gbps, Left: 1x USB-A'), ['USB-C 10 Gbps', 'USB-A']);
+assert.deepEqual(parsePorts('SD card reader / ARP: 1x USB-A'), ['SD card reader', 'USB-A']);
+assert.deepEqual(parsePorts('2x Thunderbolt 4 with Power Delivery and DisplayPort, HDMI'), ['2x Thunderbolt 4', 'HDMI']);
+assert.deepEqual(parsePorts('HDMI, ' + 'x'.repeat(41)), ['HDMI']);
+assert.equal(repairability('RAM soldered. 1 M.2 2230 slot'), 'Medium · SSD swappable');
+assert.equal(repairability('RAM 2 SO-DIMM (max 32 GB), M.2 2230 SSD, Wi-Fi Unverified'), 'High · RAM and SSD swappable');
+assert.equal(repairability('RAM and Wi-Fi soldered, SSD replaceable'), 'Medium · SSD swappable');
+assert.equal(repairability('RAM fixed; SSD replaceable'), 'Medium · SSD swappable');
+assert.equal(repairability('RAM soldered. SSD Unverified'), null);
+assert.equal(repairability('RAM and SSD soldered'), 'Low · soldered RAM and SSD');
+const spec = (n: string) => parseResearch(n, fs.readFileSync(new URL(`./fixtures/${n}.md`, import.meta.url), 'utf8')).specs;
+const x1 = spec('thinkpad-x1-carbon-gen-13-aura-edition-2025');
+assert.deepEqual(parsePorts(x1.Ports), ['USB-A', 'USB-A', '2x USB-C', 'HDMI 2.1', 'Headphone / microphone combo jack']);
+assert.equal(repairability(x1.Upgradeability), 'Medium · SSD swappable');
+assert.deepEqual(parsePorts(spec('legion-slim-5-gen-8-2023').Ports), ['2x USB-A 10Gbps', '2x USB-C 10Gbps', 'HDMI 2.1', '4-in-1 card reader', '3.5 mm combo', 'power connector']);
 console.log('research specs ok');

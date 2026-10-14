@@ -35,16 +35,21 @@ export function parseWifi(cell: string | undefined): '5' | '6' | '6E' | '7' | nu
 }
 
 export function parseBt(cell: string | undefined): string | null {
-  const m = unverified(cell) ? null : cell!.match(/Bluetooth\s?(\d(?:\.\d)?)/i);
+  const m = unverified(cell) ? null : cell!.match(/(?:Bluetooth|BT)\s?(\d(?:\.\d)?)/i);
   return m ? m[1] : null;
 }
 
-/** Short port labels: semicolon lists split on ";" (commas there are details), others on ","; parentheses, size labels ("16\":"), "1x" and optional or missing ports dropped. */
+/** Short port labels: semicolon lists split on ";" (commas there are details), others on ","; parentheses, size and variant labels ("16\":", "Intel:"), "1x", "with …" details, and optional, missing or over-long items dropped. */
 export function parsePorts(cell: string | undefined): string[] {
   if (unverified(cell)) return [];
   const text = noParens(cell!).split(/\.\s+(?=[A-Z0-9])/)[0];
   const items = text.includes(';') ? text.split(';').map((s) => s.split(',')[0]) : text.split(',');
-  return items.map((s) => s.trim().replace(/^[\d.]+":\s*/, '').replace(/^1x\s+/i, '')).filter((s) => s && !/^(optional|no)\b/i.test(s));
+  return items
+    .flatMap((s) => s.split(/\s\/\s(?=[A-Za-z0-9]+\s?:)/))
+    .map((s) => s.trim())
+    .filter((s) => s && !/^(optional|no)\b/i.test(s))
+    .map((s) => s.replace(/^[\d.]+":\s*/, '').replace(/^[A-Za-z0-9]+\s?:\s*/, '').replace(/^1x\s+/i, '').split(/\s+with\s+/i)[0].trim())
+    .filter((s) => s && s.length <= 40);
 }
 
 /** First sentence, semicolons as commas, at most `max` characters cut at a word. A "Camera:" or model-code label is dropped. */
@@ -54,12 +59,19 @@ export function shortNote(cell: string | undefined, max = 120): string | null {
   return s.length <= max ? s : s.slice(0, s.lastIndexOf(' ', max - 1)) + '…';
 }
 
-/** Specs "Upgradeability" → the seed's "Low · soldered RAM" style. A part is swappable when some clause names it without "soldered". */
+/** Specs "Upgradeability" → the seed's "Low · soldered RAM" style. Clauses split on ";", ". " and ",". A part is swappable when some clause names it without a "soldered"-type word. Low needs both parts stated fixed, otherwise null. */
 export function repairability(cell: string | undefined): string | null {
   if (unverified(cell)) return null;
-  const clauses = cell!.split(/[;.]\s*/);
-  const swappable = (part: RegExp) => clauses.some((c) => part.test(c) && !/soldered|not upgrad|non-upgrad|not replace|unverified/i.test(c));
-  const ram = swappable(/\bRAM\b|DIMM|memory/i);
-  const ssd = swappable(/SSD|M\.2|storage/i);
-  return ram && ssd ? 'High · RAM and SSD swappable' : ssd ? 'Medium · SSD swappable' : ram ? 'Medium · RAM swappable' : 'Low · soldered RAM and SSD';
+  const clauses: string[] = [];
+  let bare = '';
+  for (const c of cell!.split(/;|\.\s+|,/).map((x) => x.trim()).filter(Boolean)) {
+    if (/^(RAM|SSD|memory|storage)$/i.test(c)) bare += c + ', ';
+    else { clauses.push(bare + c); bare = ''; }
+  }
+  const fixed = /soldered|fixed|on-?package|onboard|on board|not upgrad|non-upgrad|not replace/i;
+  const state = (part: RegExp) =>
+    clauses.some((c) => part.test(c) && !fixed.test(c) && !/unverified/i.test(c)) ? 'yes' : clauses.some((c) => part.test(c) && fixed.test(c)) ? 'no' : 'unknown';
+  const ram = state(/\bRAM\b|DIMM|memory/i);
+  const ssd = state(/SSD|M\.2|storage/i);
+  return ram === 'yes' && ssd === 'yes' ? 'High · RAM and SSD swappable' : ssd === 'yes' ? 'Medium · SSD swappable' : ram === 'yes' ? 'Medium · RAM swappable' : ram === 'no' && ssd === 'no' ? 'Low · soldered RAM and SSD' : null;
 }
