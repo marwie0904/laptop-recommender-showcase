@@ -210,7 +210,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
 
         <main className={s.main}>
           <div className={s.viewHead}>
-            <span className={s.label13}>{VIEW_TITLES[view]}</span>
+            <span className={s.label13}>{view === 2 && !laptop.ports.right.length ? 'Ports' : VIEW_TITLES[view]}</span>
             <span className={s.meta13}>
               {w.toFixed(1)} × {d.toFixed(1)} × {mm(h)} · {kg}
             </span>
