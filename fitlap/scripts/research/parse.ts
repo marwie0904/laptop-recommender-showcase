@@ -49,7 +49,7 @@ export function parseResearch(slug: string, text: string): ResearchFile {
   const keys = head.map((h) => COLUMNS.find(([re]) => re.test(h))?.[1] ?? h);
   const configs = rows.map((r) => Object.fromEntries(keys.map((k, i) => [k, r[i] ?? ''])));
   const specs = Object.fromEntries(table(section(body, 'Specs')).slice(1).map(([k, v]) => [k, v ?? '']));
-  const best = section(body, 'Best for').match(/^-\s*(?:\*\*)?Dealbreakers(?:\*\*)?:?(?:\*\*)?\s*(.*)$/m);
+  const best = section(body, 'Best for').match(/^-\s*(?:\*\*)?Dealbreakers?(?:\*\*)?:?(?:\*\*)?\s*(.*)$/m);
   const sources = [...section(body, 'Sources').matchAll(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g)].map(([, title, url]) => ({ title, url }));
   return { slug, fm, intro, configs, specs, dealbreakers: best?.[1].trim() ?? '', sources };
 }

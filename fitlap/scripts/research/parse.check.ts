@@ -35,6 +35,8 @@ assert.equal(legion.configs[0].gpu, 'RTX 4060 8GB (125 W)');
 assert.equal(legion.fm.weight_kg, '1.75');
 // "- Dealbreakers:" without bold.
 assert.match(fixture('macbook-air-13-m4-2025').dealbreakers, /^base 256 GB fills fast/);
+// Singular "- Dealbreaker:" bullet (16 real files use it).
+assert.equal(parseResearch('x', '---\nyear: 2025\n---\n# T\n\nIntro.\n\n## Best for\n\n- **Dealbreaker:** no ports.\n').dealbreakers, 'no ports.');
 
 assert.equal(inScope(x1), true);
 assert.equal(inScope({ ...x1, fm: { ...x1.fm, year: '2021' } }), false, 'before 2022');
