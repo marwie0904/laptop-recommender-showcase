@@ -21,6 +21,7 @@
 /build
 
 # misc
+/import-report.md
 /drafts/
 .DS_Store
 /src/data/generated/
