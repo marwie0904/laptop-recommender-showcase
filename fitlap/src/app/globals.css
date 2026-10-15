@@ -46,7 +46,7 @@ a:hover { color: #C2410C; }
 .ring:hover { border-color: var(--ink) !important; }
 .cta .arw { transition: transform .35s cubic-bezier(.2,.8,.2,1); }
 .cta:hover .arw { transform: translateX(5px); }
-.marq { animation: marquee 38s linear infinite; }
+.marq { animation: marquee 253s linear infinite; }
 .marq:hover { animation-play-state: paused; }
 
 /* Rail: custom scrollbar */
