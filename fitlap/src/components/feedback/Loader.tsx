@@ -13,8 +13,8 @@ const DOTS: CSSProperties[] = Array.from({ length: 225 }, (_, n) => {
     : { width: 3, height: 3, borderRadius: '50%', background: 'var(--faint)', animation: `pulse 1.3s steps(4, end) ${del}s infinite` };
 });
 
-/** Results loading hero: dot diamond, copy and a 1.6 s progress bar. Layout comes from `className`. */
-export function Loader({ className }: { className?: string }) {
+/** Results loading hero: dot diamond, copy and a progress bar that fills in `ms`. Layout comes from `className`. */
+export function Loader({ className, ms = 1600 }: { className?: string; ms?: number }) {
   return (
     <div className={className} role="status">
       <div aria-hidden style={{ display: 'grid', gridTemplateColumns: 'repeat(15, 12px)', gridAutoRows: '12px' }}>
@@ -24,7 +24,7 @@ export function Loader({ className }: { className?: string }) {
       </div>
       <span style={{ fontSize: 15, color: 'var(--sub)' }}>Scoring {CATALOG.stats.laptops.toLocaleString('en-US')} laptops against your brief</span>
       <div style={{ width: 220, height: 2, background: 'var(--line2)', overflow: 'hidden', borderRadius: 2 }}>
-        <div style={{ height: 2, width: '100%', background: 'var(--accent)', transformOrigin: 'left', animation: 'loadbar 1600ms cubic-bezier(.4,0,.2,1) backwards' }} />
+        <div style={{ height: 2, width: '100%', background: 'var(--accent)', transformOrigin: 'left', animation: `loadbar ${ms}ms cubic-bezier(.4,0,.2,1) backwards` }} />
       </div>
     </div>
   );

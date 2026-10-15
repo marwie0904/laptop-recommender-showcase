@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { DotFitChart } from '@/components/charts/DotFitChart';
 import { FitBreakdown } from '@/components/charts/FitBreakdown';
 import { CompareModal } from '@/components/compare/CompareModal';
@@ -22,7 +22,9 @@ import { idealAxes } from '@shared/scoring/fit';
 import { useFitlap, useHydrated } from '@/store/useFitlap';
 import s from './results.module.css';
 
-const LOAD_MS = 1600;
+// Scoring takes a few ms: the first load only shows the loader long enough not to flash. Replay plays it in full.
+const LOAD_MS = 300;
+const REPLAY_MS = 1600;
 const WIDTHS = [170, 200, 240];
 const NAV: [label: string, d: string][] = [
   ['Brief', 'M4 11l8-7 8 7v9h-5v-6H9v6H4z'],
@@ -106,7 +108,7 @@ export function ResultsClient() {
       setLoading(false);
       setTick((n) => n + 1);
       setLoads((n) => n + 1);
-    }, LOAD_MS);
+    }, run ? REPLAY_MS : LOAD_MS);
     return () => clearTimeout(t);
   }, [loading, run]);
 
@@ -116,6 +118,13 @@ export function ResultsClient() {
     // Replace, not merge: a merge would keep stale keys from an older saved brief.
     else if (!sameBrief(fromUrl, stored, DEFAULT_BRIEF)) useFitlap.setState({ brief: fromUrl });
   }, [hydrated, fromUrl, stored, router]);
+
+  // Stable, so tapping a rail card re-renders only the two cards whose selection changed.
+  const pick = useCallback((id: string) => {
+    select(id);
+    setTick((n) => n + 1);
+    setWhyT((n) => n + 1);
+  }, [select]);
 
   // Ranked on each model's default config; a switched config changes its card, not its place.
   const ranked = rankForBrief(brief).map((r) => scoreForDisplay(r.laptop, brief, picks[r.laptop.slug]));
@@ -148,11 +157,6 @@ export function ResultsClient() {
   const compareHref = '/compare?c=' + [cur, ...next].map((r) => r.config.code).join(',');
   const cfg = c.label;
 
-  const pick = (id: string) => {
-    select(id);
-    setTick((n) => n + 1);
-    setWhyT((n) => n + 1);
-  };
   const go = (d: number) => pick(ranked[(idx + d + ranked.length) % ranked.length].laptop.slug);
   const toggleWhy = () => {
     setWhy((w) => !w);
@@ -247,7 +251,7 @@ export function ResultsClient() {
             <span className={s.light}>{`${l.dims.w.toFixed(1)} × ${l.dims.d.toFixed(1)} × ${l.dims.h.toFixed(1)} mm`}</span>
           </div>
           {busy ? (
-            <Loader key={run} className={`${s.hero} ${s.heroCol}`} />
+            <Loader key={run} ms={run ? REPLAY_MS : LOAD_MS} className={`${s.hero} ${s.heroCol}`} />
           ) : (
             <div className={s.hero}>
               <button aria-label="Previous match" className={`ring ${s.arrowBtn}`} onClick={() => go(-1)}>‹</button>

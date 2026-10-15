@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { memo, type CSSProperties } from 'react';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import { PriceDelta } from '@/components/price/PriceDelta';
 import { priceLine } from '@/lib/price';
@@ -16,17 +16,18 @@ interface Props {
   rank: number;
   selected: boolean;
   width: number;
-  onPick: () => void;
+  /** Stable across renders, so only cards whose props change re-render. */
+  onPick: (slug: string) => void;
 }
 
 /** Results rail card: rank, fit, drawing with config pill, name, new/used prices. */
-export function MatchCard({ item, rank, selected, width, onPick }: Props) {
+export const MatchCard = memo(function MatchCard({ item, rank, selected, width, onPick }: Props) {
   const l = item.laptop;
   const c = item.config;
   const medal = MEDALS[rank - 1];
   const cls = [s.card, medal && s.medal, selected && s.sel].filter(Boolean).join(' ');
   return (
-    <button className={cls} style={{ width, '--medal': medal } as CSSProperties} onClick={onPick} aria-pressed={selected}>
+    <button className={cls} style={{ width, '--medal': medal } as CSSProperties} onClick={() => onPick(l.slug)} aria-pressed={selected}>
       <span className={s.top}><span className={medal && s.badge}>{rankTag(rank)}</span><span>{item.fit}%</span></span>
       <LaptopDrawing
         shape={l.archetype}
@@ -46,4 +47,4 @@ export function MatchCard({ item, rank, selected, width, onPick }: Props) {
       <span className={s.coupler} style={{ width: selected ? '44%' : '0%' }} />
     </button>
   );
-}
+});

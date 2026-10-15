@@ -4,6 +4,7 @@ import { goodFor as goodForIn } from '@shared/scoring/compare';
 import type { Scored } from '@shared/scoring/fit';
 import { pickScore, rankForBrief as rankIn, scoreCatalog, topPick as topPickIn } from '@shared/scoring/fit';
 import { LAPTOPS } from '@/data/catalog';
+import { DEFAULT_BRIEF } from '@/lib/brief';
 
 // Data layer: the app reads the catalog only through these.
 
@@ -37,7 +38,8 @@ export function scoreForCode(code: string, brief: Brief): Scored | undefined {
 
 /** Use cases the config is good for (single-use fit ≥ 80). */
 export function goodFor(brief: Brief, code: string): UseCase[] {
-  return goodForIn(LAPTOPS, brief, code);
+  // Single-use fit reads only includeUsed (the rest of the brief only filters), so this keeps it to 12 cached briefs instead of 6 per brief.
+  return goodForIn(LAPTOPS, { ...DEFAULT_BRIEF, includeUsed: brief.includeUsed }, code);
 }
 
 /** The config shown where no brief applies (landing marquee): lowest SRP, else lowest used price. */
