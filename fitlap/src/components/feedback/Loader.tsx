@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { CATALOG } from '@/data/catalog';
 import { bayerAt } from '@/lib/bayer';
 
 const CELL: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' };
@@ -21,7 +22,7 @@ export function Loader({ className }: { className?: string }) {
           <span key={n} style={CELL}><span style={d} /></span>
         ))}
       </div>
-      <span style={{ fontSize: 15, color: 'var(--sub)' }}>Scoring 1,240 laptops against your brief</span>
+      <span style={{ fontSize: 15, color: 'var(--sub)' }}>Scoring {CATALOG.stats.laptops.toLocaleString('en-US')} laptops against your brief</span>
       <div style={{ width: 220, height: 2, background: 'var(--line2)', overflow: 'hidden', borderRadius: 2 }}>
         <div style={{ height: 2, width: '100%', background: 'var(--accent)', transformOrigin: 'left', animation: 'loadbar 1600ms cubic-bezier(.4,0,.2,1) backwards' }} />
       </div>

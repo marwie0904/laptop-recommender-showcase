@@ -414,7 +414,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
               </div>
             );
           })}
-          <span className={s.foot}>Sample data · bars charge in as you scroll</span>
+          <span className={s.foot}>Bars charge in as you scroll</span>
         </div>
       </section>
 
