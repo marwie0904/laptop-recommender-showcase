@@ -1,13 +1,11 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState, type CSSProperties } from 'react';
 import type { Brief } from '@shared/brief';
-import { DEFAULT_BRIEF, USE_CASES, budgetCap, fmtStorage } from '@/lib/brief';
-import { baseConfig, getLaptops, rankForBrief, topPick } from '@/lib/catalog';
+import type { Archetype, Catalog, Price } from '@shared/catalog';
+import { USE_CASES, budgetCap, fmtStorage } from '@/lib/brief';
 import { fmtDate, fmtPhp, priceLine } from '@/lib/price';
-import { CATALOG } from '@/data/catalog';
 import { LaptopDrawing } from '@/components/laptop/LaptopDrawing';
 import { DotFitChart } from '@/components/charts/DotFitChart';
 import { PriceDelta } from '@/components/price/PriceDelta';
@@ -17,23 +15,15 @@ import { Accordion } from '@/components/layout/Accordion';
 import { useFitlap } from '@/store/useFitlap';
 import s from './landing.module.css';
 
-// ── Static data (pure, computed once) ─────────────────────────────────────────
-const LAPTOPS = getLaptops();
-const RANKED = rankForBrief(DEFAULT_BRIEF);
-const TOP = topPick(DEFAULT_BRIEF);
-const HOT = new Set(RANKED.filter((r) => r.hot).map((r) => r.laptop.slug));
-const TOP_PRICE = TOP.config.price;
+// ── Props: scored at build time by page.tsx, so / never loads the catalog ─────
+export type Chip = { slug: string; model: string; archetype: Archetype; hot: boolean; price: Price };
+export type Match = Chip & { fit: number };
+/** A demo brief with its ranking: fit count, best match's axes, top 3. */
+export type Preset = { label: string; hint: string; brief: Brief; count: number; axes: [number, number, number, number]; top: Match[] };
 
-const PRESETS: { label: string; hint: string; brief: Brief }[] = [
-  { label: 'Coding + editing', hint: 'balanced', brief: DEFAULT_BRIEF },
-  { label: 'Gaming', hint: 'GPU first', brief: { ...DEFAULT_BRIEF, uses: ['gaming', '3d'], forms: [], budgetMax: 140_000, minRamGb: 32, minStorageGb: 1024 } },
-  { label: 'Student on a budget', hint: 'value first', brief: { ...DEFAULT_BRIEF, uses: ['work', 'school'], forms: [], budgetMax: 60_000, minRamGb: 8, minStorageGb: 256 } },
-];
-const RANKS = PRESETS.map((p) => rankForBrief(p.brief));
 const AUTO_MS = 4200;
 
 const NAV = [['#demo', 'See it work'], ['#why', 'Why I built it'], ['#faq', 'FAQ']];
-const STATS = [[String(CATALOG.stats.laptops), 'laptops tracked'], [String(CATALOG.stats.sources), 'sources cited'], ['~1 min', 'to your shortlist']];
 const FAQ = [
   { q: 'Where do used prices come from?', a: 'SRP is the brand’s official Philippine price. Used prices are estimates compiled from public sources with AI help, then reviewed by hand. Each laptop shows when its price was last checked.' },
   { q: 'How is fit scored?', a: 'Your use cases weight the specs. Your filters decide what makes the list.' },
@@ -50,7 +40,7 @@ const HERO_SCREEN: CSSProperties = {
   padding: '14px 16px', boxSizing: 'border-box', color: '#FFFFFF',
 };
 
-export function LandingClient() {
+export function LandingClient({ top, marquee, presets, stats }: { top: Match; marquee: Chip[]; presets: Preset[]; stats: Catalog['stats'] }) {
   const [demo, setDemo] = useState({ preset: 0, run: 0 });
   const [auto, setAuto] = useState(true);
   const setBrief = useFitlap((st) => st.setBrief);
@@ -58,21 +48,16 @@ export function LandingClient() {
 
   useEffect(() => {
     if (!auto) return;
-    const t = setInterval(() => setDemo((d) => ({ preset: (d.preset + 1) % PRESETS.length, run: d.run + 1 })), AUTO_MS);
+    const t = setInterval(() => setDemo((d) => ({ preset: (d.preset + 1) % presets.length, run: d.run + 1 })), AUTO_MS);
     return () => clearInterval(t);
-  }, [auto]);
+  }, [auto, presets.length]);
 
   const pick = (i: number) => {
     setAuto(false);
     setDemo((d) => ({ preset: i, run: d.run + 1 }));
   };
 
-  const brief = PRESETS[demo.preset].brief;
-  const ranked = RANKS[demo.preset];
-  const best = ranked.at(0);
-  const axes: [number, number, number, number] = best
-    ? [best.axes.performance, best.axes.portability, best.axes.battery, best.axes.value]
-    : [0, 0, 0, 0];
+  const { brief, count, axes, top: matches } = presets[demo.preset];
   const vals = [['Budget', budgetCap(brief.budgetMax)], ['RAM', brief.minRamGb + ' GB'], ['Storage', fmtStorage(brief.minStorageGb)]];
 
   return (
@@ -101,7 +86,7 @@ export function LandingClient() {
             <div className={s.heroRow}>
               <div className={s.heroCopy}>
                 <span className={s.tag} style={{ animation: 'floatIn 600ms cubic-bezier(.2,.9,.2,1) 100ms backwards' }}>
-                  <span className={s.limeDot} />Prices hand-checked{CATALOG.stats.latestPriceCheck && ' · updated ' + fmtDate(CATALOG.stats.latestPriceCheck)}
+                  <span className={s.limeDot} />Prices hand-checked{stats.latestPriceCheck && ' · updated ' + fmtDate(stats.latestPriceCheck)}
                 </span>
                 <h1 className={s.h1}>
                   <span className={s.line} style={{ animation: 'printIn 900ms cubic-bezier(.7,0,.2,1) 150ms backwards' }}>The right laptop,</span>
@@ -123,8 +108,8 @@ export function LandingClient() {
               <div className={s.heroArt}>
                 <div className={s.hlap} style={{ animation: 'deckHero 900ms cubic-bezier(.2,.9,.2,1) 200ms backwards' }}>
                   <LaptopDrawing
-                    shape={TOP.laptop.archetype}
-                    hot={TOP.hot}
+                    shape={top.archetype}
+                    hot={top.hot}
                     big
                     floor
                     lidStyle={{ animation: 'lidHero 1100ms cubic-bezier(.3,.7,.3,1) 450ms backwards' }}
@@ -132,7 +117,7 @@ export function LandingClient() {
                     screen={
                       <>
                         <span className={s.scrTop}>FITLAP · #01</span>
-                        <span className={s.scrFit}>{TOP.fit}%</span>
+                        <span className={s.scrFit}>{top.fit}%</span>
                         <span className={s.scrFoot}>fit for coding + editing</span>
                       </>
                     }
@@ -141,14 +126,14 @@ export function LandingClient() {
                 <div className={s.tagL} style={{ animation: 'floatIn 600ms cubic-bezier(.2,1.2,.4,1) 1500ms backwards' }}>
                   <div className={s.priceTag} style={{ animation: 'bob 4s ease-in-out 2.2s infinite' }}>
                     <span className={s.tagK}>SRP</span>
-                    <span className={s.tagV}>{TOP_PRICE.srpPhp !== undefined ? fmtPhp(TOP_PRICE.srpPhp) : 'Used only'}</span>
+                    <span className={s.tagV}>{top.price.srpPhp !== undefined ? fmtPhp(top.price.srpPhp) : 'Used only'}</span>
                   </div>
                 </div>
                 <div className={s.tagR} style={{ animation: 'floatIn 600ms cubic-bezier(.2,1.2,.4,1) 1700ms backwards' }}>
                   <div className={`dark-scope ${s.priceTag} ${s.priceTagDark}`} style={{ animation: 'bob 4.6s ease-in-out 2.6s infinite' }}>
                     <span className={`${s.tagK} ${s.tagKDark}`}>Used estimate</span>
                     <span className={s.tagV}>
-                      {TOP_PRICE.usedPhp !== undefined ? fmtPhp(TOP_PRICE.usedPhp) : '—'} <PriceDelta price={TOP_PRICE} size={14} />
+                      {top.price.usedPhp !== undefined ? fmtPhp(top.price.usedPhp) : '—'} <PriceDelta price={top.price} size={14} />
                     </span>
                   </div>
                 </div>
@@ -157,14 +142,14 @@ export function LandingClient() {
 
             <div className={s.hmarq}>
               <div className={`marq ${s.marqTrack}`}>
-                {[...LAPTOPS, ...LAPTOPS].map((l, i) => (
-                  <div key={`${l.slug}-${i}`} className={s.mchip} aria-hidden={i >= LAPTOPS.length || undefined}>
-                    <LaptopDrawing shape={l.archetype} hot={HOT.has(l.slug)} size={56} style={{ flex: 'none' }} />
+                {[...marquee, ...marquee].map((l, i) => (
+                  <div key={`${l.slug}-${i}`} className={s.mchip} aria-hidden={i >= marquee.length || undefined}>
+                    <LaptopDrawing shape={l.archetype} hot={l.hot} size={56} style={{ flex: 'none' }} />
                     <span className={s.mtext}>
                       <span className={s.mname}>{l.model}</span>
                       <span className={s.mprice}>
-                        {priceLine(baseConfig(l).price)}{' '}
-                        <PriceDelta price={baseConfig(l).price} size={12} big={13} />
+                        {priceLine(l.price)}{' '}
+                        <PriceDelta price={l.price} size={12} big={13} />
                       </span>
                     </span>
                   </div>
@@ -177,7 +162,7 @@ export function LandingClient() {
         {/* ── Stats ── */}
         <section className={`${s.sec} ${s.stats}`}>
           <div className={s.astats}>
-            {STATS.map(([v, k]) => (
+            {[[String(stats.laptops), 'laptops tracked'], [String(stats.sources), 'sources cited'], ['~1 min', 'to your shortlist']].map(([v, k]) => (
               <div key={k} className={s.stat}>
                 <span className={s.astat}>{v}</span>
                 <span className={s.statK}>{k}</span>
@@ -205,7 +190,7 @@ export function LandingClient() {
             <div className={`${s.dpanel} ${s.dbrief}`}>
               <span className={s.panelLabel}>The brief</span>
               <div className={s.presets}>
-                {PRESETS.map((p, i) => {
+                {presets.map((p, i) => {
                   const on = i === demo.preset;
                   return (
                     <button key={p.label} aria-pressed={on} onClick={() => pick(i)} className={`${s.preset}${on ? ' ' + s.presetOn : ''}`}>
@@ -252,31 +237,31 @@ export function LandingClient() {
                 <span className={s.panelLabel}>Top matches</span>
                 <span className={s.count}>
                   <span className={s.countBox}>
-                    <span key={demo.run} className={s.countV} style={{ animation: 'rollUp 450ms cubic-bezier(.2,.9,.2,1) backwards' }}>{ranked.length}</span>
+                    <span key={demo.run} className={s.countV} style={{ animation: 'rollUp 450ms cubic-bezier(.2,.9,.2,1) backwards' }}>{count}</span>
                   </span>
                   <span className={s.countUnit}>fit</span>
                 </span>
               </div>
-              {ranked.length === 0 && <p className={s.empty}>Nothing fits this brief yet.</p>}
-              {ranked.slice(0, 3).map((r, i) => (
+              {count === 0 && <p className={s.empty}>Nothing fits this brief yet.</p>}
+              {matches.map((r, i) => (
                 <div
-                  key={`${demo.run}-${r.laptop.slug}`}
+                  key={`${demo.run}-${r.slug}`}
                   className={s.match}
                   style={{ background: i === 0 ? 'var(--raised)' : 'var(--card2)', animation: `railInLanding ${1000 + i * 140}ms cubic-bezier(.12,.9,.25,1) ${i * 80}ms backwards` }}
                 >
                   <span className={s.rank}>#0{i + 1}</span>
-                  <LaptopDrawing shape={r.laptop.archetype} hot={r.hot} size={72} style={{ flex: 'none' }} />
+                  <LaptopDrawing shape={r.archetype} hot={r.hot} size={72} style={{ flex: 'none' }} />
                   <span className={s.mtext2}>
-                    <span className={s.matchName}>{r.laptop.model}</span>
+                    <span className={s.matchName}>{r.model}</span>
                     <span className={s.mprice}>
-                      {priceLine(r.config.price)}{' '}
-                      <PriceDelta price={r.config.price} size={12} big={13} />
+                      {priceLine(r.price)}{' '}
+                      <PriceDelta price={r.price} size={12} big={13} />
                     </span>
                   </span>
                   <span className={s.matchFit}>{r.fit}<span className={s.pct}>%</span></span>
                 </div>
               ))}
-              <Link href="/results" onClick={() => { setBrief(brief); select(ranked[0]?.laptop.slug ?? ''); }} className={`cta ${s.lineBtn}`}>Open the full results <span className="arw">→</span></Link>
+              <Link href="/results" onClick={() => { setBrief(brief); select(matches[0]?.slug ?? ''); }} className={`cta ${s.lineBtn}`}>Open the full results <span className="arw">→</span></Link>
             </div>
           </div>
         </section>
@@ -285,12 +270,16 @@ export function LandingClient() {
         <section id="why" className={s.sec}>
           <div className={`dark-scope ${s.why}`}>
             <div className={s.wimg}>
-              <Image
-                src="/marwie-halftone.png"
+              {/* eslint-disable-next-line @next/next/no-img-element -- static export, unoptimized images: a plain img with srcSet does the same */}
+              <img
+                src="/marwie-halftone-600.webp"
+                srcSet="/marwie-halftone-600.webp 600w, /marwie-halftone-1100.webp 1100w"
+                sizes="(max-width: 640px) 300px, 520px"
                 width={1100}
                 height={900}
                 alt="Mar Wie Ang"
-                sizes="(max-width: 640px) 300px, 520px"
+                loading="lazy"
+                decoding="async"
                 className={s.portrait}
                 style={onView('windReveal 1.6s steps(18, end) both', 'entry 5% cover 45%')}
               />
