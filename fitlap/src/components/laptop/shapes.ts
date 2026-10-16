@@ -68,7 +68,7 @@ export function laptopShape(kind: LaptopShapeKey, accent = 'var(--accent)'): Sha
       : null;
   return {
     name: k.name, note: k.note,
-    lid: { position: 'relative', width: '100%', aspectRatio: k.ar, boxSizing: 'border-box', padding: `${p[0]}% ${p[1]}% ${p[2]}%`, borderRadius: k.r, background: lb, display: 'flex', ...(k.clip && { clipPath: k.clip }) },
+    lid: { position: 'relative', width: '100%', aspectRatio: k.ar, boxSizing: 'border-box', padding: `${p[0]}% ${p[1]}% ${p[2]}%`, borderRadius: k.r, border: '1px solid var(--lid-edge)', background: lb, display: 'flex', ...(k.clip && { clipPath: k.clip }) },
     notch: k.notch ? { position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '10%', height: '4.6%', background: lb, borderRadius: '0 0 22% 22% / 0 0 45% 45%', zIndex: 3 } : null,
     chin: k.chin ? { position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: (p[2] * 0.55).toFixed(1) + '%', width: '7%', height: '1.8%', borderRadius: 2, background: '#3C3C3C' } : null,
     hinge: k.hinge ? HINGES[k.hinge] : null,
