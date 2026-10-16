@@ -1,7 +1,7 @@
 // Run: npm run check
 import assert from 'node:assert/strict';
 import type { Config, Laptop } from '@shared/catalog';
-import { chipFields, compareCodes } from './configs.ts';
+import { canonicalCode, chipFields, chipTexts, compareCodes } from './configs.ts';
 
 const base = {
   code: 'A', label: '16 · 512', color: 'Grey',
@@ -34,6 +34,20 @@ assert.deepEqual(chipFields([
 assert.deepEqual(chipFields([cfg('C1', { ramGb: 16 }), cfg('C2', { ramGb: 32 })]), ['ram'], 'fields that never differ are skipped');
 assert.deepEqual(chipFields([cfg('E1', { ramGb: 16, storageGb: 512 }), cfg('E2', { ramGb: 24, storageGb: 1024 })]), ['ram', 'storage'], 'RAM and storage both show when both differ, even if RAM alone tells them apart');
 assert.deepEqual(chipFields([cfg('D1', { color: 'Grey' }), cfg('D2', { color: 'Silver' })]), [], 'nothing on a chip tells them apart');
+// MacBook Air 13 M5 in production (QA 2026-10-17): one exact duplicate pair must not hide the 8- vs 10-core GPU.
+const m5 = [
+  cfg('M1', { gpu: { name: '8-core GPU', score: 2_500 }, price: { srpPhp: 89_990 } }),
+  cfg('M2', { price: { srpPhp: 96_490 } }),
+  cfg('M3', { storageGb: 1024, price: { srpPhp: 120_990 } }),
+  cfg('M4', { storageGb: 1024, price: { srpPhp: 120_990 } }),
+];
+assert.deepEqual(chipFields(m5), ['storage', 'gpu'], 'an exact duplicate does not switch the chip fields off');
+assert.equal(canonicalCode(m5, 'M4'), 'M3', 'an exact duplicate maps to the first copy');
+assert.equal(canonicalCode(m5, 'M2'), 'M2');
+const render = (c: Config, fields: string[]) => fields.length ? fields.map((f) => f === 'storage' ? c.storageGb + ' GB' : c.gpu.name).join(' · ') : c.label;
+assert.deepEqual(chipTexts(m5, render), [['M1', '512 GB · 8-core GPU'], ['M2', '512 GB · 10-core GPU'], ['M3', '1024 GB · 10-core GPU']], 'exact duplicates share one chip');
+// Victus 15 in production: same specs at two prices. The chips say which is which.
+assert.deepEqual(chipTexts([cfg('V1', { price: { srpPhp: 74_990 } }), cfg('V2', { price: { srpPhp: 89_990 } })], render), [['V1', '16 · 512 · ₱74,990'], ['V2', '16 · 512 · ₱89,990']]);
 const lap = (slug: string, ...codes: string[]) => ({ slug, configs: codes.map((code) => cfg(code, {})) }) as unknown as Laptop;
 const CAT = [lap('a', 'A-16', 'A-32'), lap('b', 'B'), lap('c', 'C'), lap('d', 'D'), lap('e', 'E')];
 assert.deepEqual(compareCodes(['A-32', 'A-16', 'B'], CAT), ['A-32', 'B'], 'one column per model: the first config listed wins');
