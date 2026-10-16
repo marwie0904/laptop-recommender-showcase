@@ -192,7 +192,7 @@ function Panels({ brief }: { brief: Brief }) {
       <section className={s.preview}>
         <div className={s.countCol}>
           <h2 className={s.label}>Live preview</h2>
-          <span className={s.count}>
+          <span className={s.count} aria-live="polite" aria-atomic="true">
             <Odometer value={count} height={34} /> {count === 1 ? 'laptop fits' : 'laptops fit'}
           </span>
         </div>
