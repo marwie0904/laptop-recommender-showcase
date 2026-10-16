@@ -167,7 +167,7 @@ export default function CompareClient() {
               return (
                 <div key={i} className={s.cell}>
                   <span className={`${s.dot} ${misses ? s.misses : s.meets}`} />
-                  <span className={`${s.val} ${best ? s.best : misses ? s.valMiss : ''}`}>{scramble(v[0], tick, i * 0.1 + (r % 6) * 0.04, i * 31 + r)}</span>
+                  <span className={`${s.val} ${best ? s.best : misses ? s.valMiss : ''}`} title={v[0]}>{scramble(v[0], tick, i * 0.1 + (r % 6) * 0.04, i * 31 + r)}</span>
                 </div>
               );
             })}
