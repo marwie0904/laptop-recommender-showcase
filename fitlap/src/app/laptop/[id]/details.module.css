@@ -25,7 +25,7 @@
 .col6 { display: flex; flex-direction: column; gap: 6px; }
 .col4 { display: flex; flex-direction: column; gap: 4px; }
 .col2 { display: flex; flex-direction: column; gap: 2px; }
-.name { font-size: 40px; font-weight: 300; line-height: 1.05; }
+.name { margin: 0; font-size: 40px; font-weight: 300; line-height: 1.05; }
 .subline { font-size: 15px; color: var(--sub2); }
 .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .tile { padding: 14px; border-radius: 16px; display: flex; flex-direction: column; gap: 2px; }
@@ -73,7 +73,7 @@
 .secBattery { flex-wrap: wrap; gap: 32px; }
 .secBuild { flex-direction: column; gap: 22px; }
 .secHead { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 10px; }
-.stitle { font-size: 36px; font-weight: 300; }
+.stitle { margin: 0; font-size: 36px; font-weight: 300; }
 .legend { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--sub2); }
 .legendDot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 

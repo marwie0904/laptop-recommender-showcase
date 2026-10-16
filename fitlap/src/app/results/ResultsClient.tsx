@@ -194,11 +194,12 @@ export function ResultsClient() {
   return (
     <div className={s.wrap}>
       <Header hrefs={['/brief', '/results', '/results', detailsHref, detailsHref + '#battery', compareHref]} summary={summary} />
+      <h1 className="sr-only">Your matches</h1>
 
       <div className={s.row}>
         <aside className={s.left} style={dim}>
           <div className={s.between}>
-            <span className={s.label}>Laptop details</span>
+            <h2 className={s.label}>Laptop details</h2>
             <Link href={detailsHref} aria-label="Open full details" className={`ring ${s.openBtn}`}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.8" strokeLinecap="round" aria-hidden><path d="M7 17L17 7M9 7h8v8" /></svg>
             </Link>
@@ -247,7 +248,7 @@ export function ResultsClient() {
 
         <main className={s.main}>
           <div className={s.mainHead} style={hydrated ? undefined : HIDDEN}>
-            <span className={s.label}>{idx === 0 ? 'Top match' : `Match ${rankTag(idx + 1)} of ${ranked.length}`}</span>
+            <h2 className={s.label}>{idx === 0 ? 'Top match' : `Match ${rankTag(idx + 1)} of ${ranked.length}`}</h2>
             <span className={s.light}>{`${l.dims.w.toFixed(1)} × ${l.dims.d.toFixed(1)} × ${l.dims.h.toFixed(1)} mm`}</span>
           </div>
           {busy ? (

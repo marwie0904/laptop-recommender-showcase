@@ -27,7 +27,7 @@
 .prices { transition: opacity .5s; flex: 1 1 280px; max-width: 340px; display: flex; flex-direction: column; gap: 14px; }
 
 .between { display: flex; justify-content: space-between; align-items: center; }
-.label { font-size: 13px; color: var(--sub); }
+.label { margin: 0; font-size: 13px; font-weight: 400; color: var(--sub); }
 .light { font-size: 13px; font-weight: 300; color: var(--sub); }
 .openBtn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; }
 .idBox { text-align: center; display: flex; flex-direction: column; gap: 4px; }

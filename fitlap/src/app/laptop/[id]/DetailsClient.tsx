@@ -162,7 +162,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
           <span className={s.label13}>Laptop details</span>
           <div className={s.col6}>
             <span className={s.meta13}>Match ID · {scramble(c.code, tick, 0)}</span>
-            <span className={s.name} style={{ animation: 'printIn 900ms cubic-bezier(.7,0,.2,1) 150ms backwards' }}>{laptop.model}</span>
+            <h1 className={s.name} style={{ animation: 'printIn 900ms cubic-bezier(.7,0,.2,1) 150ms backwards' }}>{laptop.model}</h1>
             <span className={s.subline}>
               {c.cpu.name} · {c.ramGb} GB · {fmtStorage(c.storageGb)} · {c.color}
             </span>
@@ -318,7 +318,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
         <div className={s.secHead}>
           <div className={s.col4}>
             <span className={s.meta13}>01</span>
-            <span className={s.stitle}>Specs</span>
+            <h2 className={s.stitle}>Specs</h2>
           </div>
           <span className={s.legend}>
             <span className={s.legendDot} />
@@ -353,7 +353,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
         <div className={s.bsum}>
           <div className={s.col4}>
             <span className={s.meta13}>02</span>
-            <span className={s.stitle}>Battery life</span>
+            <h2 className={s.stitle}>Battery life</h2>
           </div>
           <div className={s.col2} style={pending}>
             <span className={s.meta13}>Your mix ({mixUses.map((c) => lowerFirst(c.label)).join(' + ')})</span>
@@ -422,7 +422,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
         <div className={s.buildHead}>
           <div className={s.col4}>
             <span className={s.meta13}>03</span>
-            <span className={s.stitle}>Build quality</span>
+            <h2 className={s.stitle}>Build quality</h2>
           </div>
           <div className={s.overall}>
             <span className={s.meta13}>Overall</span>

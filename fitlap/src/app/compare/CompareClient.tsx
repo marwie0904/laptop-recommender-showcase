@@ -212,7 +212,7 @@ export default function CompareClient() {
                 <div className={`${s.lc} ${s.lc1}`}>
                   <div className={s.titleBlock}>
                     <span className={s.kicker}>Compare · {cols.length} of 4</span>
-                    <span className={s.ctitle}>Side by side</span>
+                    <h1 className={s.ctitle}>Side by side</h1>
                   </div>
                   <Switch checked={diff} onChange={setDiff}>Differences only</Switch>
                 </div>
@@ -284,7 +284,7 @@ export default function CompareClient() {
 
               <section className={s.csec}>
                 <div className={s.secHead}>
-                  <div className={s.secTitle}><span className={s.kicker}>01</span><span className={s.cst}>How each fits your brief</span></div>
+                  <div className={s.secTitle}><span className={s.kicker}>01</span><h2 className={s.cst}>How each fits your brief</h2></div>
                   <span className={s.legend}>
                     <span className={s.legendItem}><span className={s.fitsDot} />fits</span>
                     <span className={s.legendItem}><span className={s.gapDot} />gap</span>
@@ -337,7 +337,7 @@ export default function CompareClient() {
 
               <ScrollRow className={s.csec}>
                 <div className={s.secHead}>
-                  <div className={s.secTitle}><span className={s.kicker}>02</span><span className={s.cst}>Specs</span></div>
+                  <div className={s.secTitle}><span className={s.kicker}>02</span><h2 className={s.cst}>Specs</h2></div>
                   <span className={s.legend}>
                     <span className={s.legendItem}><span className={s.bestKey}>best</span>in row</span>
                     <span className={s.legendItem}><span className={`${s.dot} ${s.meets}`} />meets brief</span>

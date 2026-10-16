@@ -15,8 +15,8 @@
 .main { flex: 999 1 560px; min-width: 0; background: var(--panel); border-radius: 22px; padding: 26px; display: flex; flex-direction: column; gap: 24px; }
 .titleRow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .titleCol { display: flex; flex-direction: column; gap: 4px; }
-.label { font-size: 13px; font-weight: 300; color: var(--sub); }
-.title { font-size: 40px; font-weight: 300; }
+.label { margin: 0; font-size: 13px; font-weight: 300; color: var(--sub); }
+.title { margin: 0; font-size: 40px; font-weight: 300; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 18px 14px; }
 .uc:hover { --ct-hover: 1.06; }
 .divider { height: 1px; background: var(--line2); }

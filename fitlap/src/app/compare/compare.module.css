@@ -20,7 +20,7 @@
 .lc1 { display: flex; flex-direction: column; justify-content: space-between; gap: 16px; padding: 4px 0; }
 .titleBlock { display: flex; flex-direction: column; gap: 4px; }
 .kicker { font-size: 13px; font-weight: 300; color: var(--sub); }
-.ctitle { font-size: 40px; font-weight: 300; line-height: 1.05; }
+.ctitle { margin: 0; font-size: 40px; font-weight: 300; line-height: 1.05; }
 
 /* Cards */
 .slot { display: flex; transform-origin: center; }
@@ -54,7 +54,7 @@
 /* Section heads + legends */
 .secHead { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 14px; flex-wrap: wrap; gap: 10px; }
 .secTitle { display: flex; flex-direction: column; gap: 2px; }
-.cst { font-size: 30px; font-weight: 300; }
+.cst { margin: 0; font-size: 30px; font-weight: 300; }
 .legend { display: flex; gap: 16px; font-size: 12px; color: var(--sub2); }
 .legendItem { display: inline-flex; align-items: center; gap: 6px; }
 .fitsDot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }

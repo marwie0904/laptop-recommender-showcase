@@ -130,7 +130,7 @@ function Panels({ brief }: { brief: Brief }) {
           <div className={s.titleRow}>
             <div className={s.titleCol}>
               <span className={s.label}>{shownAdv ? 'Advanced · pick any' : 'Use case · pick any'}</span>
-              <span key={shown} className={s.title} style={{ animation: leaving ? WIPE_OUT : swaps ? WIPE_IN : PRINT }}>{shownAdv ? 'What’s inside?' : 'What’s it for?'}</span>
+              <h1 key={shown} className={s.title} style={{ animation: leaving ? WIPE_OUT : swaps ? WIPE_IN : PRINT }}>{shownAdv ? 'What’s inside?' : 'What’s it for?'}</h1>
             </div>
             <div className={s.titleSide}>
               <span className={s.label}>{shownAdv ? `${active} active` : `${brief.uses.length} selected`}</span>
@@ -155,7 +155,7 @@ function Panels({ brief }: { brief: Brief }) {
           <div className={s.divider} style={{ animation: 'printIn 1200ms cubic-bezier(.7,0,.2,1) 500ms backwards' }} />
 
           <div className={s.formCol}>
-            <span className={s.label}>Form</span>
+            <h2 className={s.label}>Form</h2>
             <div className={s.pills}>
               {FORMS.map((f) => (
                 <Pill key={f.key} on={brief.forms.includes(f.key)} onClick={() => toggleForm(f.key)}>{f.label}</Pill>
@@ -166,7 +166,7 @@ function Panels({ brief }: { brief: Brief }) {
 
         <aside className={s.side}>
           <section className={s.budget}>
-            <span className={s.label}>Budget</span>
+            <h2 className={s.label}>Budget</h2>
             <div className={s.budgetNum}>
               <span>{budgetValue(BUDGET_STEPS[0])}</span>
               <span className={s.to}>to</span>
@@ -191,7 +191,7 @@ function Panels({ brief }: { brief: Brief }) {
 
       <section className={s.preview}>
         <div className={s.countCol}>
-          <span className={s.label}>Live preview</span>
+          <h2 className={s.label}>Live preview</h2>
           <span className={s.count}>
             <Odometer value={count} height={34} /> {count === 1 ? 'laptop fits' : 'laptops fit'}
           </span>
