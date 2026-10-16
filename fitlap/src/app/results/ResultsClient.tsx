@@ -36,7 +36,7 @@ const NAV: [label: string, d: string][] = [
 ];
 const HERO_SCREEN: CSSProperties = {
   flexDirection: 'column', justifyContent: 'space-between', alignItems: 'stretch',
-  padding: '14px 16px', boxSizing: 'border-box', color: '#FFFFFF', transition: 'background-color .5s',
+  padding: '14px 16px', boxSizing: 'border-box', color: '#111111', transition: 'background-color .5s',  // ink passes AA on the orange and grey screens
 };
 const HIDDEN: CSSProperties = { visibility: 'hidden' };
 

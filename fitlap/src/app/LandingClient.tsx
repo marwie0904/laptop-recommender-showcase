@@ -37,7 +37,7 @@ const onView = (animation: string, range: string): CSSProperties => ({ animation
 const HERO_SCREEN: CSSProperties = {
   animation: 'power 1600ms linear 450ms backwards',
   flexDirection: 'column', alignItems: 'stretch', justifyContent: 'space-between',
-  padding: '14px 16px', boxSizing: 'border-box', color: '#FFFFFF',
+  padding: '14px 16px', boxSizing: 'border-box', color: '#111111',  // ink passes AA on the orange and grey screens; white was 3.76:1
 };
 
 export function LandingClient({ top, marquee, presets, stats }: { top: Match; marquee: Chip[]; presets: Preset[]; stats: Catalog['stats'] }) {

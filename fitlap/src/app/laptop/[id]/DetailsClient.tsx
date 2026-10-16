@@ -226,7 +226,7 @@ export function DetailsClient({ laptop, details }: { laptop: Laptop; details: La
                   size="74%"
                   style={{ maxWidth: 560 }}
                   floor
-                  screenStyle={{ flexDirection: 'column', justifyContent: 'space-between', alignItems: 'stretch', padding: '14px 16px', boxSizing: 'border-box', color: '#FFFFFF' }}
+                  screenStyle={{ flexDirection: 'column', justifyContent: 'space-between', alignItems: 'stretch', padding: '14px 16px', boxSizing: 'border-box', color: '#111111' }}
                   screen={
                     <>
                       <span className={s.screenTop}>

@@ -22,7 +22,7 @@
 .sel.medal { border-color: var(--medal); }
 .badge { padding: 1px 7px; border-radius: 999px; background: var(--medal); color: #111111; font-weight: 600; }
 .top { display: flex; justify-content: space-between; width: 100%; font-size: 13px; }
-.cfg { font-size: 10px; padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,0.35); color: #FFFFFF; }
+.cfg { font-size: 10px; padding: 3px 8px; border-radius: 999px; background: rgba(17,17,17,0.6); color: #FFFFFF; }
 .name { font-size: 14px; text-align: left; }
 .prices { display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; }
 .priceText { font-size: 12px; font-weight: 300; color: var(--sub2); text-align: left; }
