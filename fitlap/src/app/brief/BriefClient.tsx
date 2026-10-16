@@ -251,7 +251,7 @@ function Row({ label, hint, children }: { label: string; hint: string; children:
   );
 }
 
-/** Range slider with tick labels under it and the current span on the right. */
+/** Range slider with tick labels under it (evenly spaced, so only ends or even steps) and the current span on the right. */
 function RangeField({ label, min, max, value, onChange, format, ticks, readout }: {
   label: string; min: number; max: number; value: [number, number]; onChange: (v: [number, number]) => void;
   format: (n: number) => string; ticks: string[]; readout: string;
@@ -290,7 +290,7 @@ function BrandRange<B extends string>({ label, families, value, onChange }: {
         <div key={value.brand} style={{ animation: 'printIn 600ms cubic-bezier(.7,0,.2,1) backwards' }}>
           <RangeField
             label={label} min={0} max={list.length - 1} value={value.range} onChange={(range) => onChange({ brand: value.brand, range })}
-            format={(i) => list[i]} ticks={list} readout={lo === hi ? list[lo] : `${list[lo]} to ${list[hi]}`}
+            format={(i) => list[i]} ticks={[list[0], list[list.length - 1]]} readout={lo === hi ? list[lo] : `${list[lo]} to ${list[hi]}`}
           />
         </div>
       )}

@@ -41,7 +41,8 @@
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .rangeRow { display: flex; align-items: flex-start; gap: 18px; max-width: 620px; }
 .rangeCol { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-.ticks { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 300; color: var(--sub); }
+.ticks { display: flex; justify-content: space-between; gap: 8px; min-width: 0; font-size: 11px; font-weight: 300; color: var(--sub); }
+.ticks span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .readout { flex: none; min-width: 150px; text-align: right; font-size: 15px; line-height: 18px; font-variant-numeric: tabular-nums; }
 
 /* Budget + specs */
