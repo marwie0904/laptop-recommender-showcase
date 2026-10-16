@@ -4,17 +4,25 @@ import { DISPLAY, PORTABILITY, USE_HOURS } from './weights.ts';
 
 /**
  * Midrank percentile of each value within `values`, 0–1, ties averaged. A single value scores 1.
- * ponytail: O(n²); fine for ~600 configs. Sort + binary search if the catalog passes a few thousand.
+ * O(n log n): sort once, then binary-search each value's run of equals.
  */
 export function percentiles(values: number[]): number[] {
   const n = values.length;
-  return values.map((v) => {
-    if (n === 1) return 1;
-    let below = 0, equal = 0;
-    for (const x of values) {
-      if (x < v) below++;
-      else if (x === v) equal++;
+  if (n === 1) return [1];
+  const sorted = [...values].sort((a, b) => a - b);
+  // First index whose value is not below v (strict) or not above v (!strict).
+  const bound = (v: number, strict: boolean) => {
+    let lo = 0, hi = n;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (strict ? sorted[mid] < v : sorted[mid] <= v) lo = mid + 1;
+      else hi = mid;
     }
+    return lo;
+  };
+  return values.map((v) => {
+    const below = bound(v, true);
+    const equal = bound(v, false) - below;
     return (below + (equal - 1) / 2) / (n - 1);
   });
 }

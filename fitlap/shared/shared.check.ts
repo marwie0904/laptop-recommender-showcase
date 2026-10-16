@@ -76,6 +76,18 @@ for (const [u, row] of Object.entries(USE_WEIGHTS)) near(Object.values(row).redu
 assert.deepEqual(percentiles([10, 20, 20, 30]), [0, 0.5, 0.5, 1], 'midrank, ties averaged');
 assert.deepEqual(percentiles([5]), [1], 'a single value scores 1');
 assert.deepEqual(percentiles([]), []);
+{
+  // Same midranks as the brute-force definition, and fast enough for a 10k-config catalog (QA 2026-10-17: O(n²) took ~1.2 s).
+  const brute = (vs: number[]) => vs.map((v) => vs.length === 1 ? 1 : (vs.filter((x) => x < v).length + (vs.filter((x) => x === v).length - 1) / 2) / (vs.length - 1));
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const vals = Array.from({ length: 500 }, () => Math.round(rnd() * 60));
+  assert.deepEqual(percentiles(vals), brute(vals), 'matches brute force with many ties');
+  const big = Array.from({ length: 10_000 }, () => rnd());
+  const t0 = performance.now();
+  percentiles(big);
+  assert.ok(performance.now() - t0 < 100, 'percentiles of 10k values in under 100 ms');
+}
 
 const plain = mk('plain');
 near(displayRaw(plain, plain.configs[0]), 0.671, 'OLED 2880×1800 120 Hz 400 nits at 14"');
