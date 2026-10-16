@@ -39,7 +39,7 @@ const SPEC_ROWS: SpecRow[] = [
   ['Weight', (s) => [s.laptop.weightKg.toFixed(2) + ' kg', -s.laptop.weightKg], (s, b) => b.forms.includes('slim') && s.laptop.weightKg > SLIM_KG],
   ['Thickness', (s) => [s.laptop.dims.h + ' mm', -s.laptop.dims.h], (s, b) => b.forms.includes('slim') && s.laptop.dims.h > SLIM_MM],
   ['Build score', (s) => [s.laptop.buildOverall.toFixed(1), s.laptop.buildOverall]],
-  ['Ports', (s) => [portSummary(s.laptop.ports), portCount(s.laptop)]],
+  ['Ports', (s) => [portSummary(s.laptop.ports) || 'Not listed', portCount(s.laptop) || null]],  // unlisted ports never win or block "best"
   ['Wireless', (s) => [wifiLabel(s.laptop.wifi), wifiRank(s.laptop)]],
   ['OS', (s) => [s.laptop.os, null]],
 ];

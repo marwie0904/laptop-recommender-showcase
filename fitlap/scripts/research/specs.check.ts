@@ -38,7 +38,13 @@ assert.equal(repairability('Unverified'), null);
 assert.equal(parseBt('Wi-Fi 6E, BT 5.1'), '5.1');
 assert.deepEqual(parsePorts('Intel: 2x Thunderbolt 4, HDMI 2.1'), ['2x Thunderbolt 4', 'HDMI 2.1']);
 assert.deepEqual(parsePorts('Right: USB-C 10 Gbps, Left: 1x USB-A'), ['USB-C 10 Gbps', 'USB-A']);
-assert.deepEqual(parsePorts('SD card reader / ARP: 1x USB-A'), ['SD card reader', 'USB-A']);
+// A second model variant's list ("IML: … / ARP: …") is dropped: merging both doubled the ThinkBook 14 G7 (QA 2026-10-17).
+assert.deepEqual(parsePorts('SD card reader / ARP: 1x USB-A'), ['SD card reader']);
+assert.deepEqual(parsePorts('IML: 1x USB-A; 1x HDMI 2.1, up to 4K/60Hz / ARP: 1x USB-A; 1x HDMI 2.1'), ['USB-A', 'HDMI 2.1']);
+// Research notes are not ports.
+assert.deepEqual(parsePorts('Per ASUS PH spec page: 1x HDMI 2.0b, 2x USB-A'), ['HDMI 2.0b', '2x USB-A']);
+assert.deepEqual(parsePorts('USB-C, card reader Unverified, Gigabit Ethernet confirmed'), ['USB-C', 'card reader', 'Gigabit Ethernet']);
+assert.deepEqual(parsePorts('Listed as 3-4 USB 3.1 Gen2-class ports, HDMI'), ['HDMI']);
 assert.deepEqual(parsePorts('2x Thunderbolt 4 with Power Delivery and DisplayPort, HDMI'), ['2x Thunderbolt 4', 'HDMI']);
 assert.deepEqual(parsePorts('HDMI, ' + 'x'.repeat(41)), ['HDMI']);
 assert.equal(repairability('RAM soldered. 1 M.2 2230 slot'), 'Medium · SSD swappable');

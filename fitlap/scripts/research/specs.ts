@@ -42,13 +42,13 @@ export function parseBt(cell: string | undefined): string | null {
 /** Short port labels: semicolon lists split on ";" (commas there are details), others on ","; parentheses, size and variant labels ("16\":", "Intel:"), "1x", "with …" details, and optional, missing or over-long items dropped. */
 export function parsePorts(cell: string | undefined): string[] {
   if (unverified(cell)) return [];
-  const text = noParens(cell!).split(/\.\s+(?=[A-Z0-9])/)[0];
+  // First sentence, and only the first model variant: "IML: … / ARP: …" lists the same ports twice.
+  const text = noParens(cell!).split(/\.\s+(?=[A-Z0-9])/)[0].split(/\s\/\s(?=[A-Za-z0-9]+\s?:)/)[0];
   const items = text.includes(';') ? text.split(';').map((s) => s.split(',')[0]) : text.split(',');
   return items
-    .flatMap((s) => s.split(/\s\/\s(?=[A-Za-z0-9]+\s?:)/))
     .map((s) => s.trim())
-    .filter((s) => s && !/^(optional|no)\b/i.test(s))
-    .map((s) => s.replace(/^[\d.]+":\s*/, '').replace(/^[A-Za-z0-9]+\s?:\s*/, '').replace(/^1x\s+/i, '').split(/\s+with\s+/i)[0].trim())
+    .filter((s) => s && !/^(optional|no|listed as)\b/i.test(s))
+    .map((s) => s.replace(/^[\d.]+":\s*/, '').replace(/^[A-Za-z0-9][A-Za-z0-9 .'-]{0,30}?\s?:\s*/, '').replace(/\s+(unverified|confirmed)$/i, '').replace(/^1x\s+/i, '').split(/\s+with\s+/i)[0].trim())
     .filter((s) => s && s.length <= 40);
 }
 

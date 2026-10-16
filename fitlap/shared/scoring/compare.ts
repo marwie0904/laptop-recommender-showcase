@@ -6,7 +6,8 @@ import type { Scored } from './fit.ts';
 import { scoreCatalog } from './fit.ts';
 import { GOOD_FOR_MIN, GPU_MISS, HEAVY_GPU, LABELS, WIFI_RANK } from './weights.ts';
 
-export const portCount = (l: Laptop) => l.ports.left.length + l.ports.right.length;
+/** Physical ports: "2x USB-C" counts two. 0 when none are listed. */
+export const portCount = (l: Laptop) => [...l.ports.left, ...l.ports.right].reduce((n, p) => n + Number(/^(\d+)\s*[x×]\s/i.exec(p)?.[1] ?? 1), 0);
 export const wifiRank = (l: Laptop) => WIFI_RANK[l.wifi];
 
 /** "Graphics misses your brief": a weak GPU for a simple brief with a GPU-heavy use case. */

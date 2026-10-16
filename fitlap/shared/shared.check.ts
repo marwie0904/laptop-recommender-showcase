@@ -237,6 +237,8 @@ assert.notEqual(scoreCatalog(CAT, BRIEF), scoreCatalog(CAT, { ...BRIEF, uses: ['
 
 // ── compare ──
 assert.equal(portCount(base), 3);
+assert.equal(portCount(mk('mult', { ports: { left: ['2x USB-C', 'HDMI'], right: ['3× USB-A'] } })), 6, '"2x USB-C" is two ports');
+assert.equal(portCount(mk('none', { ports: { left: [], right: [] } })), 0);
 assert.ok(wifiRank(mk('w7', { wifi: '7' })) > wifiRank(mk('w6e', { wifi: '6E' })));
 
 const G: Brief = { ...BRIEF, uses: ['gaming'] };
