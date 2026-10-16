@@ -25,7 +25,7 @@ const AUTO_MS = 4200;
 
 const NAV = [['#demo', 'See it work'], ['#why', 'Why I built it'], ['#faq', 'FAQ']];
 const FAQ = [
-  { q: 'Where do used prices come from?', a: 'SRP is the brand’s official Philippine price. Used prices are estimates compiled from public sources with AI help, then reviewed by hand. Each laptop shows when its price was last checked.' },
+  { q: 'Where do used prices come from?', a: 'SRP is the suggested retail price in the Philippines: the brand’s own price where it lists one, otherwise the launch price or a major PH retailer’s listing. Used prices are estimates from the SRP and the laptop’s age, not live listings. Each laptop shows when its price was last checked.' },
   { q: 'How is fit scored?', a: 'Your use cases weight the specs. Your filters decide what makes the list.' },
   { q: 'Is it free?', a: 'Yes. No account needed.' },
   { q: 'Do you earn from links?', a: 'No — we don’t link to sellers.' },
@@ -86,7 +86,7 @@ export function LandingClient({ top, marquee, presets, stats }: { top: Match; ma
             <div className={s.heroRow}>
               <div className={s.heroCopy}>
                 <span className={s.tag} style={{ animation: 'floatIn 600ms cubic-bezier(.2,.9,.2,1) 100ms backwards' }}>
-                  <span className={s.limeDot} />Prices hand-checked{stats.latestPriceCheck && ' · updated ' + fmtDate(stats.latestPriceCheck)}
+                  <span className={s.limeDot} />PH prices{stats.latestPriceCheck && ' · updated ' + fmtDate(stats.latestPriceCheck)}
                 </span>
                 <h1 className={s.h1}>
                   <span className={s.line} style={{ animation: 'printIn 900ms cubic-bezier(.7,0,.2,1) 150ms backwards' }}>The right laptop,</span>

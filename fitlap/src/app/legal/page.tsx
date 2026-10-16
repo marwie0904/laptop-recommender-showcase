@@ -11,14 +11,14 @@ const SECTIONS: { title: string; body: string | string[] }[] = [
   {
     title: 'Prices',
     body: [
-      'New prices are official suggested retail prices (SRP) in the Philippines. Grey-market and imported units are not included.',
-      'Used prices are estimates compiled from public sources and reviewed by hand.',
+      'New prices are suggested retail prices (SRP) in the Philippines: the brand’s own price where it lists one, otherwise the launch price or a major PH retailer’s listing. Grey-market and imported units are not included.',
+      'Used prices are estimates calculated from the SRP and the laptop’s age. They are not live listings.',
       'Prices change, so check with the seller before buying. Each laptop shows when its price was last checked.',
     ],
   },
   {
     title: 'Specs, scores and battery estimates',
-    body: 'They’re compiled from manufacturer pages and published reviews with AI assistance, then reviewed by hand. Battery hours and build scores are estimates.',
+    body: 'They’re compiled from manufacturer pages and published reviews with AI assistance. Battery hours and build scores are estimates.',
   },
   {
     title: 'Privacy',

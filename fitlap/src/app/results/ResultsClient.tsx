@@ -16,7 +16,7 @@ import { rankTag } from '@/components/rail/MatchCard';
 import { Rail } from '@/components/rail/Rail';
 import { DEFAULT_BRIEF, briefSummary, fmtStorage, useLabel } from '@/lib/brief';
 import { goodFor, rankForBrief, scoreForDisplay } from '@/lib/catalog';
-import { fmtDate, fmtPhp, usedEstimateLine } from '@/lib/price';
+import { fmtDate, fmtPhp, srpSourceLabel, usedEstimateLine, usedSourceLabel } from '@/lib/price';
 import { briefFromParams, briefToParams, sameBrief } from '@shared/briefUrl';
 import { idealAxes } from '@shared/scoring/fit';
 import { useFitlap, useHydrated } from '@/store/useFitlap';
@@ -181,13 +181,13 @@ export function ResultsClient() {
   ];
   const prices = [
     {
-      meta: 'SRP · ' + (p.srpSource ?? '—'), dot: 'var(--lime)', label: 'SRP', value: p.srpPhp !== undefined ? fmtPhp(p.srpPhp) : 'Used only', delay: 80, off: null,
-      block: 'var(--accent)', blockDelay: 120, pills: [['Source', p.srpSource ?? '—', 'var(--lime)'], ['Config', cfg, 'var(--blue)']],
+      meta: 'SRP · ' + srpSourceLabel(p.srpSource), dot: 'var(--lime)', label: 'SRP', value: p.srpPhp !== undefined ? fmtPhp(p.srpPhp) : 'Used only', delay: 80, off: null,
+      block: 'var(--accent)', blockDelay: 120, pills: [['Source', srpSourceLabel(p.srpSource), 'var(--lime)'], ['Config', cfg, 'var(--blue)']],
     },
     {
       meta: usedEstimateLine(p), dot: 'var(--accent)', label: 'Used estimate', value: p.usedPhp !== undefined ? fmtPhp(p.usedPhp) : '—', delay: 160,
       off: <PriceDelta price={p} size={13} suffix=" vs SRP" />,
-      block: '#B8B8B8', blockDelay: 220, pills: [['Source', p.usedSource ?? '—', 'var(--accent)'], ['Checked', p.usedSeenAt ? fmtDate(p.usedSeenAt) : '—', 'var(--blue)']],
+      block: '#B8B8B8', blockDelay: 220, pills: [['Source', usedSourceLabel(p.usedSource), 'var(--accent)'], ['Checked', p.usedSeenAt ? fmtDate(p.usedSeenAt) : '—', 'var(--blue)']],
     },
   ];
 

@@ -22,9 +22,22 @@ export function fmtDate(iso: string) {
 /** The newer of the SRP and used check dates. */
 export const priceCheckedAt = (p: Price) => [p.srpSeenAt, p.usedSeenAt].filter((d): d is string => !!d).sort().at(-1);
 
+const SELLERS = /^(Villman|PC Express|EasyPC|ELN|DynaQuest|Datablitz|BenStore PC|Power Mac Center|NetCodex Computer Center|Octagon|BlueArm|PCWorx)\b/;
+
+/** Where an SRP came from, as a visitor reads it: a PH seller, "{Brand} PH", "Launch price", or "Research notes" for anything else (a note, a SKU code). */
+export function srpSourceLabel(source: string | undefined): string {
+  if (!source) return '—';
+  const seller = SELLERS.exec(source)?.[1] ?? /^(\w+) PH\b/.exec(source)?.[0];
+  if (seller) return seller;
+  return /\b(launch|introductory|pre-order)\b/i.test(source) ? 'Launch price' : 'Research notes';
+}
+
+/** "Estimate from SRP and age" → "from SRP and age", so it doesn't repeat "Used estimate". */
+export const usedSourceLabel = (source: string | undefined) => (source ? source.replace(/^estimate\s+/i, '') : '—');
+
 /** "Used estimate · Carousell · Oct 11, 2026" (PLAN §10). */
 export const usedEstimateLine = (p: Price) =>
-  ['Used estimate', p.usedSource ?? '—', ...(p.usedSeenAt ? [fmtDate(p.usedSeenAt)] : [])].join(' · ');
+  ['Used estimate', usedSourceLabel(p.usedSource), ...(p.usedSeenAt ? [fmtDate(p.usedSeenAt)] : [])].join(' · ');
 
 /** Used vs SRP, in percent off: round((1 - used/srp) * 100). Null when used isn't cheaper. */
 export function usedDiscountPct(srp: number, used: number): number | null {
