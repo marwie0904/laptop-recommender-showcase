@@ -83,6 +83,7 @@
 /* 02 specs */
 .row { display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .5s cubic-bezier(.7,0,.2,1), opacity .35s; }
 .collapsed { grid-template-rows: 0fr; opacity: 0; }
+.table { position: relative; }  /* keeps the .sr-only labels inside the scrolling section */
 .rowInner { min-height: 0; overflow-x: visible; overflow-y: clip; }  /* clip, not hidden: rows collapse, but a phone-wide row still scrolls in .csec */
 .crow { display: grid; grid-template-columns: var(--lc) repeat(4, minmax(0, 1fr)); gap: 12px; align-items: center; padding: 13px 0; border-top: 1px solid var(--line2); }
 .cell { display: flex; align-items: center; gap: 8px; padding: 0 6px; min-width: 0; }

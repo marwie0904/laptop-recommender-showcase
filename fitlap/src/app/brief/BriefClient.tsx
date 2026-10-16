@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type AnimationEvent, type ReactNode } from 'react';
+import { useId, useRef, useState, type AnimationEvent, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 import Link from 'next/link';
 import type { AdvancedFilters, Brief } from '@shared/brief';
@@ -240,13 +240,14 @@ function ModeToggle({ advanced, onChange }: { advanced: boolean; onChange: (m: B
 }
 
 function Row({ label, hint, children }: { label: string; hint: string; children: ReactNode }) {
+  const id = useId();
   return (
     <div className={s.row}>
       <div className={s.rowHead}>
-        <span className={s.rowLabel}>{label}</span>
+        <span id={id} className={s.rowLabel}>{label}</span>
         <span className={s.rowHint}>{hint}</span>
       </div>
-      <div className={s.rowBody}>{children}</div>
+      <div className={s.rowBody} role="group" aria-labelledby={id}>{children}</div>
     </div>
   );
 }

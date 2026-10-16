@@ -155,19 +155,20 @@ export default function CompareClient() {
     const collapse = diff && same;
     if (collapse) hidden++;
     return (
-      <div key={label} className={`${s.row} ${collapse ? s.collapsed : ''}`}>
+      <div key={label} className={`${s.row} ${collapse ? s.collapsed : ''}`} aria-hidden={collapse || undefined}>
         <div className={s.rowInner}>
-          <div className={s.crow}>
-            <span className={`${s.lc} ${s.kicker}`}>{label}</span>
+          <div className={s.crow} role="row">
+            <span className={`${s.lc} ${s.kicker}`} role="rowheader">{label}</span>
             {[0, 1, 2, 3].map((i) => {
               const v = vals[i];
-              if (!v) return <div key={i} className={s.cell}><span className={s.none}>·</span></div>;
+              if (!v) return <div key={i} className={s.cell} aria-hidden><span className={s.none}>·</span></div>;
               const misses = miss?.(colScores[i], brief) ?? false;
               const best = uniqueBest && v[1] === top;
               return (
-                <div key={i} className={s.cell}>
+                <div key={i} className={s.cell} role="cell">
                   <span className={`${s.dot} ${misses ? s.misses : s.meets}`} />
                   <span className={`${s.val} ${best ? s.best : misses ? s.valMiss : ''}`} title={v[0]}>{scramble(v[0], tick, i * 0.1 + (r % 6) * 0.04, i * 31 + r)}</span>
+                  {(best || misses) && <span className="sr-only">{best ? ', best in row' : ', misses your brief'}</span>}
                 </div>
               );
             })}
@@ -344,7 +345,13 @@ export default function CompareClient() {
                     <span className={s.legendItem}><span className={`${s.dot} ${s.misses}`} />misses</span>
                   </span>
                 </div>
-                {specRows}
+                <div role="table" aria-label="Specs" className={s.table}>
+                  <div role="row" className="sr-only">
+                    <span role="columnheader">Spec</span>
+                    {cols.map((l) => <span key={l.slug} role="columnheader">{l.model}</span>)}
+                  </div>
+                  {specRows}
+                </div>
                 <span className={s.hiddenNote} style={{ opacity: hidden ? 1 : 0 }}>
                   {hidden ? `${hidden} identical row${hidden > 1 ? 's' : ''} hidden` : ''}
                 </span>
